@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:budget_fuck/models/transaction.dart';
+import 'package:budget_fuck/models/transaction_template.dart';
 import 'package:budget_fuck/main.dart' as app;
 
 void main() {
@@ -13,8 +14,13 @@ void main() {
     if (!Hive.isAdapterRegistered(0)) {
       Hive.registerAdapter(TransactionAdapter());
     }
+    if (!Hive.isAdapterRegistered(1)) {
+      Hive.registerAdapter(TransactionTemplateAdapter());
+    }
     final box = await Hive.openBox<Transaction>('transactions');
     await box.clear();
+    final templateBox = await Hive.openBox<TransactionTemplate>('templates');
+    await templateBox.clear();
   });
 
   testWidgets('Chiudere e riaprire app - verificare che i dati persistono',

@@ -1,6 +1,6 @@
 # Budget Tracker
 
-App Flutter per tracciare entrate e uscite mensili con report, lista transazioni e totali. Storage locale con Hive, state management con Provider.
+App Flutter per tracciare entrate e uscite mensili con report, lista transazioni e totali. Supporta template predefiniti per inserire transazioni ricorrenti in blocco. Storage locale con Hive, state management con Provider.
 
 ## Funzionalita
 
@@ -8,6 +8,8 @@ App Flutter per tracciare entrate e uscite mensili con report, lista transazioni
 - Visualizzare lista transazioni del mese con totali (entrate, uscite, bilancio)
 - Navigare tra i mesi con selettore mese/anno
 - Eliminare transazioni con swipe
+- **Template predefiniti**: creare template di transazioni ricorrenti (stipendio, affitto, bollette, ecc.)
+- **Applicazione template**: applicare template in blocco o parzialmente a qualsiasi mese
 - Persistenza locale dei dati (i dati sopravvivono alla chiusura dell'app)
 - Interfaccia Material 3 con localizzazione italiana
 
@@ -15,17 +17,24 @@ App Flutter per tracciare entrate e uscite mensili con report, lista transazioni
 
 ```
 lib/
-├── main.dart                          # Entry point, setup Hive + Provider
+├── main.dart                          # Entry point, setup Hive + MultiProvider
 ├── models/
-│   ├── transaction.dart               # Modello Transaction (Hive TypeAdapter)
-│   └── transaction.g.dart             # TypeAdapter generato automaticamente
+│   ├── transaction.dart               # Modello Transaction (Hive typeId: 0)
+│   ├── transaction.g.dart             # TypeAdapter generato automaticamente
+│   ├── transaction_template.dart      # Modello TransactionTemplate (Hive typeId: 1)
+│   └── transaction_template.g.dart    # TypeAdapter generato automaticamente
 ├── providers/
-│   └── transaction_provider.dart      # Provider per gestire le transazioni
+│   ├── transaction_provider.dart      # Provider per gestire le transazioni
+│   └── template_provider.dart         # Provider per gestire i template predefiniti
 ├── screens/
 │   ├── home_screen.dart               # Schermata principale con report
-│   └── add_transaction_screen.dart    # Form per aggiungere entrata/uscita
+│   ├── add_transaction_screen.dart    # Form per aggiungere entrata/uscita
+│   ├── templates_screen.dart          # Lista e gestione template predefiniti
+│   ├── add_template_screen.dart       # Form per creare un nuovo template
+│   └── apply_templates_screen.dart    # Applicazione template a un mese
 └── widgets/
-    └── transaction_tile.dart          # Widget per singola transazione nella lista
+    ├── transaction_tile.dart          # Widget per singola transazione nella lista
+    └── template_tile.dart             # Widget per singolo template nella lista
 ```
 
 ## Librerie
@@ -180,6 +189,7 @@ flutter test integration_test/add_transactions_test.dart -d linux
 flutter test integration_test/totals_test.dart -d linux
 flutter test integration_test/persistence_test.dart -d linux
 flutter test integration_test/month_filter_test.dart -d linux
+flutter test integration_test/templates_test.dart -d linux
 ```
 
 ## Generazione codice
