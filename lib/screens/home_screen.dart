@@ -4,6 +4,9 @@ import 'package:provider/provider.dart';
 import '../providers/transaction_provider.dart';
 import '../widgets/transaction_tile.dart';
 import 'add_transaction_screen.dart';
+import 'apply_templates_screen.dart';
+import 'categories_screen.dart';
+import 'templates_screen.dart';
 
 /// Schermata principale dell'app.
 ///
@@ -27,6 +30,42 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Budget Tracker'),
         centerTitle: true,
+        actions: [
+          // Navigazione alla gestione categorie
+          IconButton(
+            icon: const Icon(Icons.category_outlined),
+            tooltip: 'Gestisci Categorie',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const CategoriesScreen(),
+                ),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.list_alt),
+            tooltip: 'Gestisci Template',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const TemplatesScreen(),
+                ),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.play_circle_outline),
+            tooltip: 'Applica Template',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const ApplyTemplatesScreen(),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [

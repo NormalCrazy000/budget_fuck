@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/transaction.dart';
+import '../providers/category_provider.dart';
 import '../providers/transaction_provider.dart';
 
 /// Schermata per aggiungere una nuova transazione (entrata o uscita).
 ///
 /// Contiene un form con:
 /// - Toggle entrata/uscita (verde/rosso)
-/// - Campo descrizione con validazione
+/// - Dropdown categoria (obbligatorio, popolato da [CategoryProvider])
 /// - Campo importo numerico con validazione
 /// - Selettore data con DatePicker nativo
 /// - Pulsante salva che persiste su Hive e torna alla home
@@ -21,14 +22,32 @@ class AddTransactionScreen extends StatefulWidget {
 
 class _AddTransactionScreenState extends State<AddTransactionScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _titleController = TextEditingController();
   final _amountController = TextEditingController();
   bool _isIncome = true; // Default: entrata
   DateTime _selectedDate = DateTime.now();
+  String? _selectedCategory; // Categoria selezionata dal dropdown
+
+  // Categorie caricate una sola volta all'apertura della schermata.
+  // Non serve context.watch perché la lista non cambia mentre il form è aperto.
+  List<String> _categoryNames = [];
+  bool _categoriesLoaded = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_categoriesLoaded) {
+      // read: lettura one-shot, non sottoscrive a notifiche future
+      _categoryNames = context
+          .read<CategoryProvider>()
+          .categories
+          .map((c) => c.name)
+          .toList();
+      _categoriesLoaded = true;
+    }
+  }
 
   @override
   void dispose() {
-    _titleController.dispose();
     _amountController.dispose();
     super.dispose();
   }
@@ -53,10 +72,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
     final transaction = Transaction(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
-      title: _titleController.text.trim(),
       amount: double.parse(_amountController.text),
       isIncome: _isIncome,
       date: _selectedDate,
+      category: _selectedCategory!,
     );
 
     // read: accede al provider senza sottoscriversi (azione one-shot)
@@ -129,22 +148,6 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               ),
               const SizedBox(height: 24),
 
-              // Campo descrizione della transazione
-              TextFormField(
-                controller: _titleController,
-                decoration: const InputDecoration(
-                  labelText: 'Descrizione',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Inserisci una descrizione';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
               // Campo importo (solo numeri con decimali)
               TextFormField(
                 controller: _amountController,
@@ -160,6 +163,32 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                   final amount = double.tryParse(value);
                   if (amount == null || amount <= 0) {
                     return 'Inserisci un importo valido';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+
+              // Dropdown per la selezione della categoria (obbligatoria).
+              // Usa _categoryNames caricato una volta in didChangeDependencies.
+              DropdownButtonFormField<String>(
+                initialValue: _selectedCategory,
+                decoration: const InputDecoration(
+                  labelText: 'Categoria',
+                  border: OutlineInputBorder(),
+                ),
+                items: _categoryNames
+                    .map((name) => DropdownMenuItem<String>(
+                          value: name,
+                          child: Text(name),
+                        ))
+                    .toList(),
+                onChanged: (value) {
+                  setState(() => _selectedCategory = value);
+                },
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Seleziona una categoria';
                   }
                   return null;
                 },

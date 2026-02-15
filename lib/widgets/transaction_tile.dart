@@ -6,8 +6,8 @@ import '../models/transaction.dart';
 ///
 /// Mostra:
 /// - Icona colorata (verde freccia giù per entrate, rosso freccia su per uscite)
-/// - Titolo della transazione
-/// - Data in formato dd/MM/yyyy
+/// - Nome della categoria come titolo
+/// - Data in formato dd/MM/yyyy come sottotitolo
 /// - Importo con segno + o - e colore verde/rosso
 ///
 /// Supporta swipe da destra a sinistra per eliminare (Dismissible).
@@ -49,7 +49,7 @@ class TransactionTile extends StatelessWidget {
             color: transaction.isIncome ? Colors.green : Colors.red,
           ),
         ),
-        title: Text(transaction.title),
+        title: Text(transaction.category),
         subtitle: Text(dateFormat.format(transaction.date)),
         // Importo formattato con segno e colore
         trailing: Text(

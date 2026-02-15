@@ -10,18 +10,17 @@ part 'transaction.g.dart';
 ///
 /// Campi:
 /// - [id]: identificativo univoco (timestamp in millisecondi)
-/// - [title]: descrizione della transazione (es. "Stipendio", "Affitto")
 /// - [amount]: importo in euro (sempre positivo, il segno è dato da [isIncome])
 /// - [isIncome]: true = entrata, false = uscita
 /// - [date]: data della transazione, usata per il filtro mensile
-/// - [category]: categoria opzionale per raggruppamenti futuri
+/// - [category]: categoria della transazione (obbligatoria, scelta da [CategoryProvider])
+///
+/// Nota: il campo [HiveField(1)] (ex title) non è più utilizzato ma viene
+/// mantenuto nell'adapter per retrocompatibilità con dati esistenti su Hive.
 @HiveType(typeId: 0)
 class Transaction extends HiveObject {
   @HiveField(0)
   final String id;
-
-  @HiveField(1)
-  final String title;
 
   @HiveField(2)
   final double amount;
@@ -33,14 +32,13 @@ class Transaction extends HiveObject {
   final DateTime date;
 
   @HiveField(5)
-  final String? category;
+  final String category;
 
   Transaction({
     required this.id,
-    required this.title,
     required this.amount,
     required this.isIncome,
     required this.date,
-    this.category,
+    required this.category,
   });
 }
