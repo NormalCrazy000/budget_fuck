@@ -9,7 +9,7 @@ import '../models/transaction_template.dart';
 ///
 /// Mostra:
 /// - Icona colorata (verde freccia giù per entrate, rosso freccia su per uscite)
-/// - Titolo del template
+/// - Nome della categoria come titolo
 /// - Tipo: "Entrata" o "Uscita"
 /// - Importo con segno + o - e colore verde/rosso
 ///
@@ -51,7 +51,7 @@ class TemplateTile extends StatelessWidget {
             color: template.isIncome ? Colors.green : Colors.red,
           ),
         ),
-        title: Text(template.title),
+        title: Text(template.category),
         // Al posto della data, mostra il tipo di transazione
         subtitle: Text(template.isIncome ? 'Entrata' : 'Uscita'),
         // Importo formattato con segno e colore

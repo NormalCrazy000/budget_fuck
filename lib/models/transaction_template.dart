@@ -14,17 +14,16 @@ part 'transaction_template.g.dart';
 ///
 /// Campi:
 /// - [id]: identificativo univoco (timestamp in millisecondi)
-/// - [title]: descrizione del template (es. "Stipendio", "Affitto")
 /// - [amount]: importo in euro (sempre positivo, il segno è dato da [isIncome])
 /// - [isIncome]: true = entrata, false = uscita
-/// - [category]: categoria opzionale per raggruppamenti futuri
+/// - [category]: categoria del template (obbligatoria, scelta da [CategoryProvider])
+///
+/// Nota: il campo [HiveField(1)] (ex title) non è più utilizzato ma viene
+/// mantenuto nell'adapter per retrocompatibilità con dati esistenti su Hive.
 @HiveType(typeId: 1)
 class TransactionTemplate extends HiveObject {
   @HiveField(0)
   final String id;
-
-  @HiveField(1)
-  final String title;
 
   @HiveField(2)
   final double amount;
@@ -33,13 +32,12 @@ class TransactionTemplate extends HiveObject {
   final bool isIncome;
 
   @HiveField(4)
-  final String? category;
+  final String category;
 
   TransactionTemplate({
     required this.id,
-    required this.title,
     required this.amount,
     required this.isIncome,
-    this.category,
+    required this.category,
   });
 }

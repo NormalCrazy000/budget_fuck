@@ -78,7 +78,6 @@ class _ApplyTemplatesScreenState extends State<ApplyTemplatesScreen> {
       final t = templates[i];
       final transaction = Transaction(
         id: '${timestamp}_$i',
-        title: t.title,
         amount: t.amount,
         isIncome: t.isIncome,
         date: date,
@@ -204,7 +203,7 @@ class _ApplyTemplatesScreenState extends State<ApplyTemplatesScreen> {
                             color: template.isIncome ? Colors.green : Colors.red,
                           ),
                         ),
-                        title: Text(template.title),
+                        title: Text(template.category),
                         subtitle: Text(
                           '${template.isIncome ? '+' : '-'}${currencyFormat.format(template.amount)}',
                           style: TextStyle(
