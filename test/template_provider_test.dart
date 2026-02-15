@@ -26,21 +26,21 @@ void main() {
   test('addTemplate aggiunge un template', () async {
     final template = TransactionTemplate(
       id: '1',
-      title: 'Stipendio',
       amount: 2000,
       isIncome: true,
+      category: 'Lavoro',
     );
     await provider.addTemplate(template);
     expect(provider.templates.length, 1);
-    expect(provider.templates.first.title, 'Stipendio');
+    expect(provider.templates.first.category, 'Lavoro');
   });
 
   test('deleteTemplate rimuove un template', () async {
     final template = TransactionTemplate(
       id: '1',
-      title: 'Affitto',
       amount: 800,
       isIncome: false,
+      category: 'Casa',
     );
     await provider.addTemplate(template);
     expect(provider.templates.length, 1);
@@ -52,21 +52,21 @@ void main() {
   test('incomeTemplates filtra solo entrate', () async {
     await provider.addTemplate(TransactionTemplate(
       id: '1',
-      title: 'Stipendio',
       amount: 2000,
       isIncome: true,
+      category: 'Lavoro',
     ));
     await provider.addTemplate(TransactionTemplate(
       id: '2',
-      title: 'Affitto',
       amount: 800,
       isIncome: false,
+      category: 'Casa',
     ));
     await provider.addTemplate(TransactionTemplate(
       id: '3',
-      title: 'Freelance',
       amount: 500,
       isIncome: true,
+      category: 'Freelance',
     ));
 
     expect(provider.incomeTemplates.length, 2);
@@ -77,18 +77,18 @@ void main() {
   test('expenseTemplates filtra solo uscite', () async {
     await provider.addTemplate(TransactionTemplate(
       id: '1',
-      title: 'Stipendio',
       amount: 2000,
       isIncome: true,
+      category: 'Lavoro',
     ));
     await provider.addTemplate(TransactionTemplate(
       id: '2',
-      title: 'Affitto',
       amount: 800,
       isIncome: false,
+      category: 'Casa',
     ));
 
     expect(provider.expenseTemplates.length, 1);
-    expect(provider.expenseTemplates.first.title, 'Affitto');
+    expect(provider.expenseTemplates.first.category, 'Casa');
   });
 }
