@@ -48,13 +48,38 @@ git checkout main
 git pull origin main
 git merge develop --no-ff -m "chore(release): merge release v$VERSION from develop"
 
-# 5. Push everything
-echo "⬆️ Pushing changes..."
+
+# 5. Push main and tag
+echo "⬆️ Pushing main and tag..."
 git push origin main
-git push origin develop
 git push origin "v$VERSION"
 
 # 6. Return to develop
 git checkout develop
 
-echo "✅ Release v$VERSION completed successfully!"
+# 7. Calculate next version (Patch bump + SNAPSHOT)
+# Split version by '.'
+IFS='.' read -r -a parts <<< "$VERSION"
+major=${parts[0]}
+minor=${parts[1]}
+patch=${parts[2]}
+
+# If patch is missing (e.g. 1.0), default to 0
+if [ -z "$patch" ]; then patch=0; fi
+
+next_patch=$((patch + 1))
+NEXT_VERSION="$major.$minor.$next_patch-SNAPSHOT"
+
+echo "🔧 Bumping develop to $NEXT_VERSION..."
+
+sed -i "s/^version: .*/version: $NEXT_VERSION/" pubspec.yaml
+
+# 8. Commit snapshot bump
+git add pubspec.yaml
+git commit -m "chore(release): bump to v$NEXT_VERSION"
+
+# 9. Push develop
+echo "⬆️ Pushing develop..."
+git push origin develop
+
+echo "✅ Release v$VERSION completed! Develop is now at $NEXT_VERSION."
