@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/transaction.dart';
+import 'confirm_delete_dialog.dart';
 
 /// Widget per visualizzare una singola transazione nella lista.
 ///
@@ -37,7 +38,8 @@ class TransactionTile extends StatelessWidget {
         color: Colors.red,
         child: const Icon(Icons.delete, color: Colors.white),
       ),
-      // Callback chiamato dopo il completamento dello swipe
+      confirmDismiss: (_) =>
+          showConfirmDeleteDialog(context, transaction.category),
       onDismissed: (_) => onDelete(),
       child: ListTile(
         // Icona circolare colorata per distinguere entrate da uscite

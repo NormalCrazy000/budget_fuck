@@ -30,7 +30,7 @@ void main() {
       'current_1',
       Transaction(
         id: 'current_1',
-        title: 'Stipendio Febbraio',
+        category: 'Stipendio Febbraio',
         amount: 2000,
         isIncome: true,
         date: DateTime(now.year, now.month, 10),
@@ -40,7 +40,7 @@ void main() {
       'current_2',
       Transaction(
         id: 'current_2',
-        title: 'Affitto Febbraio',
+        category: 'Affitto Febbraio',
         amount: 800,
         isIncome: false,
         date: DateTime(now.year, now.month, 5),
@@ -54,7 +54,7 @@ void main() {
       'prev_1',
       Transaction(
         id: 'prev_1',
-        title: 'Stipendio Gennaio',
+        category: 'Stipendio Gennaio',
         amount: 1800,
         isIncome: true,
         date: DateTime(prevYear, prevMonth, 15),
@@ -68,7 +68,7 @@ void main() {
       'next_1',
       Transaction(
         id: 'next_1',
-        title: 'Previsione Marzo',
+        category: 'Previsione Marzo',
         amount: 500,
         isIncome: false,
         date: DateTime(nextYear, nextMonth, 20),

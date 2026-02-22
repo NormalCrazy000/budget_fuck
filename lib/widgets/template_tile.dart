@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/transaction_template.dart';
+import 'confirm_delete_dialog.dart';
 
 /// Widget per visualizzare un singolo template nella lista.
 ///
@@ -39,7 +40,8 @@ class TemplateTile extends StatelessWidget {
         color: Colors.red,
         child: const Icon(Icons.delete, color: Colors.white),
       ),
-      // Callback chiamato dopo il completamento dello swipe
+      confirmDismiss: (_) =>
+          showConfirmDeleteDialog(context, template.category),
       onDismissed: (_) => onDelete(),
       child: ListTile(
         // Icona circolare colorata per distinguere entrate da uscite

@@ -7,7 +7,7 @@ App Flutter per tracciare entrate e uscite mensili con report, lista transazioni
 - Aggiungere transazioni (entrate e uscite) con descrizione, importo e data
 - Visualizzare lista transazioni del mese con totali (entrate, uscite, bilancio)
 - Navigare tra i mesi con selettore mese/anno
-- Eliminare transazioni con swipe
+- Eliminare transazioni, template e categorie con swipe + dialog di conferma
 - **Template predefiniti**: creare template di transazioni ricorrenti (stipendio, affitto, bollette, ecc.)
 - **Applicazione template**: applicare template in blocco o parzialmente a qualsiasi mese
 - Persistenza locale dei dati (i dati sopravvivono alla chiusura dell'app)
@@ -33,6 +33,7 @@ lib/
 │   ├── add_template_screen.dart       # Form per creare un nuovo template
 │   └── apply_templates_screen.dart    # Applicazione template a un mese
 └── widgets/
+    ├── confirm_delete_dialog.dart     # Dialog riutilizzabile di conferma eliminazione
     ├── transaction_tile.dart          # Widget per singola transazione nella lista
     └── template_tile.dart             # Widget per singolo template nella lista
 ```
@@ -190,6 +191,7 @@ flutter test integration_test/totals_test.dart -d linux
 flutter test integration_test/persistence_test.dart -d linux
 flutter test integration_test/month_filter_test.dart -d linux
 flutter test integration_test/templates_test.dart -d linux
+flutter test integration_test/delete_confirmation_test.dart -d linux
 ```
 
 ## Generazione codice

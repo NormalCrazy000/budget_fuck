@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/category_provider.dart';
+import '../widgets/confirm_delete_dialog.dart';
 
 /// Schermata per visualizzare e gestire le categorie di transazione.
 ///
@@ -47,6 +48,8 @@ class CategoriesScreen extends StatelessWidget {
                     color: Colors.red,
                     child: const Icon(Icons.delete, color: Colors.white),
                   ),
+                  confirmDismiss: (_) =>
+                      showConfirmDeleteDialog(context, category.name),
                   onDismissed: (_) => provider.deleteCategory(category.id),
                   child: ListTile(
                     leading: const Icon(Icons.label_outline),
