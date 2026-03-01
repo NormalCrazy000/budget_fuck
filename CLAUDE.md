@@ -46,8 +46,17 @@ flutter test integration_test/<nome_test>.dart -d linux
 flutter build linux --release
 flutter build apk --release
 
-# Release automation
-./scripts/release.sh <VERSION>   # es. ./scripts/release.sh 2.2.0
+# Release automation (richiede due argomenti: versione da taggare e prossima versione)
+./scripts/release.sh <VERSION> <NEXT_VERSION>
+# es. ./scripts/release.sh 2.2.0 2.2.1-SNAPSHOT
+#
+# Lo script:
+# 1. Checkout develop
+# 2. Commit pubspec.yaml con VERSION
+# 3. Crea tag vVERSION
+# 4. Merge develop → main
+# 5. Commit pubspec.yaml con NEXT_VERSION su develop
+# Push manuale: git push origin develop && git push origin main && git push origin v<VERSION>
 ```
 
 ## Convenzioni di codice
