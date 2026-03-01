@@ -21,6 +21,7 @@ fi
 
 # Ensure we are on develop
 git checkout develop
+git pull origin develop
 
 echo "Starting release $VERSION..."
 
