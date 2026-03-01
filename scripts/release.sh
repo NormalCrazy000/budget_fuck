@@ -3,21 +3,15 @@
 # Exit on error
 set -e
 
-# Check if version argument is provided
-if [ -z "$1" ]; then
-    echo "Usage: ./scripts/release.sh <version>"
-    echo "Example: ./scripts/release.sh 1.0.1"
+# Check arguments
+if [ -z "$1" ] || [ -z "$2" ]; then
+    echo "Usage: ./scripts/release.sh <version> <next-version>"
+    echo "Example: ./scripts/release.sh 2.2.0 2.2.1-SNAPSHOT"
     exit 1
 fi
 
 VERSION=$1
-
-# Ensure we are on develop branch
-CURRENT_BRANCH=$(git branch --show-current)
-if [ "$CURRENT_BRANCH" != "develop" ]; then
-    echo "Error: You must be on the 'develop' branch to release."
-    exit 1
-fi
+NEXT_VERSION=$2
 
 # Ensure git is clean
 if [ -n "$(git status --porcelain)" ]; then
@@ -25,61 +19,31 @@ if [ -n "$(git status --porcelain)" ]; then
     exit 1
 fi
 
-echo "🚀 Starting release process for version $VERSION..."
-
-# 1. Update version in pubspec.yaml
-echo "📝 Updating pubspec.yaml..."
-# This regex looks for 'version: x.y.z+n' and replaces it with 'version: $VERSION'
-# Start with a simpler replacement assuming standard format
-sed -i "s/^version: .*/version: $VERSION/" pubspec.yaml
-
-# 2. Commit the version bump
-echo "💾 Committing version bump..."
-git add pubspec.yaml
-git commit -m "chore(release): bump version to $VERSION"
-
-# 3. Create the tag
-echo "🏷️ Creating tag v$VERSION..."
-git tag -a "v$VERSION" -m "Release $VERSION"
-
-# 4. Merge to main
-echo "🔀 Merging develop into main..."
-git checkout main
-git pull origin main
-git merge develop --no-ff -m "chore(release): merge release v$VERSION from develop"
-
-
-# 5. Push main and tag
-echo "⬆️ Pushing main and tag..."
-git push origin main
-git push origin "v$VERSION"
-
-# 6. Return to develop
+# Ensure we are on develop
 git checkout develop
 
-# 7. Calculate next version (Patch bump + SNAPSHOT)
-# Split version by '.'
-IFS='.' read -r -a parts <<< "$VERSION"
-major=${parts[0]}
-minor=${parts[1]}
-patch=${parts[2]}
+echo "Starting release $VERSION..."
 
-# If patch is missing (e.g. 1.0), default to 0
-if [ -z "$patch" ]; then patch=0; fi
-
-next_patch=$((patch + 1))
-NEXT_VERSION="$major.$minor.$next_patch-SNAPSHOT"
-
-echo "🔧 Bumping develop to $NEXT_VERSION..."
-
-sed -i "s/^version: .*/version: $NEXT_VERSION/" pubspec.yaml
-
-# 8. Commit snapshot bump
+# 1. Commit release version on develop
+sed -i "s/^version: .*/version: $VERSION/" pubspec.yaml
 git add pubspec.yaml
-git commit -m "chore(release): bump to v$NEXT_VERSION"
+git commit -m "bump version to $VERSION"
 
-# 9. Push develop
-echo "⬆️ Pushing develop..."
-git push origin develop
+# 2. Tag
+git tag -a "v$VERSION" -m "Release $VERSION"
+echo "Tagged v$VERSION"
 
-echo "✅ Release v$VERSION completed! Develop is now at $NEXT_VERSION."
+# 3. Merge develop into main
+git checkout main
+git pull origin main
+git merge develop
+
+# 4. Return to develop and bump to next version
+git checkout develop
+sed -i "s/^version: .*/version: $NEXT_VERSION/" pubspec.yaml
+git add pubspec.yaml
+git commit -m "bump to $NEXT_VERSION"
+
+echo ""
+echo "Done. Current version: $NEXT_VERSION. Tag v$VERSION created."
+echo "Push with: git push origin develop && git push origin main && git push origin v$VERSION"
