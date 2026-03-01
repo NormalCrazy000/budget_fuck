@@ -135,9 +135,11 @@ class CategoriesScreen extends StatelessWidget {
       setError('Categoria già esistente');
       return;
     }
-    // Chiude il dialog PRIMA di aggiungere la categoria, così il
-    // notifyListeners() non avviene durante il build scope del dialog
     Navigator.of(dialogContext).pop();
-    provider.addCategory(name);
+    // Schedula addCategory dopo il frame corrente per evitare che
+    // notifyListeners() venga chiamato durante una fase di build/pop
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      provider.addCategory(name);
+    });
   }
 }
