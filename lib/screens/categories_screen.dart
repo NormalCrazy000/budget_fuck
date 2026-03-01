@@ -91,8 +91,8 @@ class CategoriesScreen extends StatelessWidget {
                   errorText: errorText,
                 ),
                 // Permette di confermare con il tasto invio della tastiera
-                onSubmitted: (_) {
-                  _tryAdd(controller, provider, dialogContext, (err) {
+                onSubmitted: (_) async {
+                  await _tryAdd(controller, provider, dialogContext, (err) {
                     setDialogState(() => errorText = err);
                   });
                 },
@@ -103,8 +103,8 @@ class CategoriesScreen extends StatelessWidget {
                   child: const Text('Annulla'),
                 ),
                 FilledButton(
-                  onPressed: () {
-                    _tryAdd(controller, provider, dialogContext, (err) {
+                  onPressed: () async {
+                    await _tryAdd(controller, provider, dialogContext, (err) {
                       setDialogState(() => errorText = err);
                     });
                   },
@@ -120,12 +120,15 @@ class CategoriesScreen extends StatelessWidget {
 
   /// Valida il nome e, se valido, aggiunge la categoria e chiude il dialog.
   /// In caso di errore aggiorna il messaggio di errore tramite [setError].
-  void _tryAdd(
+  ///
+  /// Prima salva la categoria (notifyListeners avviene mentre il dialog
+  /// è ancora montato e integro), poi chiude il dialog in modo sicuro.
+  Future<void> _tryAdd(
     TextEditingController controller,
     CategoryProvider provider,
     BuildContext dialogContext,
     void Function(String?) setError,
-  ) {
+  ) async {
     final name = controller.text.trim();
     if (name.isEmpty) {
       setError('Il nome non può essere vuoto');
@@ -135,11 +138,9 @@ class CategoriesScreen extends StatelessWidget {
       setError('Categoria già esistente');
       return;
     }
-    Navigator.of(dialogContext).pop();
-    // Schedula addCategory dopo il frame corrente per evitare che
-    // notifyListeners() venga chiamato durante una fase di build/pop
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      provider.addCategory(name);
-    });
+    await provider.addCategory(name);
+    if (dialogContext.mounted) {
+      Navigator.of(dialogContext).pop();
+    }
   }
 }
