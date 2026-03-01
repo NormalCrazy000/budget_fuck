@@ -94,4 +94,55 @@ void main() {
     expect(provider.categories.length, 1);
     expect(find.text('Alimentari'), findsOneWidget);
   });
+
+  testWidgets(
+    'aggiungere una categoria via dialog non lancia errori Flutter',
+    (tester) async {
+      await tester.pumpWidget(buildWidget());
+      await tester.pumpAndSettle();
+
+      // Apre il dialog tramite FAB
+      await tester.tap(find.byType(FloatingActionButton));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Nuova Categoria'), findsOneWidget);
+
+      // Digita il nome della categoria
+      await tester.enterText(find.byType(TextField), 'Trasporti');
+      await tester.pumpAndSettle();
+
+      // Conferma
+      await tester.tap(find.text('Aggiungi'));
+      await tester.pumpAndSettle();
+
+      // Il dialog deve essere chiuso
+      expect(find.text('Nuova Categoria'), findsNothing);
+
+      // La categoria deve comparire nella lista
+      expect(find.text('Trasporti'), findsOneWidget);
+      expect(provider.categories.length, 1);
+
+      // Nessuna eccezione Flutter deve essere stata sollevata
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'aggiungere una categoria via invio da tastiera non lancia errori Flutter',
+    (tester) async {
+      await tester.pumpWidget(buildWidget());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byType(FloatingActionButton));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextField), 'Salute');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Nuova Categoria'), findsNothing);
+      expect(find.text('Salute'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
 }

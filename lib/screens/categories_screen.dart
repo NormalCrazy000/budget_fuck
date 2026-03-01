@@ -66,81 +66,81 @@ class CategoriesScreen extends StatelessWidget {
     );
   }
 
-  /// Mostra un dialog per inserire il nome di una nuova categoria.
-  /// Usa [StatefulBuilder] per gestire lo stato dell'errore di validazione
-  /// all'interno del dialog senza ricostruire l'intera schermata.
   void _showAddDialog(BuildContext context) {
-    final controller = TextEditingController();
-    // read: accede al provider senza sottoscriversi (azione one-shot)
-    final provider = context.read<CategoryProvider>();
-
     showDialog(
       context: context,
-      builder: (dialogContext) {
-        String? errorText;
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            return AlertDialog(
-              title: const Text('Nuova Categoria'),
-              content: TextField(
-                controller: controller,
-                autofocus: true,
-                decoration: InputDecoration(
-                  labelText: 'Nome categoria',
-                  border: const OutlineInputBorder(),
-                  errorText: errorText,
-                ),
-                // Permette di confermare con il tasto invio della tastiera
-                onSubmitted: (_) async {
-                  await _tryAdd(controller, provider, dialogContext, (err) {
-                    setDialogState(() => errorText = err);
-                  });
-                },
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(dialogContext).pop(),
-                  child: const Text('Annulla'),
-                ),
-                FilledButton(
-                  onPressed: () async {
-                    await _tryAdd(controller, provider, dialogContext, (err) {
-                      setDialogState(() => errorText = err);
-                    });
-                  },
-                  child: const Text('Aggiungi'),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    ).then((_) => controller.dispose());
+      builder: (_) => _AddCategoryDialog(
+        provider: context.read<CategoryProvider>(),
+      ),
+    );
+  }
+}
+
+/// Dialog per aggiungere una nuova categoria.
+///
+/// Usa [StatefulWidget] per gestire il ciclo di vita del [TextEditingController]:
+/// [dispose()] viene chiamato da Flutter solo dopo che l'animazione di uscita
+/// del dialog è completata e il widget è davvero rimosso dall'albero,
+/// evitando l'errore "controller used after disposed".
+class _AddCategoryDialog extends StatefulWidget {
+  final CategoryProvider provider;
+
+  const _AddCategoryDialog({required this.provider});
+
+  @override
+  State<_AddCategoryDialog> createState() => _AddCategoryDialogState();
+}
+
+class _AddCategoryDialogState extends State<_AddCategoryDialog> {
+  final _controller = TextEditingController();
+  String? _errorText;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
-  /// Valida il nome e, se valido, aggiunge la categoria e chiude il dialog.
-  /// In caso di errore aggiorna il messaggio di errore tramite [setError].
-  ///
-  /// Prima salva la categoria (notifyListeners avviene mentre il dialog
-  /// è ancora montato e integro), poi chiude il dialog in modo sicuro.
-  Future<void> _tryAdd(
-    TextEditingController controller,
-    CategoryProvider provider,
-    BuildContext dialogContext,
-    void Function(String?) setError,
-  ) async {
-    final name = controller.text.trim();
+  Future<void> _tryAdd() async {
+    final name = _controller.text.trim();
     if (name.isEmpty) {
-      setError('Il nome non può essere vuoto');
+      setState(() => _errorText = 'Il nome non può essere vuoto');
       return;
     }
-    if (provider.categoryExists(name)) {
-      setError('Categoria già esistente');
+    if (widget.provider.categoryExists(name)) {
+      setState(() => _errorText = 'Categoria già esistente');
       return;
     }
-    await provider.addCategory(name);
-    if (dialogContext.mounted) {
-      Navigator.of(dialogContext).pop();
-    }
+    // notifyListeners() avviene mentre il dialog è ancora montato,
+    // poi chiudiamo in modo sicuro dopo aver verificato mounted.
+    await widget.provider.addCategory(name);
+    if (mounted) Navigator.of(context).pop();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Nuova Categoria'),
+      content: TextField(
+        controller: _controller,
+        autofocus: true,
+        decoration: InputDecoration(
+          labelText: 'Nome categoria',
+          border: const OutlineInputBorder(),
+          errorText: _errorText,
+        ),
+        onSubmitted: (_) => _tryAdd(),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Annulla'),
+        ),
+        FilledButton(
+          onPressed: _tryAdd,
+          child: const Text('Aggiungi'),
+        ),
+      ],
+    );
   }
 }
