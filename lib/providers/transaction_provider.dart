@@ -94,4 +94,26 @@ class TransactionProvider extends ChangeNotifier {
     await _box.delete(id);
     notifyListeners();
   }
+
+  /// Restituisce tutte le transazioni (tutti i mesi) per il backup.
+  List<Transaction> get allTransactions => _box.values.toList();
+
+  /// Sostituisce tutti i dati con la lista fornita (usato dall'import backup).
+  Future<void> replaceAll(List<Transaction> transactions) async {
+    await _box.clear();
+    for (final t in transactions) {
+      await _box.put(t.id, t);
+    }
+    notifyListeners();
+  }
+
+  /// Aggiunge le transazioni mancanti senza toccare quelle esistenti.
+  Future<void> addAll(List<Transaction> transactions) async {
+    for (final t in transactions) {
+      if (!_box.containsKey(t.id)) {
+        await _box.put(t.id, t);
+      }
+    }
+    notifyListeners();
+  }
 }

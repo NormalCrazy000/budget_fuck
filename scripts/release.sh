@@ -1,50 +1,82 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Crea un tag di release su main e lo pusha su origin.
+# La GitHub Actions pipeline si attiva automaticamente al push del tag
+# e genera l'APK release allegato alla GitHub Release.
+#
+# Uso: ./scripts/release.sh <versione>
+# Esempio: ./scripts/release.sh 1.2.0
 
-# Exit on error
-set -e
+set -euo pipefail
 
-# Check arguments
-if [ -z "$1" ] || [ -z "$2" ]; then
-    echo "Usage: ./scripts/release.sh <version> <next-version>"
-    echo "Example: ./scripts/release.sh 2.2.0 2.2.1-SNAPSHOT"
-    exit 1
+# ── Validazione argomenti ──────────────────────────────────────────────────────
+
+if [[ $# -ne 1 ]]; then
+  echo "Uso: $0 <versione>  (es. 1.2.0)"
+  exit 1
 fi
 
-VERSION=$1
-NEXT_VERSION=$2
+VERSION="$1"
+TAG="v${VERSION}"
 
-# Ensure git is clean
-if [ -n "$(git status --porcelain)" ]; then
-    echo "Error: Git working directory is not clean. Please commit or stash changes."
-    exit 1
+# Verifica che la versione segua il formato x.y.z
+if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  echo "Errore: la versione deve seguire il formato x.y.z (es. 1.2.0)"
+  exit 1
 fi
 
-# Ensure we are on develop
+# ── Controlli pre-tag ─────────────────────────────────────────────────────────
+
+# Verifica che non ci siano modifiche non committate
+if ! git diff --quiet || ! git diff --cached --quiet; then
+  echo "Errore: ci sono modifiche non committate. Committa prima di taggare."
+  exit 1
+fi
+
+# Verifica che il tag non esista già
+if git tag | grep -q "^${TAG}$"; then
+  echo "Errore: il tag ${TAG} esiste già."
+  exit 1
+fi
+
+# ── Aggiorna develop ──────────────────────────────────────────────────────────
+
+echo "Aggiornamento develop..."
 git checkout develop
 git pull origin develop
 
-echo "Starting release $VERSION..."
+# ── Aggiorna main e mergia develop ────────────────────────────────────────────
 
-# 1. Commit release version on develop
-sed -i "s/^version: .*/version: $VERSION/" pubspec.yaml
-git add pubspec.yaml
-git commit -m "bump version to $VERSION"
-
-# 2. Tag
-git tag -a "v$VERSION" -m "Release $VERSION"
-echo "Tagged v$VERSION"
-
-# 3. Merge develop into main
+echo "Aggiornamento main..."
 git checkout main
 git pull origin main
-git merge develop
 
-# 4. Return to develop and bump to next version
-git checkout develop
-sed -i "s/^version: .*/version: $NEXT_VERSION/" pubspec.yaml
+echo "Merge develop → main..."
+git merge --no-ff develop -m "chore: merge develop into main for ${TAG}"
+
+# ── Aggiorna la versione in pubspec.yaml ──────────────────────────────────────
+
+BUILD=$(git rev-list --count HEAD)
+sed -i "s/^version: .*/version: ${VERSION}+${BUILD}/" pubspec.yaml
+
+# ── Commit di release e tag ───────────────────────────────────────────────────
+
 git add pubspec.yaml
-git commit -m "bump to $NEXT_VERSION"
+git commit -m "chore: release ${TAG}"
+
+echo "Creazione tag ${TAG}..."
+git tag "$TAG"
+
+echo "Push main e tag su origin..."
+git push origin main
+git push origin "$TAG"
+
+# ── Merge main → develop ──────────────────────────────────────────────────────
+
+echo "Merge main → develop..."
+git checkout develop
+git merge --no-ff main -m "chore: merge main into develop after ${TAG}"
+git push origin develop
 
 echo ""
-echo "Done. Current version: $NEXT_VERSION. Tag v$VERSION created."
-echo "Push with: git push origin develop && git push origin main && git push origin v$VERSION"
+echo "Tag ${TAG} pushato e branch sincronizzati. La pipeline GitHub Actions sta buildando l'APK."
+echo "Segui il progresso su: https://github.com/$(git remote get-url origin | sed 's/.*github.com[:/]\(.*\)\.git/\1/')/actions"

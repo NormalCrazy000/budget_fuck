@@ -33,6 +33,21 @@ class FakeCategoryProvider extends ChangeNotifier implements CategoryProvider {
       (c) => c.name.toLowerCase() == name.trim().toLowerCase(),
     );
   }
+
+  @override
+  Future<void> replaceAll(List<Category> cats) async {
+    _categories
+      ..clear()
+      ..addAll(cats);
+    notifyListeners();
+  }
+
+  @override
+  Future<void> addAll(List<Category> cats) async {
+    final ids = _categories.map((c) => c.id).toSet();
+    _categories.addAll(cats.where((c) => !ids.contains(c.id)));
+    notifyListeners();
+  }
 }
 
 void main() {

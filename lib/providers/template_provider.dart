@@ -46,4 +46,23 @@ class TemplateProvider extends ChangeNotifier {
     await _box.delete(id);
     notifyListeners();
   }
+
+  /// Sostituisce tutti i dati con la lista fornita (usato dall'import backup).
+  Future<void> replaceAll(List<TransactionTemplate> tmpls) async {
+    await _box.clear();
+    for (final t in tmpls) {
+      await _box.put(t.id, t);
+    }
+    notifyListeners();
+  }
+
+  /// Aggiunge i template mancanti senza toccare quelli esistenti.
+  Future<void> addAll(List<TransactionTemplate> tmpls) async {
+    for (final t in tmpls) {
+      if (!_box.containsKey(t.id)) {
+        await _box.put(t.id, t);
+      }
+    }
+    notifyListeners();
+  }
 }
