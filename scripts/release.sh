@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Crea un tag di release sul branch main e lo pusha su origin.
+# Crea un tag di release su main e lo pusha su origin.
 # La GitHub Actions pipeline si attiva automaticamente al push del tag
 # e genera l'APK release allegato alla GitHub Release.
 #
-# Uso: ./scripts/tag_release.sh <versione>
-# Esempio: ./scripts/tag_release.sh 1.2.0
+# Uso: ./scripts/release.sh <versione>
+# Esempio: ./scripts/release.sh 1.2.0
 
 set -euo pipefail
 
@@ -38,27 +38,45 @@ if git tag | grep -q "^${TAG}$"; then
   exit 1
 fi
 
+# ── Aggiorna develop ──────────────────────────────────────────────────────────
+
+echo "Aggiornamento develop..."
+git checkout develop
+git pull origin develop
+
+# ── Aggiorna main e mergia develop ────────────────────────────────────────────
+
+echo "Aggiornamento main..."
+git checkout main
+git pull origin main
+
+echo "Merge develop → main..."
+git merge --no-ff develop -m "chore: merge develop into main for ${TAG}"
+
 # ── Aggiorna la versione in pubspec.yaml ──────────────────────────────────────
 
-# Sostituisce la riga "version: x.y.z+build" con la nuova versione.
-# Il build number viene derivato dal numero di commit sul branch corrente.
 BUILD=$(git rev-list --count HEAD)
 sed -i "s/^version: .*/version: ${VERSION}+${BUILD}/" pubspec.yaml
 
-# ── Commit di release ─────────────────────────────────────────────────────────
+# ── Commit di release e tag ───────────────────────────────────────────────────
 
 git add pubspec.yaml
 git commit -m "chore: release ${TAG}"
 
-# ── Crea e pusha il tag ───────────────────────────────────────────────────────
-
-echo "Creazione tag ${TAG} su $(git rev-parse --abbrev-ref HEAD)..."
+echo "Creazione tag ${TAG}..."
 git tag "$TAG"
 
-echo "Push del commit e del tag su origin..."
-git push origin HEAD
+echo "Push main e tag su origin..."
+git push origin main
 git push origin "$TAG"
 
+# ── Merge main → develop ──────────────────────────────────────────────────────
+
+echo "Merge main → develop..."
+git checkout develop
+git merge --no-ff main -m "chore: merge main into develop after ${TAG}"
+git push origin develop
+
 echo ""
-echo "Tag ${TAG} pushato. La pipeline GitHub Actions sta buildando l'APK."
+echo "Tag ${TAG} pushato e branch sincronizzati. La pipeline GitHub Actions sta buildando l'APK."
 echo "Segui il progresso su: https://github.com/$(git remote get-url origin | sed 's/.*github.com[:/]\(.*\)\.git/\1/')/actions"

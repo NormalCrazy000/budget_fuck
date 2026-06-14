@@ -108,13 +108,16 @@ flutter install                     # installa direttamente su dispositivo conne
 ./scripts/release.sh <VERSION>
 # es. ./scripts/release.sh 2.2.0
 #
-# Lo script (eseguito sul branch corrente):
+# Lo script:
 # 1. Valida il formato x.y.z
 # 2. Controlla che non ci siano modifiche non committate
 # 3. Controlla che il tag vVERSION non esista già
-# 4. Aggiorna pubspec.yaml con VERSION+<numero commit>
-# 5. Committa pubspec.yaml con "chore: release vVERSION"
-# 6. Crea il tag vVERSION e pusha commit + tag su origin
+# 4. Checkout develop + pull
+# 5. Checkout main + pull
+# 6. Merge develop → main (--no-ff)
+# 7. Aggiorna pubspec.yaml con VERSION+<numero commit> e committa
+# 8. Crea il tag vVERSION e pusha main + tag su origin
+# 9. Checkout develop + merge main → develop (--no-ff) + push
 # → GitHub Actions si attiva automaticamente al push del tag e builda l'APK
 ```
 
