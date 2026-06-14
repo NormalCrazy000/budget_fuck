@@ -1,44 +1,55 @@
-name: Flutter CI
+name: Release APK
 
+# Si attiva solo quando viene pushato un tag (es. v1.0.0)
 on:
   push:
-    branches: [ "main", "develop" ]
-  pull_request:
-    branches: [ "main", "develop" ]
+    tags:
+      - 'v*'
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # necessario per creare GitHub Releases e allegare file
 
     steps:
-      - uses: actions/checkout@v4
+      # 1. Checkout del codice
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Set up Java
+      # 2. Java 17 richiesto dal toolchain Android
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
+          distribution: temurin
           java-version: '17'
 
-      - name: Set up Flutter
+      # 3. Flutter (canale stabile, versione più recente)
+      - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          channel: stable
 
-      - name: Install Dependencies
+      # 4. Installa le dipendenze
+      - name: Flutter pub get
         run: flutter pub get
 
-      - name: Generate Hive TypeAdapters
+      # 5. Genera i file *.g.dart (TypeAdapter Hive)
+      - name: Generate code
         run: dart run build_runner build --delete-conflicting-outputs
 
-      - name: Run Tests
+      # 6. Esegue i test unitari e widget
+      - name: Run tests
         run: flutter test
 
+      # 7. Build APK release
       - name: Build APK
         run: flutter build apk --release
 
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+      # 6. Crea una GitHub Release e allega l'APK
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
-          retention-days: 7
+          files: build/app/outputs/flutter-apk/app-release.apk
+          name: Release ${{ github.ref_name }}
+          generate_release_notes: true
