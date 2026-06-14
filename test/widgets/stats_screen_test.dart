@@ -82,6 +82,24 @@ class FakeTransactionProvider extends ChangeNotifier
     _all.removeWhere((t) => t.id == id);
     notifyListeners();
   }
+
+  @override
+  List<Transaction> get allTransactions => List.unmodifiable(_all);
+
+  @override
+  Future<void> replaceAll(List<Transaction> transactions) async {
+    _all
+      ..clear()
+      ..addAll(transactions);
+    notifyListeners();
+  }
+
+  @override
+  Future<void> addAll(List<Transaction> transactions) async {
+    final ids = _all.map((t) => t.id).toSet();
+    _all.addAll(transactions.where((t) => !ids.contains(t.id)));
+    notifyListeners();
+  }
 }
 
 Transaction _tx({

@@ -19,6 +19,7 @@ App Flutter cross-platform per il tracciamento di entrate e uscite mensili.
 - Eliminare transazioni, template e categorie con swipe + dialog di conferma
 - **Template predefiniti**: creare template di transazioni ricorrenti (stipendio, affitto, bollette, ecc.)
 - **Applicazione template**: applicare template in blocco o parzialmente a qualsiasi mese
+- **Backup & Ripristino**: esportare tutti i dati in JSON e reimportarli (con modalità sostituisci o unisci)
 - Persistenza locale dei dati (i dati sopravvivono alla chiusura dell'app)
 - Interfaccia Material 3 con localizzazione italiana
 
@@ -35,11 +36,14 @@ lib/
 ├── screens/                   # Schermate UI
 │   ├── home_screen.dart           # Schermata principale con lista transazioni
 │   ├── stats_screen.dart          # Statistiche per categoria (uscite/entrate) per mese
+│   ├── backup_screen.dart         # Export/import JSON (backup & ripristino)
 │   ├── add_transaction_screen.dart
 │   ├── categories_screen.dart
 │   ├── templates_screen.dart
 │   ├── add_template_screen.dart
 │   └── apply_templates_screen.dart
+├── services/
+│   └── backup_service.dart        # Serializzazione/deserializzazione JSON
 └── widgets/                   # Componenti riutilizzabili
 ```
 
@@ -162,6 +166,9 @@ chore(release): attività di release
 | `provider` | ^6.1.2 | State management |
 | `intl` | ^0.19.0 | Formattazione date/valute (italiano) |
 | `cupertino_icons` | ^1.0.8 | Icone stile iOS |
+| `path_provider` | ^2.1.4 | Directory documenti per il file di backup |
+| `share_plus` | ^10.0.0 | Condivisione file su Android/iOS |
+| `file_picker` | ^8.1.6 | Selezione file JSON durante l'import |
 
 ### Dipendenze di sviluppo
 
@@ -187,14 +194,21 @@ chore(release): attività di release
 - Le schermate che usano `DateFormat` con locale `it` richiedono `initializeDateFormatting('it', null)` in `setUpAll`
 - Il formato valuta `NumberFormat.currency(locale: 'it_IT', symbol: '€')` produce `"50,00 €"` (simbolo dopo, spazio non-breaking) — usare `find.textContaining(...)` per evitare dipendenze dal separatore
 
+### Test puri (BackupService)
+- Nessuna dipendenza da Hive o Flutter: si testano solo funzioni statiche Dart
+- Verificano round-trip completo e gestione tipi numerici misti (int/double nel JSON)
+
 ### File di test
 ```
 test/
+├── backup_service_test.dart         # Unit test serializzazione/deserializzazione JSON
 ├── category_provider_test.dart      # Unit test provider categorie (con Hive reale)
+├── provider_backup_test.dart        # Unit test replaceAll/addAll su tutti e tre i provider
 ├── template_provider_test.dart      # Unit test provider template (con Hive reale)
 ├── confirm_delete_dialog_test.dart  # Widget test dialog conferma
 ├── widget_test.dart                 # Smoke test (placeholder)
 └── widgets/
+    ├── backup_screen_test.dart      # Widget test schermata backup (rendering e pulsanti)
     ├── categories_screen_test.dart  # Widget test schermata categorie
     ├── stats_screen_test.dart       # Widget test schermata statistiche (13 casi)
     ├── template_tile_test.dart      # Widget test tile template

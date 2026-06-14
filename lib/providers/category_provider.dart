@@ -53,4 +53,23 @@ class CategoryProvider extends ChangeNotifier {
       (c) => c.name.toLowerCase() == name.trim().toLowerCase(),
     );
   }
+
+  /// Sostituisce tutti i dati con la lista fornita (usato dall'import backup).
+  Future<void> replaceAll(List<Category> cats) async {
+    await _box.clear();
+    for (final c in cats) {
+      await _box.put(c.id, c);
+    }
+    notifyListeners();
+  }
+
+  /// Aggiunge le categorie mancanti senza toccare quelle esistenti.
+  Future<void> addAll(List<Category> cats) async {
+    for (final c in cats) {
+      if (!_box.containsKey(c.id)) {
+        await _box.put(c.id, c);
+      }
+    }
+    notifyListeners();
+  }
 }

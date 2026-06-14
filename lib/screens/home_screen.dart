@@ -5,6 +5,7 @@ import '../providers/transaction_provider.dart';
 import '../widgets/transaction_tile.dart';
 import 'add_transaction_screen.dart';
 import 'apply_templates_screen.dart';
+import 'backup_screen.dart';
 import 'categories_screen.dart';
 import 'stats_screen.dart';
 import 'templates_screen.dart';
@@ -73,6 +74,17 @@ class HomeScreen extends StatelessWidget {
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (_) => const ApplyTemplatesScreen(),
+                ),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.backup),
+            tooltip: 'Backup & Ripristino',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const BackupScreen(),
                 ),
               );
             },
