@@ -116,12 +116,9 @@ flutter install                     # install directly on a connected device
 # 1. Validates the x.y.z format
 # 2. Checks there are no uncommitted changes
 # 3. Checks the vVERSION tag does not already exist
-# 4. Checks out develop + pull
-# 5. Checks out main + pull
-# 6. Merges develop → main (--no-ff)
-# 7. Updates pubspec.yaml with VERSION+<commit count> and commits
-# 8. Creates the vVERSION tag and pushes main + tag to origin
-# 9. Checks out develop + merges main → develop (--no-ff) + push
+# 4. Checks out main + pull
+# 5. Updates pubspec.yaml with VERSION+<commit count> and commits
+# 6. Creates the vVERSION tag and pushes main + tag to origin
 # → GitHub Actions triggers automatically on the tag push and builds the APK
 ```
 
@@ -152,10 +149,9 @@ chore(release): release tasks
 
 ## Branching
 
-- `develop` → main development branch
-- `main` → stable/release branch
-- PRs from feature branches → `develop`
-- Release: run `./scripts/release.sh <VERSION>` on the desired branch → the script commits, tags and pushes → GitHub Actions builds the APK and creates the GitHub Release
+- Trunk-based: `main` is the only long-lived branch (protected against deletion and force-push)
+- Work on short-lived branches (e.g. `feat/xyz`, `fix/xyz`) merged into `main` via PR, then delete them
+- Release: run `./scripts/release.sh <VERSION>` from `main` → the script bumps the version, commits, tags and pushes → GitHub Actions builds the APK and creates the GitHub Release
 
 ## Main dependencies
 
@@ -217,11 +213,11 @@ test/
 
 ## CI/CD
 
-GitHub Actions `.github/workflows/ci.yml` runs on every push and pull request to `develop` and `main`:
+GitHub Actions `.github/workflows/ci.yml` runs on every push and pull request to `main`:
 `flutter pub get` → `build_runner` → `flutter analyze` (infos are fatal) → `flutter test`.
 Integration tests use `print` for step progress and opt out of `avoid_print` with `// ignore_for_file`.
 
-Dependabot (`.github/dependabot.yml`) opens monthly PRs to `develop` for pub packages (minor/patch grouped) and GitHub Actions.
+Dependabot (`.github/dependabot.yml`) opens monthly PRs to `main` for pub packages (minor/patch grouped) and GitHub Actions.
 
 GitHub Actions `.github/workflows/flutter_ci.yml` triggers on push of a `v*` tag:
 1. Setup Java 17 + Flutter 3.47.8 (pinned for reproducible builds; when upgrading Flutter, align Gradle/AGP/Kotlin in `android/` with a fresh `flutter create` project)

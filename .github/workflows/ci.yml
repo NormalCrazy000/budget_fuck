@@ -1,11 +1,11 @@
 name: CI
 
-# Analisi statica e test su ogni push e pull request verso develop e main
+# Analisi statica e test su ogni push e pull request verso main
 on:
   push:
-    branches: [develop, main]
+    branches: [main]
   pull_request:
-    branches: [develop, main]
+    branches: [main]
 
 permissions:
   contents: read

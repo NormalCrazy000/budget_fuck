@@ -38,20 +38,11 @@ if git tag | grep -q "^${TAG}$"; then
   exit 1
 fi
 
-# ── Aggiorna develop ──────────────────────────────────────────────────────────
-
-echo "Aggiornamento develop..."
-git checkout develop
-git pull origin develop
-
-# ── Aggiorna main e mergia develop ────────────────────────────────────────────
+# ── Aggiorna main ─────────────────────────────────────────────────────────────
 
 echo "Aggiornamento main..."
 git checkout main
 git pull origin main
-
-echo "Merge develop → main..."
-git merge --no-ff develop -m "chore: merge develop into main for ${TAG}"
 
 # ── Aggiorna la versione in pubspec.yaml ──────────────────────────────────────
 
@@ -70,13 +61,6 @@ echo "Push main e tag su origin..."
 git push origin main
 git push origin "$TAG"
 
-# ── Merge main → develop ──────────────────────────────────────────────────────
-
-echo "Merge main → develop..."
-git checkout develop
-git merge --no-ff main -m "chore: merge main into develop after ${TAG}"
-git push origin develop
-
 echo ""
-echo "Tag ${TAG} pushato e branch sincronizzati. La pipeline GitHub Actions sta buildando l'APK."
+echo "Tag ${TAG} pushato. La pipeline GitHub Actions sta buildando l'APK."
 echo "Segui il progresso su: https://github.com/$(git remote get-url origin | sed 's/.*github.com[:/]\(.*\)\.git/\1/')/actions"
