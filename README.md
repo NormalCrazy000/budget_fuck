@@ -92,7 +92,7 @@ If you fork the project and want to distribute your own APK, create **your own**
    keyPassword=your-key-password
    ```
 
-   `storeFile` can be absolute or relative to `android/app/`.
+   `storeFile` can be absolute or relative to `android/app/`. In this file `\` is an escape character: if a password contains a backslash, write it twice (`\\`). The CI workflow does this automatically.
 
 3. Build with `flutter build apk --release` — the release signing config is picked up automatically.
 
