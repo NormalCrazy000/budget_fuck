@@ -1,0 +1,109 @@
+# Budget Tracker
+
+A simple, offline-first Flutter app to track monthly income and expenses.
+
+All data is stored locally on the device — no account, no cloud, no tracking.
+
+> **Note:** the app UI is currently available in **Italian** only.
+
+## Features
+
+- **Transactions** — add income and expenses with amount, category and date
+- **Monthly overview** — browse transactions month by month with income, expense and balance totals
+- **Statistics** — per-category breakdown with amounts, percentages and progress bars
+- **Categories** — create and manage your own income/expense categories
+- **Templates** — define recurring transactions (salary, rent, bills, …) and apply them to any month, all at once or selectively
+- **Backup & restore** — export all data to a JSON file and import it back, either replacing or merging with existing data
+- **Safe deletes** — swipe to delete with a confirmation dialog
+- **Material 3** design
+
+<!--
+## Screenshots
+
+| Home | Statistics | Templates |
+|------|------------|-----------|
+| ![Home](docs/screenshots/home.png) | ![Statistics](docs/screenshots/stats.png) | ![Templates](docs/screenshots/templates.png) |
+-->
+
+## Download
+
+The latest Android APK is available on the [Releases page](https://github.com/NormalCrazy000/budget_fuck/releases/latest).
+
+## Supported platforms
+
+| Platform | Status |
+|----------|--------|
+| Android  | ✅ Built and released via CI |
+| Linux    | ✅ Tested (integration tests run on Linux desktop) |
+| macOS, iOS, Windows, Web | ⚠️ Scaffolding present, not tested |
+
+## Building from source
+
+### Requirements
+
+- [Flutter](https://docs.flutter.dev/get-started/install) (stable channel, Dart 3.9.2+)
+- **Android:** Android SDK and Java JDK 17
+- **Linux:** `clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev`
+
+### Setup
+
+```bash
+git clone https://github.com/NormalCrazy000/budget_fuck.git
+cd budget_fuck
+flutter pub get
+dart run build_runner build --delete-conflicting-outputs   # generates Hive adapters (*.g.dart)
+```
+
+### Run
+
+```bash
+flutter run -d linux
+flutter run -d android
+```
+
+### Build
+
+```bash
+flutter build apk --release      # build/app/outputs/flutter-apk/app-release.apk
+flutter build linux --release    # build/linux/x64/release/bundle/
+```
+
+## Testing
+
+```bash
+# Unit and widget tests
+flutter test
+
+# Integration tests (require a device or desktop target)
+flutter test integration_test/ -d linux
+```
+
+## Tech stack
+
+| | |
+|---|---|
+| Framework | [Flutter](https://flutter.dev) (Material 3) |
+| State management | [provider](https://pub.dev/packages/provider) |
+| Local storage | [Hive](https://pub.dev/packages/hive) |
+| Formatting / i18n | [intl](https://pub.dev/packages/intl) |
+| Backup | [path_provider](https://pub.dev/packages/path_provider), [share_plus](https://pub.dev/packages/share_plus), [file_picker](https://pub.dev/packages/file_picker) |
+
+### Project structure
+
+```
+lib/
+├── main.dart       # Entry point: Hive setup + providers
+├── models/         # Hive data models (Transaction, TransactionTemplate, Category)
+├── providers/      # ChangeNotifier state management
+├── screens/        # App screens
+├── services/       # JSON backup serialization
+└── widgets/        # Reusable UI components
+```
+
+## Privacy
+
+Budget Tracker does not collect, transmit or share any data. Everything is stored locally on your device; backups are plain JSON files that you export and keep yourself.
+
+## License
+
+Released under the [MIT License](LICENSE).
