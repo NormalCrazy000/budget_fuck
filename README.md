@@ -31,6 +31,8 @@ The latest Android APK is available on the [Releases page](https://github.com/No
 
 ## Supported platforms
 
+Budget Tracker is designed primarily for **Android**. The other platforms come from the Flutter project template and are kept for convenience, but are not actively maintained.
+
 | Platform | Status |
 |----------|--------|
 | Android  | ✅ Built and released via CI |
