@@ -1,61 +1,33 @@
 // Le print mostrano l'avanzamento dei passi durante i test di integrazione.
 // ignore_for_file: avoid_print
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:budget_fuck/models/transaction.dart';
-import 'package:budget_fuck/models/transaction_template.dart';
-import 'package:budget_fuck/main.dart' as app;
 
-import 'test_storage.dart';
+import 'test_helpers.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() async {
     // Pulire il database prima di ogni test
-    Hive.init(testStoragePath);
-    if (!Hive.isAdapterRegistered(0)) {
-      Hive.registerAdapter(TransactionAdapter());
-    }
-    if (!Hive.isAdapterRegistered(1)) {
-      Hive.registerAdapter(TransactionTemplateAdapter());
-    }
-    final box = await Hive.openBox<Transaction>('transactions');
-    await box.clear();
-    final templateBox = await Hive.openBox<TransactionTemplate>('templates');
-    await templateBox.clear();
+    await resetStorage(categories: ['Stipendio', 'Affitto']);
   });
 
   testWidgets('Aggiungere entrata e uscita e verificare che appaiano nella lista',
       (tester) async {
-    app.runBudgetApp(storagePath: testStoragePath);
-    await tester.pumpAndSettle();
+    await startApp(tester);
 
     // Verifica stato iniziale: nessuna transazione
     expect(find.text('Nessuna transazione questo mese'), findsOneWidget);
 
     // --- Aggiungere un'ENTRATA ---
-    await tester.tap(find.byType(FloatingActionButton));
-    await tester.pumpAndSettle();
-
-    // Siamo nella schermata "Nuova Transazione"
-    expect(find.text('Nuova Transazione'), findsOneWidget);
-
-    // "Entrata" è selezionato di default, lo confermiamo tappando
-    await tester.tap(find.text('Entrata'));
-    await tester.pumpAndSettle();
-
-    // Inserire descrizione
-    await tester.enterText(find.byType(TextFormField).first, 'Stipendio');
-    // Inserire importo
-    await tester.enterText(find.byType(TextFormField).last, '1500');
-
-    // Tappare Salva
-    await tester.tap(find.text('Salva'));
-    await tester.pumpAndSettle();
+    await addTransaction(
+      tester,
+      category: 'Stipendio',
+      amount: '1500',
+      isIncome: true,
+    );
 
     // Torniamo alla home - verificare che l'entrata appaia
     expect(find.text('Stipendio'), findsOneWidget);
@@ -63,21 +35,12 @@ void main() {
     expect(find.text('Nessuna transazione questo mese'), findsNothing);
 
     // --- Aggiungere un'USCITA ---
-    await tester.tap(find.byType(FloatingActionButton));
-    await tester.pumpAndSettle();
-
-    // Selezionare "Uscita"
-    await tester.tap(find.text('Uscita'));
-    await tester.pumpAndSettle();
-
-    // Inserire descrizione
-    await tester.enterText(find.byType(TextFormField).first, 'Affitto');
-    // Inserire importo
-    await tester.enterText(find.byType(TextFormField).last, '800');
-
-    // Tappare Salva
-    await tester.tap(find.text('Salva'));
-    await tester.pumpAndSettle();
+    await addTransaction(
+      tester,
+      category: 'Affitto',
+      amount: '800',
+      isIncome: false,
+    );
 
     // Verificare che entrambe le transazioni appaiano nella lista
     expect(find.text('Stipendio'), findsOneWidget);
@@ -86,7 +49,8 @@ void main() {
     // Verificare che i totali siano corretti
     // Entrate: 1500, Uscite: 800, Bilancio: 700
     expect(find.textContaining('1.500'), findsWidgets); // entrate + nella tile
-    expect(find.textContaining('800'), findsWidgets);   // uscite + nella tile
+    expect(find.textContaining('800'), findsWidgets); // uscite + nella tile
+    expect(find.textContaining('700,00'), findsWidgets); // bilancio
 
     print('TEST PASSED: Entrata e uscita aggiunte e visibili nella lista');
   });

@@ -6,32 +6,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:budget_fuck/models/category.dart';
-import 'package:budget_fuck/models/transaction.dart';
 import 'package:budget_fuck/models/transaction_template.dart';
-import 'package:budget_fuck/main.dart' as app;
 
-import 'test_storage.dart';
+import 'test_helpers.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() async {
-    Hive.init(testStoragePath);
-    if (!Hive.isAdapterRegistered(0)) {
-      Hive.registerAdapter(TransactionAdapter());
-    }
-    if (!Hive.isAdapterRegistered(1)) {
-      Hive.registerAdapter(TransactionTemplateAdapter());
-    }
-    if (!Hive.isAdapterRegistered(2)) {
-      Hive.registerAdapter(CategoryAdapter());
-    }
-    final box = await Hive.openBox<Transaction>('transactions');
-    await box.clear();
-    final templateBox = await Hive.openBox<TransactionTemplate>('templates');
-    await templateBox.clear();
-    final categoryBox = await Hive.openBox<Category>('categories');
-    await categoryBox.clear();
+    await resetStorage();
   });
 
   testWidgets('Creare template, applicarli a un mese, verificare nella home',
@@ -41,8 +24,7 @@ void main() {
     await categoryBox.put('c1', Category(id: 'c1', name: 'Stipendio'));
     await categoryBox.put('c2', Category(id: 'c2', name: 'Affitto'));
 
-    app.runBudgetApp(storagePath: testStoragePath);
-    await tester.pumpAndSettle();
+    await startApp(tester);
 
     // === Navigare alla schermata Template ===
     await tester.tap(find.byIcon(Icons.list_alt));
@@ -156,8 +138,7 @@ void main() {
       ),
     );
 
-    app.runBudgetApp(storagePath: testStoragePath);
-    await tester.pumpAndSettle();
+    await startApp(tester);
 
     // Navigare ad Applica Template
     await tester.tap(find.byIcon(Icons.play_circle_outline));
@@ -199,8 +180,7 @@ void main() {
       ),
     );
 
-    app.runBudgetApp(storagePath: testStoragePath);
-    await tester.pumpAndSettle();
+    await startApp(tester);
 
     // Navigare ai template e verificare
     await tester.tap(find.byIcon(Icons.list_alt));

@@ -198,7 +198,12 @@ chore(release): release tasks
 - The currency format `NumberFormat.currency(locale: 'it_IT', symbol: '€')` produces `"50,00 €"` (symbol after, non-breaking space) — use `find.textContaining(...)` to avoid depending on the separator
 
 ### Integration tests
-- Run against the real app via `app.runBudgetApp(storagePath: testStoragePath)` and prepare data with `Hive.init(testStoragePath)` (`integration_test/test_storage.dart`, a temp directory)
+- Use the helpers in `integration_test/test_helpers.dart`:
+  - `resetStorage(categories: [...])` clears the boxes in a temp directory (`testStoragePath`) and seeds categories (required by the add forms)
+  - `startApp(tester)` runs the real app on that directory
+  - `addTransaction(...)`, `selectCategory(...)` drive the current forms (amount + searchable category picker)
+  - `swipeToDelete(tester, text)` drags almost the full row width (a short fling is flaky on desktop windows) and waits for the confirm dialog
+  - `waitFor(tester, finder)` after Hive writes: the UI can update just after `pumpAndSettle` (e.g. totals after a delete)
 - **Never** use `Hive.initFlutter()` or `app.main()` in integration tests: they clear the boxes, and without the temp directory they would wipe the real app data on desktop
 
 ### Pure tests (BackupService)

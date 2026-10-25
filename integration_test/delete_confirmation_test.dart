@@ -8,33 +8,14 @@ import 'package:integration_test/integration_test.dart';
 import 'package:budget_fuck/models/category.dart';
 import 'package:budget_fuck/models/transaction.dart';
 import 'package:budget_fuck/models/transaction_template.dart';
-import 'package:budget_fuck/main.dart' as app;
 
-import 'test_storage.dart';
+import 'test_helpers.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() async {
-    Hive.init(testStoragePath);
-    if (!Hive.isAdapterRegistered(0)) {
-      Hive.registerAdapter(TransactionAdapter());
-    }
-    if (!Hive.isAdapterRegistered(1)) {
-      Hive.registerAdapter(TransactionTemplateAdapter());
-    }
-    if (!Hive.isAdapterRegistered(2)) {
-      Hive.registerAdapter(CategoryAdapter());
-    }
-    await Hive.deleteBoxFromDisk('transactions');
-    await Hive.deleteBoxFromDisk('templates');
-    await Hive.deleteBoxFromDisk('categories');
-    final txBox = await Hive.openBox<Transaction>('transactions');
-    await txBox.clear();
-    final templateBox = await Hive.openBox<TransactionTemplate>('templates');
-    await templateBox.clear();
-    final categoryBox = await Hive.openBox<Category>('categories');
-    await categoryBox.clear();
+    await resetStorage();
   });
 
   group('Delete confirmation dialog', () {
@@ -53,14 +34,12 @@ void main() {
         ),
       );
 
-      app.runBudgetApp(storagePath: testStoragePath);
-      await tester.pumpAndSettle();
+      await startApp(tester);
 
       expect(find.text('Stipendio'), findsOneWidget);
 
       // Swipe per eliminare - annulla
-      await tester.fling(find.text('Stipendio'), const Offset(-500, 0), 1500);
-      await tester.pumpAndSettle();
+      await swipeToDelete(tester, 'Stipendio');
       expect(find.text('Conferma eliminazione'), findsOneWidget);
 
       await tester.tap(find.text('Annulla'));
@@ -68,8 +47,7 @@ void main() {
       expect(find.text('Stipendio'), findsOneWidget);
 
       // Swipe di nuovo - conferma
-      await tester.fling(find.text('Stipendio'), const Offset(-500, 0), 1500);
-      await tester.pumpAndSettle();
+      await swipeToDelete(tester, 'Stipendio');
       await tester.tap(find.text('Elimina'));
       await tester.pumpAndSettle();
 
@@ -90,8 +68,7 @@ void main() {
         ),
       );
 
-      app.runBudgetApp(storagePath: testStoragePath);
-      await tester.pumpAndSettle();
+      await startApp(tester);
 
       // Navigare alla schermata Template
       await tester.tap(find.byIcon(Icons.list_alt));
@@ -100,8 +77,7 @@ void main() {
       expect(find.text('Stipendio'), findsOneWidget);
 
       // Swipe per eliminare - annulla
-      await tester.fling(find.text('Stipendio'), const Offset(-500, 0), 1500);
-      await tester.pumpAndSettle();
+      await swipeToDelete(tester, 'Stipendio');
       expect(find.text('Conferma eliminazione'), findsOneWidget);
 
       await tester.tap(find.text('Annulla'));
@@ -109,8 +85,7 @@ void main() {
       expect(find.text('Stipendio'), findsOneWidget);
 
       // Swipe e conferma
-      await tester.fling(find.text('Stipendio'), const Offset(-500, 0), 1500);
-      await tester.pumpAndSettle();
+      await swipeToDelete(tester, 'Stipendio');
       await tester.tap(find.text('Elimina'));
       await tester.pumpAndSettle();
       // Aspetta la dismiss animation
@@ -128,8 +103,7 @@ void main() {
         Category(id: 'c1', name: 'Alimentari'),
       );
 
-      app.runBudgetApp(storagePath: testStoragePath);
-      await tester.pumpAndSettle();
+      await startApp(tester);
 
       // Navigare alla schermata Categorie
       await tester.tap(find.byIcon(Icons.category_outlined));
@@ -138,8 +112,7 @@ void main() {
       expect(find.text('Alimentari'), findsOneWidget);
 
       // Swipe per eliminare - annulla
-      await tester.fling(find.text('Alimentari'), const Offset(-500, 0), 1500);
-      await tester.pumpAndSettle();
+      await swipeToDelete(tester, 'Alimentari');
       expect(find.text('Conferma eliminazione'), findsOneWidget);
 
       await tester.tap(find.text('Annulla'));
@@ -149,8 +122,7 @@ void main() {
       expect(find.text('Alimentari'), findsOneWidget);
 
       // Swipe e conferma
-      await tester.fling(find.text('Alimentari'), const Offset(-500, 0), 1500);
-      await tester.pumpAndSettle();
+      await swipeToDelete(tester, 'Alimentari');
       await tester.tap(find.text('Elimina'));
       await tester.pumpAndSettle();
       await tester.pumpAndSettle(const Duration(seconds: 1));

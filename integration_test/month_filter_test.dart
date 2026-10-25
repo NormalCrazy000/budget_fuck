@@ -6,26 +6,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:budget_fuck/models/transaction.dart';
-import 'package:budget_fuck/models/transaction_template.dart';
-import 'package:budget_fuck/main.dart' as app;
 
-import 'test_storage.dart';
+import 'test_helpers.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() async {
-    Hive.init(testStoragePath);
-    if (!Hive.isAdapterRegistered(0)) {
-      Hive.registerAdapter(TransactionAdapter());
-    }
-    if (!Hive.isAdapterRegistered(1)) {
-      Hive.registerAdapter(TransactionTemplateAdapter());
-    }
-    final box = await Hive.openBox<Transaction>('transactions');
-    await box.clear();
-    final templateBox = await Hive.openBox<TransactionTemplate>('templates');
-    await templateBox.clear();
+    await resetStorage();
+    final box = Hive.box<Transaction>('transactions');
 
     // Inserire transazioni in mesi diversi direttamente nel DB
     final now = DateTime.now();
@@ -82,8 +71,7 @@ void main() {
   });
 
   testWidgets('Cambiare mese e verificare filtro transazioni', (tester) async {
-    app.runBudgetApp(storagePath: testStoragePath);
-    await tester.pumpAndSettle();
+    await startApp(tester);
 
     // === MESE CORRENTE (Febbraio 2026) ===
     // Deve mostrare solo le transazioni di febbraio
