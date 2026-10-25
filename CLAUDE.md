@@ -231,6 +231,7 @@ GitHub Actions (`.github/workflows/flutter_ci.yml`) triggers on push of a `v*` t
 - `android/app/build.gradle.kts` reads `android/key.properties`; if missing, release builds fall back to the debug key
 - `key.properties`, `*.jks` and `*.keystore` are git-ignored (`android/.gitignore`) — **never commit them, never write real values in docs or code**
 - CI secrets: `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`
+- `key.properties` is a Java properties file: `\` is an escape character and must be doubled. The workflow escapes secret values when writing it; do the same when creating it by hand
 - If the repository variable `REQUIRE_RELEASE_SIGNING` is `true` (set on the official repo), the workflow **fails** when the secrets are missing, to avoid publishing a debug-signed APK; without it (e.g. forks) it falls back to debug signing with a warning
 - The keystore must stay the same forever: a different key means users cannot update over the installed app (they would have to uninstall and lose their local Hive data). Keep an off-machine backup of the keystore and its passwords
 - To rotate the CI secrets: `base64 -w0 <keystore>.jks` → update `KEYSTORE_BASE64` in *Settings → Secrets and variables → Actions*
