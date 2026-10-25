@@ -1,4 +1,4 @@
-package com.budgetfuck.budget_fuck
+package io.github.normalcrazy000.budgettracker
 
 import io.flutter.embedding.android.FlutterActivity
 

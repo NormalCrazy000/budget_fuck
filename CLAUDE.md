@@ -3,11 +3,11 @@
 ## Project overview
 
 Cross-platform Flutter app for tracking monthly income and expenses.
-- **Language:** Dart 3.9.2+ (Flutter 3.35.6, pinned in CI)
+- **Language:** Dart 3.9.2+ (Flutter 3.47.8, pinned in CI)
 - **Framework:** Flutter (Material Design 3)
 - **State Management:** Provider (ChangeNotifier)
 - **Database:** Hive (local NoSQL)
-- **Package:** `com.budgetfuck.budget_fuck`
+- **Application ID:** `io.github.normalcrazy000.budgettracker` (Dart package: `budget_fuck`)
 - **Current version:** see `pubspec.yaml`
 
 ## Features
@@ -167,8 +167,8 @@ chore(release): release tasks
 | `intl` | ^0.19.0 | Date/currency formatting (Italian) |
 | `cupertino_icons` | ^1.0.8 | iOS-style icons |
 | `path_provider` | ^2.1.4 | Documents directory for the backup file |
-| `share_plus` | ^10.0.0 | File sharing on Android/iOS |
-| `file_picker` | ^8.1.6 | JSON file selection during import |
+| `share_plus` | ^13.3.1 | File sharing on Android/iOS |
+| `file_picker` | ^13.2.0 | JSON file selection during import |
 
 ### Dev dependencies
 
@@ -217,8 +217,14 @@ test/
 
 ## CI/CD
 
-GitHub Actions (`.github/workflows/flutter_ci.yml`) triggers on push of a `v*` tag:
-1. Setup Java 17 + Flutter 3.35.6 (pinned: newer stable releases require Gradle ≥ 8.14, the project uses 8.12)
+GitHub Actions `.github/workflows/ci.yml` runs on every push and pull request to `develop` and `main`:
+`flutter pub get` → `build_runner` → `flutter analyze` (infos are fatal) → `flutter test`.
+Integration tests use `print` for step progress and opt out of `avoid_print` with `// ignore_for_file`.
+
+Dependabot (`.github/dependabot.yml`) opens monthly PRs to `develop` for pub packages (minor/patch grouped) and GitHub Actions.
+
+GitHub Actions `.github/workflows/flutter_ci.yml` triggers on push of a `v*` tag:
+1. Setup Java 17 + Flutter 3.47.8 (pinned for reproducible builds; when upgrading Flutter, align Gradle/AGP/Kotlin in `android/` with a fresh `flutter create` project)
 2. `flutter pub get`
 3. `dart run build_runner build --delete-conflicting-outputs`
 4. `flutter test`

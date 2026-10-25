@@ -1,5 +1,5 @@
 name: budget_fuck
-description: "A new Flutter project."
+description: "Offline-first app to track monthly income and expenses."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -36,8 +36,8 @@ dependencies:
   provider: ^6.1.2
   intl: ^0.19.0
   path_provider: ^2.1.4
-  share_plus: ^10.0.0
-  file_picker: ^8.1.6
+  share_plus: ^13.3.1
+  file_picker: ^13.2.0
 
 dev_dependencies:
   flutter_test:

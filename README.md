@@ -1,5 +1,8 @@
 # Budget Tracker
 
+[![CI](https://github.com/NormalCrazy000/budget_fuck/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/NormalCrazy000/budget_fuck/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 A simple, offline-first Flutter app to track monthly income and expenses.
 
 All data is stored locally on the device — no account, no cloud, no tracking.
@@ -31,6 +34,8 @@ The latest Android APK is available on the [Releases page](https://github.com/No
 
 ## Supported platforms
 
+Budget Tracker is designed primarily for **Android**. The other platforms come from the Flutter project template and are kept for convenience, but are not actively maintained.
+
 | Platform | Status |
 |----------|--------|
 | Android  | ✅ Built and released via CI |
@@ -41,7 +46,7 @@ The latest Android APK is available on the [Releases page](https://github.com/No
 
 ### Requirements
 
-- [Flutter](https://docs.flutter.dev/get-started/install) **3.35.x** (the version used by CI; newer releases require a Gradle upgrade)
+- [Flutter](https://docs.flutter.dev/get-started/install) **3.47.x** (the version used by CI)
 - **Android:** Android SDK and Java JDK 17
 - **Linux:** `clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev`
 

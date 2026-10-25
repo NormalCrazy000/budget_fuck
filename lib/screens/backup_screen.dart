@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
@@ -44,7 +45,9 @@ class _BackupScreenState extends State<BackupScreen> {
       if (!mounted) return;
 
       if (Platform.isAndroid || Platform.isIOS) {
-        await Share.shareXFiles([XFile(file.path)], subject: fileName);
+        await SharePlus.instance.share(
+          ShareParams(files: [XFile(file.path)], subject: fileName),
+        );
       } else {
         _showSnackBar('File salvato in: ${file.path}');
       }
@@ -56,26 +59,22 @@ class _BackupScreenState extends State<BackupScreen> {
   }
 
   Future<void> _import() async {
-    FilePickerResult? result;
+    PlatformFile? picked;
     try {
-      result = await FilePicker.platform.pickFiles(
+      picked = await FilePicker.pickFile(
         type: FileType.custom,
         allowedExtensions: ['json'],
-        allowMultiple: false,
       );
     } catch (_) {
       // Alcuni dispositivi non supportano il filtro per estensione
-      result = await FilePicker.platform.pickFiles(allowMultiple: false);
+      picked = await FilePicker.pickFile();
     }
 
-    if (result == null || result.files.isEmpty) return;
-
-    final filePath = result.files.single.path;
-    if (filePath == null) return;
+    if (picked == null) return;
 
     BackupData data;
     try {
-      final content = await File(filePath).readAsString();
+      final content = utf8.decode(await picked.readAsBytes());
       data = BackupService.parseJson(content);
     } catch (e) {
       if (mounted) _showSnackBar('File non valido: $e', isError: true);
