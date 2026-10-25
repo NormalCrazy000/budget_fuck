@@ -1,6 +1,6 @@
 {
-    "name": "budget_fuck",
-    "short_name": "budget_fuck",
+    "name": "Budget Tracker",
+    "short_name": "Budget Tracker",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

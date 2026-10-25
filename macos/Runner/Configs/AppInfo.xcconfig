@@ -8,7 +8,7 @@
 PRODUCT_NAME = budget_fuck
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.budgetfuck.budgetFuck
+PRODUCT_BUNDLE_IDENTIFIER = io.github.normalcrazy000.budgettracker
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2026 com.budgetfuck. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2026 Gabriele Giannotto.
