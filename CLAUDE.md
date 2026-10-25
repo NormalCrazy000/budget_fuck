@@ -112,17 +112,19 @@ flutter install                     # install directly on a connected device
 # APK:     build/app/outputs/flutter-apk/app-release.apk
 # AAB:     build/app/outputs/bundle/release/app-release.aab
 
-# Release automation (takes a single argument: the version to release)
-./scripts/release.sh <VERSION>
-# e.g. ./scripts/release.sh 2.2.0
+# Release automation (version + optional Markdown release notes file)
+./scripts/release.sh <VERSION> [NOTES_FILE]
+# e.g. ./scripts/release.sh 2.6.0 notes.md
 #
 # The script:
 # 1. Validates the x.y.z format
 # 2. Checks there are no uncommitted changes
 # 3. Checks the vVERSION tag does not already exist
 # 4. Checks out main + pull
-# 5. Updates pubspec.yaml with VERSION+<commit count> and commits
-# 6. Creates the vVERSION tag and pushes main + tag to origin
+# 5. Uses NOTES_FILE as release notes, or generates them from feat/fix commits
+#    since the last tag (chore/ci/docs are hidden)
+# 6. Updates pubspec.yaml with VERSION+<commit count> and commits
+# 7. Creates the annotated vVERSION tag (message = release notes) and pushes main + tag
 # → GitHub Actions triggers automatically on the tag push and builds the APK
 ```
 
@@ -155,7 +157,8 @@ chore(release): release tasks
 
 - Trunk-based: `main` is the only long-lived branch (protected against deletion and force-push)
 - Work on short-lived branches (e.g. `feat/xyz`, `fix/xyz`) merged into `main` via PR, then delete them
-- Release: run `./scripts/release.sh <VERSION>` from `main` → the script bumps the version, commits, tags and pushes → GitHub Actions builds the APK and creates the GitHub Release
+- Release: run `./scripts/release.sh <VERSION> [NOTES_FILE]` from `main` → the script bumps the version, commits, tags and pushes → GitHub Actions builds the APK and creates the GitHub Release
+- Release notes: before a release, Claude reads the commits since the last tag and writes user-facing notes in **English** (`## What's new`, `## Fixes`; only what changes for app users, no chore/ci/docs), shows them to the user for approval, saves them in the scratchpad and passes the file to `release.sh`
 
 ## Main dependencies
 
@@ -236,9 +239,10 @@ GitHub Actions `.github/workflows/flutter_ci.yml` triggers on push of a `v*` tag
 2. `flutter pub get`
 3. `dart run build_runner build --delete-conflicting-outputs`
 4. `flutter test`
-5. Rebuild `android/app/release.jks` + `android/key.properties` from GitHub Secrets
-6. `flutter build apk --release`
-7. Creates a GitHub Release with the APK attached and auto-generated release notes
+5. Read the release notes from the annotated tag message (used as the GitHub Release body, followed by GitHub's "Full Changelog" link)
+6. Rebuild `android/app/release.jks` + `android/key.properties` from GitHub Secrets
+7. `flutter build apk --release`
+8. Creates a GitHub Release with the APK attached and auto-generated release notes
 
 ## Release signing
 

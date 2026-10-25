@@ -17,6 +17,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # 1b. Legge le note di rilascio dal messaggio del tag annotato.
+      #     Il checkout non scarica l'oggetto tag, quindi va recuperato a parte.
+      - name: Read release notes
+        run: |
+          git fetch --force origin "refs/tags/${GITHUB_REF_NAME}:refs/tags/${GITHUB_REF_NAME}"
+          git tag -l --format='%(contents)' "$GITHUB_REF_NAME" > release_notes.md
+          cat release_notes.md
+
       # 2. Java 17 richiesto dal toolchain Android
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -84,4 +92,6 @@ jobs:
         with:
           files: build/app/outputs/flutter-apk/app-release.apk
           name: Release ${{ github.ref_name }}
+          # Note del tag in alto, poi il link "Full Changelog" generato da GitHub
+          body_path: release_notes.md
           generate_release_notes: true
