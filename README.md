@@ -68,6 +68,47 @@ flutter build apk --release      # build/app/outputs/flutter-apk/app-release.apk
 flutter build linux --release    # build/linux/x64/release/bundle/
 ```
 
+Release builds without `android/key.properties` are signed with the debug key — fine for local testing, but not for distribution.
+
+### Signing your own release builds
+
+If you fork the project and want to distribute your own APK, create **your own** signing key. Android only accepts an update if it is signed with the same key as the installed version, so keep the key safe: if you lose it, you can no longer ship updates.
+
+> Also change the `applicationId` in `android/app/build.gradle.kts`, so your build does not conflict with the official app on the same device.
+
+1. Generate a keystore (outside the repository):
+
+   ```bash
+   keytool -genkey -v -keystore ~/keys/release.jks \
+     -keyalg RSA -keysize 2048 -validity 10000 -alias release
+   ```
+
+2. Create `android/key.properties` (already git-ignored — never commit it):
+
+   ```properties
+   storeFile=/home/you/keys/release.jks
+   storePassword=your-store-password
+   keyAlias=release
+   keyPassword=your-key-password
+   ```
+
+   `storeFile` can be absolute or relative to `android/app/`.
+
+3. Build with `flutter build apk --release` — the release signing config is picked up automatically.
+
+#### CI (GitHub Actions)
+
+The release workflow rebuilds the keystore from these repository secrets (*Settings → Secrets and variables → Actions*):
+
+| Secret | Value |
+|--------|-------|
+| `KEYSTORE_BASE64` | the keystore file, base64-encoded: `base64 -w0 ~/keys/release.jks` |
+| `KEYSTORE_PASSWORD` | keystore password |
+| `KEY_ALIAS` | key alias |
+| `KEY_PASSWORD` | key password |
+
+Without these secrets the workflow still runs, signing the APK with the debug key and emitting a warning. To make missing secrets a hard failure instead, add the repository variable `REQUIRE_RELEASE_SIGNING` = `true` (*Settings → Secrets and variables → Actions → Variables*).
+
 ## Testing
 
 ```bash

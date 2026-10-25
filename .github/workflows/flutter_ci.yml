@@ -42,11 +42,39 @@ jobs:
       - name: Run tests
         run: flutter test
 
-      # 7. Build APK release
+      # 7. Ricostruisce keystore e key.properties dai GitHub Secrets.
+      #    Con la variabile di repository REQUIRE_RELEASE_SIGNING=true i secret
+      #    sono obbligatori (un APK firmato con una chiave diversa non si aggiorna
+      #    sopra la versione installata); altrimenti, senza secret, si prosegue
+      #    con la chiave di debug (es. nei fork).
+      - name: Setup release signing
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            if [ "${{ vars.REQUIRE_RELEASE_SIGNING }}" = "true" ]; then
+              echo "::error::Signing secrets missing: refusing to publish a debug-signed release"
+              exit 1
+            fi
+            echo "::warning::Signing secrets not set: the APK will be signed with the debug key"
+            exit 0
+          fi
+          echo "$KEYSTORE_BASE64" | base64 --decode > android/app/release.jks
+          cat > android/key.properties <<EOF
+          storeFile=release.jks
+          storePassword=$KEYSTORE_PASSWORD
+          keyAlias=$KEY_ALIAS
+          keyPassword=$KEY_PASSWORD
+          EOF
+
+      # 8. Build APK release
       - name: Build APK
         run: flutter build apk --release
 
-      # 6. Crea una GitHub Release e allega l'APK
+      # 9. Crea una GitHub Release e allega l'APK
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
