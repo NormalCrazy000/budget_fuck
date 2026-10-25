@@ -140,8 +140,8 @@ class _FakeTemplateProvider extends ChangeNotifier implements TemplateProvider {
   }
 }
 
-/// Finestra "Salva come" finta: registra cosa riceve e restituisce [result]
-/// (null simula l'utente che chiude la finestra senza salvare).
+/// Fake "Save as" dialog: records what it receives and returns [result]
+/// (null simulates the user closing the dialog without saving).
 class _FakeSaveDialog {
   _FakeSaveDialog({this.result});
 
@@ -184,17 +184,17 @@ Widget _buildWidget({_FakeSaveDialog? saveDialog}) {
 }
 
 void main() {
-  testWidgets('mostra il titolo Backup & Ripristino', (tester) async {
+  testWidgets('shows the Backup & Ripristino title', (tester) async {
     await tester.pumpWidget(_buildWidget());
     expect(find.text('Backup & Ripristino'), findsOneWidget);
   });
 
-  testWidgets('mostra il pulsante Salva su file', (tester) async {
+  testWidgets('shows the Salva su file button', (tester) async {
     await tester.pumpWidget(_buildWidget());
     expect(find.text('Salva su file'), findsOneWidget);
   });
 
-  testWidgets('su telefono mostra anche il pulsante Condividi',
+  testWidgets('on phones also shows the Condividi button',
       (tester) async {
     debugDefaultTargetPlatformOverride = TargetPlatform.android;
     await tester.pumpWidget(_buildWidget());
@@ -202,7 +202,7 @@ void main() {
     debugDefaultTargetPlatformOverride = null;
   });
 
-  testWidgets('su desktop nasconde il pulsante Condividi', (tester) async {
+  testWidgets('on desktop hides the Condividi button', (tester) async {
     debugDefaultTargetPlatformOverride = TargetPlatform.linux;
     await tester.pumpWidget(_buildWidget());
     expect(find.text('Condividi'), findsNothing);
@@ -210,7 +210,7 @@ void main() {
     debugDefaultTargetPlatformOverride = null;
   });
 
-  testWidgets('Salva su file passa alla finestra un backup JSON valido',
+  testWidgets('Salva su file passes a valid JSON backup to the dialog',
       (tester) async {
     final dialog = _FakeSaveDialog(
       result: Uri.file('/tmp/budget_backup.json'),
@@ -223,13 +223,13 @@ void main() {
     expect(dialog.calls, 1);
     expect(dialog.fileName, matches(RegExp(r'^budget_backup_\d{8}\.json$')));
     expect(dialog.mimeType, 'application/json');
-    // Il contenuto deve essere un backup reimportabile
+    // The content must be a backup that can be imported again
     final data = BackupService.parseJson(utf8.decode(dialog.bytes!));
     expect(data.transactions, isEmpty);
     expect(find.textContaining('Backup salvato'), findsOneWidget);
   });
 
-  testWidgets('se si annulla la finestra non mostra messaggi',
+  testWidgets('cancelling the dialog shows no message',
       (tester) async {
     final dialog = _FakeSaveDialog(result: null);
     await tester.pumpWidget(_buildWidget(saveDialog: dialog));
@@ -241,12 +241,12 @@ void main() {
     expect(find.byType(SnackBar), findsNothing);
   });
 
-  testWidgets('mostra il pulsante Importa backup', (tester) async {
+  testWidgets('shows the Importa backup button', (tester) async {
     await tester.pumpWidget(_buildWidget());
     expect(find.text('Importa backup'), findsOneWidget);
   });
 
-  testWidgets('mostra il testo descrittivo', (tester) async {
+  testWidgets('shows the description text', (tester) async {
     await tester.pumpWidget(_buildWidget());
     expect(
       find.textContaining('Esporta tutti i dati'),
@@ -254,7 +254,7 @@ void main() {
     );
   });
 
-  testWidgets('non solleva eccezioni Flutter al rendering', (tester) async {
+  testWidgets('renders without Flutter exceptions', (tester) async {
     await tester.pumpWidget(_buildWidget());
     expect(tester.takeException(), isNull);
   });

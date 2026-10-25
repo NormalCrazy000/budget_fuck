@@ -23,7 +23,7 @@ void main() {
     await tempDir.delete(recursive: true);
   });
 
-  test('addTemplate aggiunge un template', () async {
+  test('addTemplate adds a template', () async {
     final template = TransactionTemplate(
       id: '1',
       amount: 2000,
@@ -35,7 +35,7 @@ void main() {
     expect(provider.templates.first.category, 'Lavoro');
   });
 
-  test('deleteTemplate rimuove un template', () async {
+  test('deleteTemplate removes a template', () async {
     final template = TransactionTemplate(
       id: '1',
       amount: 800,
@@ -49,7 +49,7 @@ void main() {
     expect(provider.templates.length, 0);
   });
 
-  test('incomeTemplates filtra solo entrate', () async {
+  test('incomeTemplates keeps income only', () async {
     await provider.addTemplate(TransactionTemplate(
       id: '1',
       amount: 2000,
@@ -74,7 +74,7 @@ void main() {
     expect(provider.templates.length, 3);
   });
 
-  test('expenseTemplates filtra solo uscite', () async {
+  test('expenseTemplates keeps expenses only', () async {
     await provider.addTemplate(TransactionTemplate(
       id: '1',
       amount: 2000,

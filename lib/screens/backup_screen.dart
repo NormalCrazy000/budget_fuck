@@ -14,10 +14,10 @@ import '../providers/template_provider.dart';
 import '../providers/transaction_provider.dart';
 import '../services/backup_service.dart';
 
-/// Funzione che apre la finestra di sistema "Salva come" e scrive [bytes]
-/// nel file scelto. Restituisce l'[Uri] del file, o null se l'utente annulla.
+/// Opens the system "Save as" dialog and writes [bytes] to the chosen
+/// file. Returns the file [Uri], or null if the user cancels.
 ///
-/// Corrisponde a [FilePicker.saveFile]; i test ne passano una finta.
+/// Matches [FilePicker.saveFile]; tests pass a fake one.
 typedef SaveFileDialog = Future<Uri?> Function({
   required String fileName,
   required Uint8List bytes,
@@ -26,7 +26,7 @@ typedef SaveFileDialog = Future<Uri?> Function({
 });
 
 class BackupScreen extends StatefulWidget {
-  /// Finestra "Salva come" usata dal pulsante "Salva su file".
+  /// "Save as" dialog used by the "save to file" button.
   final SaveFileDialog saveFileDialog;
 
   const BackupScreen({super.key, this.saveFileDialog = FilePicker.saveFile});
@@ -38,19 +38,19 @@ class BackupScreen extends StatefulWidget {
 class _BackupScreenState extends State<BackupScreen> {
   bool _isLoading = false;
 
-  /// La condivisione di file (WhatsApp, Gmail, ...) è disponibile solo su
-  /// telefono; su desktop resta solo "Salva su file".
+  /// Sharing files (WhatsApp, Gmail, ...) is only available on phones;
+  /// on desktop only "save to file" is offered.
   bool get _canShare =>
       defaultTargetPlatform == TargetPlatform.android ||
       defaultTargetPlatform == TargetPlatform.iOS;
 
-  /// Nome del file di backup con la data di oggi (es. budget_backup_20261025.json).
+  /// Backup file name with today's date (e.g. budget_backup_20261025.json).
   String _backupFileName() {
     final now = DateTime.now();
     return 'budget_backup_${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}.json';
   }
 
-  /// Serializza in JSON tutti i dati dei tre provider.
+  /// Serializes all the data of the three providers to JSON.
   String _backupJson() {
     return BackupService.exportToJson(
       transactions: context.read<TransactionProvider>().allTransactions,
@@ -59,8 +59,8 @@ class _BackupScreenState extends State<BackupScreen> {
     );
   }
 
-  /// Apre la finestra di sistema "Salva come" per scegliere dove salvare
-  /// il backup (su Android: Download, altre cartelle, Google Drive, ...).
+  /// Opens the system "Save as" dialog to choose where to save the backup
+  /// (on Android: Download, other folders, Google Drive, ...).
   Future<void> _saveToFile() async {
     setState(() => _isLoading = true);
     try {
@@ -70,7 +70,7 @@ class _BackupScreenState extends State<BackupScreen> {
         mimeType: 'application/json',
         dialogTitle: 'Salva backup',
       );
-      // null: l'utente ha chiuso la finestra senza salvare
+      // null: the user closed the dialog without saving
       if (uri != null && mounted) {
         _showSnackBar(
           uri.scheme == 'file'
@@ -85,8 +85,8 @@ class _BackupScreenState extends State<BackupScreen> {
     }
   }
 
-  /// Scrive il backup in un file dell'app e apre il menu di condivisione
-  /// del telefono (WhatsApp, Telegram, Gmail, ...).
+  /// Writes the backup to an app file and opens the phone's share sheet
+  /// (WhatsApp, Telegram, Gmail, ...).
   Future<void> _share() async {
     setState(() => _isLoading = true);
     try {
@@ -115,7 +115,7 @@ class _BackupScreenState extends State<BackupScreen> {
         allowedExtensions: ['json'],
       );
     } catch (_) {
-      // Alcuni dispositivi non supportano il filtro per estensione
+      // Some devices do not support filtering by extension
       picked = await FilePicker.pickFile();
     }
 

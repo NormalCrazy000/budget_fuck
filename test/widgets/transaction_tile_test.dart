@@ -33,10 +33,10 @@ void main() {
     );
   }
 
-  testWidgets('swipe mostra il dialog di conferma', (tester) async {
+  testWidgets('swipe shows the confirmation dialog', (tester) async {
     await tester.pumpWidget(buildWidget());
 
-    // Swipe verso sinistra
+    // Swipe left
     await tester.drag(find.text('Alimentari'), const Offset(-500, 0));
     await tester.pumpAndSettle();
 
@@ -47,7 +47,7 @@ void main() {
     );
   });
 
-  testWidgets('annullare il dialog non elimina la transazione', (tester) async {
+  testWidgets('cancelling the dialog keeps the transaction', (tester) async {
     await tester.pumpWidget(buildWidget());
 
     await tester.drag(find.text('Alimentari'), const Offset(-500, 0));
@@ -57,11 +57,11 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(deleted, false);
-    // La transazione è ancora visibile
+    // The transaction is still visible
     expect(find.text('Alimentari'), findsOneWidget);
   });
 
-  testWidgets('confermare il dialog elimina la transazione', (tester) async {
+  testWidgets('confirming the dialog deletes the transaction', (tester) async {
     await tester.pumpWidget(buildWidget());
 
     await tester.drag(find.text('Alimentari'), const Offset(-500, 0));

@@ -6,18 +6,18 @@ import '../models/transaction_template.dart';
 import '../providers/template_provider.dart';
 import '../providers/transaction_provider.dart';
 
-/// Schermata per applicare template predefiniti a un mese specifico.
+/// Screen to apply predefined templates to a specific month.
 ///
-/// Permette all'utente di:
-/// - Selezionare il mese/anno di destinazione con navigazione avanti/indietro
-/// - Scegliere quali template applicare tramite checkbox
-/// - Usare "Seleziona Tutti"/"Deseleziona Tutti" per selezione rapida
-/// - Applicare i template selezionati, creando le transazioni corrispondenti
+/// Lets the user:
+/// - pick the target month/year with previous/next navigation
+/// - choose which templates to apply with checkboxes
+/// - use "select all"/"deselect all" for quick selection
+/// - apply the selected templates, creating the matching transactions
 ///
-/// Ogni template selezionato genera una [Transaction] con data al giorno 15
-/// del mese scelto. Gli ID sono univoci grazie al formato `'${timestamp}_$index'`.
+/// Each selected template creates a [Transaction] dated the 15th of the
+/// chosen month. IDs are unique thanks to the `'${timestamp}_$index'` format.
 ///
-/// Accessibile dalla HomeScreen tramite l'icona play nella AppBar.
+/// Reached from HomeScreen via the play icon in the AppBar.
 class ApplyTemplatesScreen extends StatefulWidget {
   const ApplyTemplatesScreen({super.key});
 
@@ -26,41 +26,41 @@ class ApplyTemplatesScreen extends StatefulWidget {
 }
 
 class _ApplyTemplatesScreenState extends State<ApplyTemplatesScreen> {
-  /// Set degli ID dei template attualmente selezionati
+  /// IDs of the currently selected templates
   final Set<String> _selectedIds = {};
 
-  /// Mese e anno di destinazione per le transazioni generate
+  /// Target month and year for the generated transactions
   late int _selectedMonth;
   late int _selectedYear;
 
   @override
   void initState() {
     super.initState();
-    // Default: mese corrente
+    // Default: current month
     _selectedMonth = DateTime.now().month;
     _selectedYear = DateTime.now().year;
   }
 
-  /// Aggiunge tutti i template alla selezione.
+  /// Adds every template to the selection.
   void _selectAll(List<TransactionTemplate> templates) {
     setState(() {
       _selectedIds.addAll(templates.map((t) => t.id));
     });
   }
 
-  /// Rimuove tutti i template dalla selezione.
+  /// Removes every template from the selection.
   void _deselectAll() {
     setState(() {
       _selectedIds.clear();
     });
   }
 
-  /// Crea una [Transaction] per ogni template selezionato e la salva.
+  /// Creates and saves a [Transaction] for each selected template.
   ///
-  /// Le transazioni vengono create con data al giorno 15 del mese scelto.
-  /// L'ID di ogni transazione usa il formato `'${timestamp}_$index'` per
-  /// garantire univocità anche quando si applicano più template nello stesso istante.
-  /// Dopo l'applicazione, naviga la HomeScreen al mese di destinazione.
+  /// Transactions are dated the 15th of the chosen month.
+  /// Each transaction ID uses the `'${timestamp}_$index'` format to stay
+  /// unique even when several templates are applied at the same instant.
+  /// Afterwards, HomeScreen is moved to the target month.
   Future<void> _apply() async {
     final templateProvider = context.read<TemplateProvider>();
     final transactionProvider = context.read<TransactionProvider>();
@@ -71,7 +71,7 @@ class _ApplyTemplatesScreenState extends State<ApplyTemplatesScreen> {
     if (templates.isEmpty) return;
 
     final timestamp = DateTime.now().millisecondsSinceEpoch;
-    // Data fissa al 15 del mese: giorno neutro per il filtro mensile
+    // Fixed on the 15th: a neutral day for the monthly filter
     final date = DateTime(_selectedYear, _selectedMonth, 15);
 
     for (var i = 0; i < templates.length; i++) {
@@ -86,7 +86,7 @@ class _ApplyTemplatesScreenState extends State<ApplyTemplatesScreen> {
       await transactionProvider.addTransaction(transaction);
     }
 
-    // Dopo l'applicazione, aggiorna il mese visualizzato nella home
+    // After applying, update the month shown on the home screen
     if (mounted) {
       transactionProvider.setMonth(_selectedMonth, _selectedYear);
       Navigator.of(context).pop();
@@ -114,7 +114,7 @@ class _ApplyTemplatesScreenState extends State<ApplyTemplatesScreen> {
             )
           : Column(
               children: [
-                // Selettore mese: freccia sinistra, nome mese, freccia destra
+                // Month selector: left arrow, month name, right arrow
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Row(
@@ -157,7 +157,7 @@ class _ApplyTemplatesScreenState extends State<ApplyTemplatesScreen> {
                   ),
                 ),
                 const Divider(),
-                // Pulsanti per selezione/deselezione rapida di tutti i template
+                // Buttons to quickly select/deselect all templates
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
@@ -174,7 +174,7 @@ class _ApplyTemplatesScreenState extends State<ApplyTemplatesScreen> {
                     ],
                   ),
                 ),
-                // Lista template con checkbox per selezione individuale
+                // Template list with a checkbox per item
                 Expanded(
                   child: ListView.builder(
                     itemCount: templates.length,
@@ -215,7 +215,7 @@ class _ApplyTemplatesScreenState extends State<ApplyTemplatesScreen> {
                     },
                   ),
                 ),
-                // Pulsante applica: disabilitato se nessun template è selezionato
+                // Apply button: disabled when no template is selected
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: SizedBox(

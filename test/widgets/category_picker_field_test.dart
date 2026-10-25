@@ -27,17 +27,17 @@ void main() {
     );
   }
 
-  /// Campo di testo interno al DropdownMenu.
+  /// Text field inside the DropdownMenu.
   final input = find.byType(TextField);
 
-  /// Voce del menu con il testo dato (il testo compare anche nel campo,
-  /// quindi si cerca solo dentro le voci del menu).
+  /// Menu entry with the given text (the text also appears in the field,
+  /// so only the menu entries are searched).
   Finder menuEntry(String label) => find.descendant(
         of: find.byType(MenuItemButton),
         matching: find.text(label),
       );
 
-  testWidgets('scrivendo filtra le voci ignorando maiuscole e accenti',
+  testWidgets('typing filters the entries ignoring case and accents',
       (tester) async {
     await tester.pumpWidget(buildWidget());
     await tester.tap(input);
@@ -55,7 +55,7 @@ void main() {
     expect(menuEntry('Spesa'), findsNothing);
   });
 
-  testWidgets('scegliere una voce imposta il valore e supera la validazione',
+  testWidgets('picking an entry sets the value and passes validation',
       (tester) async {
     await tester.pumpWidget(buildWidget());
     await tester.tap(input);
@@ -70,11 +70,11 @@ void main() {
     expect(formKey.currentState!.validate(), isTrue);
   });
 
-  testWidgets('senza scelta la validazione chiede una categoria',
+  testWidgets('without a choice validation asks for a category',
       (tester) async {
     await tester.pumpWidget(buildWidget());
 
-    // Il testo digitato da solo non basta: serve scegliere una voce
+    // Typed text alone is not enough: an entry must be picked
     await tester.enterText(input, 'Affitto');
     await tester.pumpAndSettle();
 
@@ -84,7 +84,7 @@ void main() {
     expect(selected, isNull);
   });
 
-  testWidgets('modificare il testo dopo la scelta annulla la selezione',
+  testWidgets('editing the text after picking clears the selection',
       (tester) async {
     await tester.pumpWidget(buildWidget());
     await tester.tap(input);

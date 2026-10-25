@@ -1,6 +1,6 @@
 name: CI
 
-# Analisi statica e test su ogni push e pull request verso main
+# Static analysis and tests on every push and pull request to main
 on:
   push:
     branches: [main]
@@ -15,11 +15,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout del codice
+      # 1. Checkout
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 2. Flutter (stessa versione fissata del workflow di release)
+      # 2. Flutter (same pinned version as the release workflow)
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -27,18 +27,18 @@ jobs:
           flutter-version: 3.47.8
           cache: true
 
-      # 3. Installa le dipendenze
+      # 3. Install dependencies
       - name: Flutter pub get
         run: flutter pub get
 
-      # 4. Genera i file *.g.dart (TypeAdapter Hive)
+      # 4. Generate the *.g.dart files (Hive TypeAdapters)
       - name: Generate code
         run: dart run build_runner build --delete-conflicting-outputs
 
-      # 5. Analisi statica (fallisce anche sulle segnalazioni "info")
+      # 5. Static analysis (fails on "info" issues too)
       - name: Analyze
         run: flutter analyze
 
-      # 6. Test unitari e widget
+      # 6. Unit and widget tests
       - name: Run tests
         run: flutter test

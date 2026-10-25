@@ -4,21 +4,21 @@ import 'package:hive/hive.dart';
 import 'package:budget_fuck/models/category.dart';
 import 'package:budget_fuck/providers/category_provider.dart';
 
-/// Test unitari per [CategoryProvider].
+/// Unit tests for [CategoryProvider].
 ///
-/// Verificano il corretto funzionamento di:
-/// - Aggiunta e rimozione categorie (CRUD)
-/// - Ordinamento alfabetico (case-insensitive)
-/// - Validazione duplicati (case-insensitive, con trim spazi)
-/// - Generazione id univoci
+/// They check:
+/// - adding and removing categories
+/// - alphabetical sorting (case-insensitive)
+/// - duplicate check (case-insensitive, trimming spaces)
+/// - unique id generation
 ///
-/// Ogni test usa una directory temporanea per Hive, che viene
-/// cancellata nel tearDown per garantire isolamento tra i test.
+/// Each test uses a temporary Hive directory, deleted in tearDown
+/// so tests stay isolated from each other.
 void main() {
   late CategoryProvider provider;
   late Directory tempDir;
 
-  // Crea un ambiente Hive isolato prima di ogni test
+  // Create an isolated Hive environment before each test
   setUp(() async {
     tempDir = await Directory.systemTemp.createTemp('hive_test_');
     Hive.init(tempDir.path);
@@ -29,28 +29,28 @@ void main() {
     provider = CategoryProvider();
   });
 
-  // Chiude Hive e rimuove i file temporanei dopo ogni test
+  // Close Hive and remove the temporary files after each test
   tearDown(() async {
     await Hive.close();
     await tempDir.delete(recursive: true);
   });
 
-  test('inizialmente la lista è vuota', () {
+  test('the list is initially empty', () {
     expect(provider.categories, isEmpty);
   });
 
-  test('addCategory aggiunge una categoria', () async {
+  test('addCategory adds a category', () async {
     await provider.addCategory('Alimentari');
     expect(provider.categories.length, 1);
     expect(provider.categories.first.name, 'Alimentari');
   });
 
-  test('addCategory fa trim del nome', () async {
+  test('addCategory trims the name', () async {
     await provider.addCategory('  Trasporti  ');
     expect(provider.categories.first.name, 'Trasporti');
   });
 
-  test('deleteCategory rimuove una categoria', () async {
+  test('deleteCategory removes a category', () async {
     await provider.addCategory('Alimentari');
     expect(provider.categories.length, 1);
 
@@ -59,9 +59,9 @@ void main() {
     expect(provider.categories, isEmpty);
   });
 
-  // I Future.delayed servono per garantire id univoci basati su
-  // DateTime.now().millisecondsSinceEpoch tra chiamate consecutive rapide
-  test('categories sono ordinate alfabeticamente', () async {
+  // The Future.delayed calls guarantee unique ids based on
+  // DateTime.now().millisecondsSinceEpoch across quick consecutive calls
+  test('categories are sorted alphabetically', () async {
     await provider.addCategory('Trasporti');
     await Future.delayed(const Duration(milliseconds: 2));
     await provider.addCategory('Alimentari');
@@ -72,7 +72,7 @@ void main() {
     expect(names, ['Alimentari', 'Bollette', 'Trasporti']);
   });
 
-  test('ordinamento è case-insensitive', () async {
+  test('sorting is case-insensitive', () async {
     await provider.addCategory('bollette');
     await Future.delayed(const Duration(milliseconds: 2));
     await provider.addCategory('Alimentari');
@@ -83,30 +83,30 @@ void main() {
     expect(names, ['Alimentari', 'bollette', 'trasporti']);
   });
 
-  test('categoryExists rileva duplicato esatto', () async {
+  test('categoryExists detects an exact duplicate', () async {
     await provider.addCategory('Alimentari');
     expect(provider.categoryExists('Alimentari'), isTrue);
     expect(provider.categoryExists('Trasporti'), isFalse);
   });
 
-  test('categoryExists è case-insensitive', () async {
+  test('categoryExists is case-insensitive', () async {
     await provider.addCategory('Alimentari');
     expect(provider.categoryExists('alimentari'), isTrue);
     expect(provider.categoryExists('ALIMENTARI'), isTrue);
   });
 
-  test('categoryExists gestisce spazi', () async {
+  test('categoryExists handles spaces', () async {
     await provider.addCategory('Alimentari');
     expect(provider.categoryExists('  Alimentari  '), isTrue);
   });
 
-  test('deleteCategory con id inesistente non fa nulla', () async {
+  test('deleteCategory with an unknown id does nothing', () async {
     await provider.addCategory('Alimentari');
     await provider.deleteCategory('id_inesistente');
     expect(provider.categories.length, 1);
   });
 
-  test('più categorie con id univoci', () async {
+  test('multiple categories get unique ids', () async {
     await provider.addCategory('Alimentari');
     await Future.delayed(const Duration(milliseconds: 2));
     await provider.addCategory('Trasporti');
@@ -114,7 +114,7 @@ void main() {
     await provider.addCategory('Bollette');
     expect(provider.categories.length, 3);
 
-    // Verifica che tutti gli id siano distinti
+    // Check that all ids are distinct
     final ids = provider.categories.map((c) => c.id).toSet();
     expect(ids.length, 3);
   });

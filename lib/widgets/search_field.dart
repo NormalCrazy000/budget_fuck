@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-/// Barra di ricerca riutilizzabile da mettere in cima alle liste.
+/// Reusable search bar for the top of lists.
 ///
-/// Mostra un'icona lente a sinistra e, quando il campo non è vuoto,
-/// un pulsante "X" a destra per cancellare il testo. Ad ogni modifica
-/// (incluso il click sulla X) chiama [onChanged] con il testo corrente.
+/// Shows a magnifier icon on the left and, when the field is not empty,
+/// an "X" button on the right to clear it. On every change (including the
+/// "X" click) it calls [onChanged] with the current text.
 class SearchField extends StatefulWidget {
   final String hintText;
   final ValueChanged<String> onChanged;
@@ -31,7 +31,7 @@ class _SearchFieldState extends State<SearchField> {
   void _clear() {
     _controller.clear();
     widget.onChanged('');
-    // setState per nascondere il pulsante "X"
+    // setState to hide the "X" button
     setState(() {});
   }
 
@@ -56,7 +56,7 @@ class _SearchFieldState extends State<SearchField> {
         ),
         onChanged: (value) {
           widget.onChanged(value);
-          // setState per mostrare/nascondere il pulsante "X"
+          // setState to show/hide the "X" button
           setState(() {});
         },
       ),

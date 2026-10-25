@@ -6,7 +6,7 @@ import 'package:budget_fuck/models/transaction.dart';
 import 'package:budget_fuck/providers/transaction_provider.dart';
 import 'package:budget_fuck/screens/home_screen.dart';
 
-/// Fake TransactionProvider che non dipende da Hive.
+/// Fake TransactionProvider that does not depend on Hive.
 class FakeTransactionProvider extends ChangeNotifier
     implements TransactionProvider {
   final List<Transaction> _all = [];
@@ -140,7 +140,7 @@ void main() {
 
   final searchField = find.widgetWithText(TextField, 'Cerca per categoria');
 
-  testWidgets('la ricerca filtra le transazioni per categoria',
+  testWidgets('search filters transactions by category',
       (tester) async {
     await tester.pumpWidget(buildWidget());
     await tester.pumpAndSettle();
@@ -153,7 +153,7 @@ void main() {
     expect(find.text('Spesa'), findsNothing);
   });
 
-  testWidgets('i totali restano quelli del mese intero durante la ricerca',
+  testWidgets('totals still cover the whole month while searching',
       (tester) async {
     await tester.pumpWidget(buildWidget());
     await tester.pumpAndSettle();
@@ -161,13 +161,13 @@ void main() {
     await tester.enterText(searchField, 'aff');
     await tester.pumpAndSettle();
 
-    // Entrate 2000, uscite 800 + 150 = 950, bilancio 1050
+    // Income 2000, expenses 800 + 150 = 950, balance 1050
     expect(find.textContaining('2.000,00'), findsOneWidget);
     expect(find.textContaining('950,00'), findsOneWidget);
     expect(find.textContaining('1.050,00'), findsOneWidget);
   });
 
-  testWidgets('mostra "Nessun risultato" se la ricerca non trova nulla',
+  testWidgets('shows "Nessun risultato" when the search finds nothing',
       (tester) async {
     await tester.pumpWidget(buildWidget());
     await tester.pumpAndSettle();

@@ -1,4 +1,4 @@
-// Le print mostrano l'avanzamento dei passi durante i test di integrazione.
+// The prints show the progress of each step during integration tests.
 // ignore_for_file: avoid_print
 
 import 'package:flutter_test/flutter_test.dart';
@@ -10,18 +10,18 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() async {
-    // Pulire il database prima di ogni test
+    // Clean the database before each test
     await resetStorage(categories: ['Stipendio', 'Affitto']);
   });
 
-  testWidgets('Aggiungere entrata e uscita e verificare che appaiano nella lista',
+  testWidgets('Add income and expense and check they appear in the list',
       (tester) async {
     await startApp(tester);
 
-    // Verifica stato iniziale: nessuna transazione
+    // Initial state: no transactions
     expect(find.text('Nessuna transazione questo mese'), findsOneWidget);
 
-    // --- Aggiungere un'ENTRATA ---
+    // --- Add an INCOME ---
     await addTransaction(
       tester,
       category: 'Stipendio',
@@ -29,12 +29,12 @@ void main() {
       isIncome: true,
     );
 
-    // Torniamo alla home - verificare che l'entrata appaia
+    // Back home - the income must appear
     expect(find.text('Stipendio'), findsOneWidget);
-    // Il messaggio "Nessuna transazione" non deve più apparire
+    // The "no transactions" message must be gone
     expect(find.text('Nessuna transazione questo mese'), findsNothing);
 
-    // --- Aggiungere un'USCITA ---
+    // --- Add an EXPENSE ---
     await addTransaction(
       tester,
       category: 'Affitto',
@@ -42,16 +42,16 @@ void main() {
       isIncome: false,
     );
 
-    // Verificare che entrambe le transazioni appaiano nella lista
+    // Both transactions must appear in the list
     expect(find.text('Stipendio'), findsOneWidget);
     expect(find.text('Affitto'), findsOneWidget);
 
-    // Verificare che i totali siano corretti
-    // Entrate: 1500, Uscite: 800, Bilancio: 700
-    expect(find.textContaining('1.500'), findsWidgets); // entrate + nella tile
-    expect(find.textContaining('800'), findsWidgets); // uscite + nella tile
-    expect(find.textContaining('700,00'), findsWidgets); // bilancio
+    // Check the totals
+    // Income: 1500, expenses: 800, balance: 700
+    expect(find.textContaining('1.500'), findsWidgets); // income + in the tile
+    expect(find.textContaining('800'), findsWidgets); // expenses + in the tile
+    expect(find.textContaining('700,00'), findsWidgets); // balance
 
-    print('TEST PASSED: Entrata e uscita aggiunte e visibili nella lista');
+    print('TEST PASSED: income and expense added and shown in the list');
   });
 }

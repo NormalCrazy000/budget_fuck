@@ -3,15 +3,15 @@ import 'package:intl/intl.dart';
 import '../models/transaction.dart';
 import 'confirm_delete_dialog.dart';
 
-/// Widget per visualizzare una singola transazione nella lista.
+/// Shows a single transaction in a list.
 ///
-/// Mostra:
-/// - Icona colorata (verde freccia giù per entrate, rosso freccia su per uscite)
-/// - Nome della categoria come titolo
-/// - Data in formato dd/MM/yyyy come sottotitolo
-/// - Importo con segno + o - e colore verde/rosso
+/// Shows:
+/// - colored icon (green down arrow for income, red up arrow for expenses)
+/// - category name as title
+/// - date in dd/MM/yyyy format as subtitle
+/// - amount with + or - sign, green/red
 ///
-/// Supporta swipe da destra a sinistra per eliminare (Dismissible).
+/// Swipe right-to-left to delete (Dismissible).
 class TransactionTile extends StatelessWidget {
   final Transaction transaction;
   final VoidCallback onDelete;
@@ -29,9 +29,9 @@ class TransactionTile extends StatelessWidget {
 
     return Dismissible(
       key: Key(transaction.id),
-      // Solo swipe verso sinistra (end to start)
+      // Swipe to the left only (end to start)
       direction: DismissDirection.endToStart,
-      // Sfondo rosso con icona cestino visibile durante lo swipe
+      // Red background with a trash icon shown while swiping
       background: Container(
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
@@ -42,7 +42,7 @@ class TransactionTile extends StatelessWidget {
           showConfirmDeleteDialog(context, transaction.category),
       onDismissed: (_) => onDelete(),
       child: ListTile(
-        // Icona circolare colorata per distinguere entrate da uscite
+        // Colored circular icon to tell income from expenses
         leading: CircleAvatar(
           backgroundColor:
               transaction.isIncome ? Colors.green.shade100 : Colors.red.shade100,
@@ -53,7 +53,7 @@ class TransactionTile extends StatelessWidget {
         ),
         title: Text(transaction.category),
         subtitle: Text(dateFormat.format(transaction.date)),
-        // Importo formattato con segno e colore
+        // Amount formatted with sign and color
         trailing: Text(
           '${transaction.isIncome ? '+' : '-'}${currencyFormat.format(transaction.amount)}',
           style: TextStyle(

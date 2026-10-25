@@ -5,16 +5,16 @@ import '../providers/category_provider.dart';
 import '../providers/template_provider.dart';
 import '../widgets/category_picker_field.dart';
 
-/// Schermata per creare un nuovo template di transazione predefinito.
+/// Screen to create a new predefined transaction template.
 ///
-/// Simile a [AddTransactionScreen] ma senza il selettore data,
-/// dato che i template sono indipendenti dal mese.
+/// Like [AddTransactionScreen] but without the date picker,
+/// since templates do not depend on the month.
 ///
-/// Contiene un form con:
-/// - Toggle entrata/uscita (verde/rosso)
-/// - Campo categoria con ricerca (obbligatorio, popolato da [CategoryProvider])
-/// - Campo importo numerico con validazione
-/// - Pulsante salva che persiste su Hive e torna alla lista template
+/// Contains a form with:
+/// - income/expense toggle (green/red)
+/// - searchable category field (required, filled from [CategoryProvider])
+/// - numeric amount field with validation
+/// - save button that persists to Hive and goes back to the template list
 class AddTemplateScreen extends StatefulWidget {
   const AddTemplateScreen({super.key});
 
@@ -25,11 +25,11 @@ class AddTemplateScreen extends StatefulWidget {
 class _AddTemplateScreenState extends State<AddTemplateScreen> {
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
-  bool _isIncome = true; // Default: entrata
-  String? _selectedCategory; // Categoria selezionata dal dropdown
+  bool _isIncome = true; // Default: income
+  String? _selectedCategory; // Category picked in the form
 
-  // Categorie caricate una sola volta all'apertura della schermata.
-  // Non serve context.watch perché la lista non cambia mentre il form è aperto.
+  // Categories loaded once when the screen opens.
+  // No context.watch needed: the list does not change while the form is open.
   List<String> _categoryNames = [];
   bool _categoriesLoaded = false;
 
@@ -37,7 +37,7 @@ class _AddTemplateScreenState extends State<AddTemplateScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (!_categoriesLoaded) {
-      // read: lettura one-shot, non sottoscrive a notifiche future
+      // read: one-shot read, does not subscribe to future notifications
       _categoryNames = context
           .read<CategoryProvider>()
           .categories
@@ -53,8 +53,8 @@ class _AddTemplateScreenState extends State<AddTemplateScreen> {
     super.dispose();
   }
 
-  /// Valida il form, crea il template e lo salva tramite il provider.
-  /// L'id viene generato dal timestamp corrente in millisecondi.
+  /// Validates the form, creates the template and saves it via the provider.
+  /// The id is the current timestamp in milliseconds.
   void _save() {
     if (!_formKey.currentState!.validate()) return;
 
@@ -65,7 +65,7 @@ class _AddTemplateScreenState extends State<AddTemplateScreen> {
       category: _selectedCategory!,
     );
 
-    // read: accede al provider senza sottoscriversi (azione one-shot)
+    // read: accesses the provider without subscribing (one-shot action)
     context.read<TemplateProvider>().addTemplate(template);
     Navigator.of(context).pop();
   }
@@ -82,10 +82,10 @@ class _AddTemplateScreenState extends State<AddTemplateScreen> {
           key: _formKey,
           child: ListView(
             children: [
-              // Toggle Entrata/Uscita: due bottoni affiancati con bordi arrotondati
+              // Income/expense toggle: two side-by-side buttons with rounded corners
               Row(
                 children: [
-                  // Bottone "Entrata" (metà sinistra)
+                  // "Income" button (left half)
                   Expanded(
                     child: GestureDetector(
                       onTap: () => setState(() => _isIncome = true),
@@ -108,7 +108,7 @@ class _AddTemplateScreenState extends State<AddTemplateScreen> {
                       ),
                     ),
                   ),
-                  // Bottone "Uscita" (metà destra)
+                  // "Expense" button (right half)
                   Expanded(
                     child: GestureDetector(
                       onTap: () => setState(() => _isIncome = false),
@@ -135,7 +135,7 @@ class _AddTemplateScreenState extends State<AddTemplateScreen> {
               ),
               const SizedBox(height: 24),
 
-              // Campo importo (solo numeri con decimali)
+              // Amount field (numbers with decimals only)
               TextFormField(
                 controller: _amountController,
                 decoration: const InputDecoration(
@@ -156,8 +156,8 @@ class _AddTemplateScreenState extends State<AddTemplateScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Selezione della categoria (obbligatoria) con ricerca.
-              // Usa _categoryNames caricato una volta in didChangeDependencies.
+              // Category selection (required) with search.
+              // Uses _categoryNames, loaded once in didChangeDependencies.
               CategoryPickerField(
                 categoryNames: _categoryNames,
                 onChanged: (value) {
@@ -166,7 +166,7 @@ class _AddTemplateScreenState extends State<AddTemplateScreen> {
               ),
               const SizedBox(height: 24),
 
-              // Pulsante salva: colore dinamico in base al tipo di template
+              // Save button: color depends on the template type
               ElevatedButton(
                 onPressed: _save,
                 style: ElevatedButton.styleFrom(

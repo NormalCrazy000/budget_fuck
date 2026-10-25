@@ -32,7 +32,7 @@ void main() {
     );
   }
 
-  testWidgets('swipe mostra il dialog di conferma', (tester) async {
+  testWidgets('swipe shows the confirmation dialog', (tester) async {
     await tester.pumpWidget(buildWidget());
 
     await tester.drag(find.text('Affitto'), const Offset(-500, 0));
@@ -45,7 +45,7 @@ void main() {
     );
   });
 
-  testWidgets('annullare il dialog non elimina il template', (tester) async {
+  testWidgets('cancelling the dialog keeps the template', (tester) async {
     await tester.pumpWidget(buildWidget());
 
     await tester.drag(find.text('Affitto'), const Offset(-500, 0));
@@ -58,7 +58,7 @@ void main() {
     expect(find.text('Affitto'), findsOneWidget);
   });
 
-  testWidgets('confermare il dialog elimina il template', (tester) async {
+  testWidgets('confirming the dialog deletes the template', (tester) async {
     await tester.pumpWidget(buildWidget());
 
     await tester.drag(find.text('Affitto'), const Offset(-500, 0));

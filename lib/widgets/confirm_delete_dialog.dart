@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-/// Mostra un dialog di conferma prima di eliminare un elemento.
+/// Shows a confirmation dialog before deleting an item.
 ///
-/// Restituisce `true` se l'utente conferma, `false` se annulla.
-/// [itemDescription] viene inserito nel messaggio: "Sei sicuro di voler eliminare {itemDescription}?"
+/// Returns `true` if the user confirms, `false` if they cancel.
+/// [itemDescription] is inserted in the message ("delete {itemDescription}?").
 Future<bool?> showConfirmDeleteDialog(
   BuildContext context,
   String itemDescription,

@@ -5,7 +5,7 @@ import 'package:budget_fuck/models/category.dart';
 import 'package:budget_fuck/providers/category_provider.dart';
 import 'package:budget_fuck/screens/categories_screen.dart';
 
-/// Fake CategoryProvider che non dipende da Hive.
+/// Fake CategoryProvider that does not depend on Hive.
 class FakeCategoryProvider extends ChangeNotifier implements CategoryProvider {
   final List<Category> _categories = [];
 
@@ -50,8 +50,8 @@ class FakeCategoryProvider extends ChangeNotifier implements CategoryProvider {
   }
 }
 
-/// Campo di testo dentro il dialog "Nuova Categoria"
-/// (la schermata ha anche la barra di ricerca).
+/// Text field inside the new category dialog
+/// (the screen also has the search bar).
 final dialogTextField = find.descendant(
   of: find.byType(AlertDialog),
   matching: find.byType(TextField),
@@ -73,7 +73,7 @@ void main() {
     );
   }
 
-  testWidgets('swipe mostra il dialog di conferma', (tester) async {
+  testWidgets('swipe shows the confirmation dialog', (tester) async {
     await provider.addCategory('Alimentari');
     await tester.pumpWidget(buildWidget());
     await tester.pumpAndSettle();
@@ -88,7 +88,7 @@ void main() {
     );
   });
 
-  testWidgets('confermare il dialog elimina la categoria', (tester) async {
+  testWidgets('confirming the dialog deletes the category', (tester) async {
     await provider.addCategory('Alimentari');
     await tester.pumpWidget(buildWidget());
     await tester.pumpAndSettle();
@@ -102,7 +102,7 @@ void main() {
     expect(provider.categories, isEmpty);
   });
 
-  testWidgets('annullare il dialog non elimina la categoria', (tester) async {
+  testWidgets('cancelling the dialog keeps the category', (tester) async {
     await provider.addCategory('Alimentari');
     await tester.pumpWidget(buildWidget());
     await tester.pumpAndSettle();
@@ -118,39 +118,39 @@ void main() {
   });
 
   testWidgets(
-    'aggiungere una categoria via dialog non lancia errori Flutter',
+    'adding a category via the dialog throws no Flutter errors',
     (tester) async {
       await tester.pumpWidget(buildWidget());
       await tester.pumpAndSettle();
 
-      // Apre il dialog tramite FAB
+      // Open the dialog with the FAB
       await tester.tap(find.byType(FloatingActionButton));
       await tester.pumpAndSettle();
 
       expect(find.text('Nuova Categoria'), findsOneWidget);
 
-      // Digita il nome della categoria
+      // Type the category name
       await tester.enterText(dialogTextField, 'Trasporti');
       await tester.pumpAndSettle();
 
-      // Conferma
+      // Confirm
       await tester.tap(find.text('Aggiungi'));
       await tester.pumpAndSettle();
 
-      // Il dialog deve essere chiuso
+      // The dialog must be closed
       expect(find.text('Nuova Categoria'), findsNothing);
 
-      // La categoria deve comparire nella lista
+      // The category must appear in the list
       expect(find.text('Trasporti'), findsOneWidget);
       expect(provider.categories.length, 1);
 
-      // Nessuna eccezione Flutter deve essere stata sollevata
+      // No Flutter exception must have been thrown
       expect(tester.takeException(), isNull);
     },
   );
 
   testWidgets(
-    'aggiungere una categoria via invio da tastiera non lancia errori Flutter',
+    'adding a category with the keyboard enter key throws no Flutter errors',
     (tester) async {
       await tester.pumpWidget(buildWidget());
       await tester.pumpAndSettle();
@@ -168,8 +168,8 @@ void main() {
     },
   );
 
-  group('ricerca', () {
-    /// Barra di ricerca in cima alla lista (fuori dal dialog).
+  group('search', () {
+    /// Search bar at the top of the list (outside the dialog).
     final searchField = find.widgetWithText(TextField, 'Cerca categoria');
 
     setUp(() async {
@@ -179,7 +179,7 @@ void main() {
       await provider.addCategory('Affitto');
     });
 
-    testWidgets('filtra la lista mentre si scrive', (tester) async {
+    testWidgets('filters the list while typing', (tester) async {
       await tester.pumpWidget(buildWidget());
       await tester.pumpAndSettle();
 
@@ -192,7 +192,7 @@ void main() {
       expect(find.text('Caffè'), findsNothing);
     });
 
-    testWidgets('ignora gli accenti', (tester) async {
+    testWidgets('ignores accents', (tester) async {
       await tester.pumpWidget(buildWidget());
       await tester.pumpAndSettle();
 
@@ -203,7 +203,7 @@ void main() {
       expect(find.text('Spesa'), findsNothing);
     });
 
-    testWidgets('mostra "Nessun risultato" se non trova nulla', (tester) async {
+    testWidgets('shows "Nessun risultato" when nothing matches', (tester) async {
       await tester.pumpWidget(buildWidget());
       await tester.pumpAndSettle();
 
@@ -214,7 +214,7 @@ void main() {
       expect(find.text('Nessuna categoria'), findsNothing);
     });
 
-    testWidgets('il pulsante X svuota la ricerca e mostra tutto',
+    testWidgets('the X button clears the search and shows everything',
         (tester) async {
       await tester.pumpWidget(buildWidget());
       await tester.pumpAndSettle();
@@ -230,14 +230,14 @@ void main() {
     });
   });
 
-  group('suggerimenti nel dialog', () {
+  group('suggestions in the dialog', () {
     setUp(() async {
       await provider.addCategory('Spesa');
       await provider.addCategory('Spese mediche');
       await provider.addCategory('Affitto');
     });
 
-    testWidgets('mostra le categorie simili già esistenti', (tester) async {
+    testWidgets('shows similar existing categories', (tester) async {
       await tester.pumpWidget(buildWidget());
       await tester.pumpAndSettle();
       await tester.tap(find.byType(FloatingActionButton));
@@ -262,7 +262,7 @@ void main() {
       );
     });
 
-    testWidgets('nessun suggerimento con campo vuoto o senza somiglianze',
+    testWidgets('no suggestions with an empty field or no similar names',
         (tester) async {
       await tester.pumpWidget(buildWidget());
       await tester.pumpAndSettle();

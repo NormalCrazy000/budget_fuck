@@ -4,7 +4,7 @@ import 'package:budget_fuck/widgets/confirm_delete_dialog.dart';
 
 void main() {
   group('showConfirmDeleteDialog', () {
-    testWidgets('mostra titolo, messaggio e pulsanti corretti', (tester) async {
+    testWidgets('shows the right title, message and buttons', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Builder(
@@ -29,7 +29,7 @@ void main() {
       expect(find.text('Elimina'), findsOneWidget);
     });
 
-    testWidgets('Annulla restituisce false', (tester) async {
+    testWidgets('Annulla returns false', (tester) async {
       bool? result;
 
       await tester.pumpWidget(
@@ -55,7 +55,7 @@ void main() {
       expect(result, false);
     });
 
-    testWidgets('Elimina restituisce true', (tester) async {
+    testWidgets('Elimina returns true', (tester) async {
       bool? result;
 
       await tester.pumpWidget(

@@ -1,6 +1,6 @@
-// Funzioni di supporto per la ricerca testuale nelle liste.
+// Helpers for text search in lists.
 
-/// Lettere accentate italiane (e varianti comuni) e la loro forma senza accento.
+/// Accented letters (Italian and common variants) and their unaccented form.
 const _accents = {
   'à': 'a', 'á': 'a', 'â': 'a', 'ä': 'a',
   'è': 'e', 'é': 'e', 'ê': 'e', 'ë': 'e',
@@ -9,8 +9,8 @@ const _accents = {
   'ù': 'u', 'ú': 'u', 'û': 'u', 'ü': 'u',
 };
 
-/// Normalizza un testo per il confronto: minuscolo, senza accenti e
-/// senza spazi iniziali/finali (es. " Caffè " → "caffe").
+/// Normalizes a text for comparison: lowercase, no accents and no
+/// leading/trailing spaces (e.g. " Caffè " → "caffe").
 String normalizeForSearch(String text) {
   final lower = text.trim().toLowerCase();
   final buffer = StringBuffer();
@@ -20,10 +20,10 @@ String normalizeForSearch(String text) {
   return buffer.toString();
 }
 
-/// Restituisce true se [text] contiene [query], ignorando maiuscole e accenti.
+/// Whether [text] contains [query], ignoring case and accents.
 ///
-/// Una query vuota (o fatta solo di spazi) corrisponde a qualsiasi testo,
-/// così una barra di ricerca vuota mostra tutta la lista.
+/// An empty (or whitespace-only) query matches any text, so an empty
+/// search bar shows the whole list.
 bool matchesSearch(String text, String query) {
   final normalizedQuery = normalizeForSearch(query);
   if (normalizedQuery.isEmpty) return true;

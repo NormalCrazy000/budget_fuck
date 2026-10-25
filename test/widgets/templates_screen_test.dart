@@ -5,7 +5,7 @@ import 'package:budget_fuck/models/transaction_template.dart';
 import 'package:budget_fuck/providers/template_provider.dart';
 import 'package:budget_fuck/screens/templates_screen.dart';
 
-/// Fake TemplateProvider che non dipende da Hive.
+/// Fake TemplateProvider that does not depend on Hive.
 class FakeTemplateProvider extends ChangeNotifier implements TemplateProvider {
   final List<TransactionTemplate> _templates = [];
 
@@ -75,7 +75,7 @@ void main() {
 
   final searchField = find.widgetWithText(TextField, 'Cerca per categoria');
 
-  testWidgets('lista vuota mostra "Nessun template" e la barra di ricerca',
+  testWidgets('empty list shows "Nessun template" and the search bar',
       (tester) async {
     await tester.pumpWidget(buildWidget());
     await tester.pumpAndSettle();
@@ -84,7 +84,7 @@ void main() {
     expect(searchField, findsOneWidget);
   });
 
-  testWidgets('la ricerca filtra i template per categoria', (tester) async {
+  testWidgets('search filters templates by category', (tester) async {
     await provider.addAll([
       _tmpl('1', 'Stipendio', isIncome: true),
       _tmpl('2', 'Affitto'),
@@ -101,7 +101,7 @@ void main() {
     expect(find.text('Affitto'), findsNothing);
   });
 
-  testWidgets('mostra "Nessun risultato" se la ricerca non trova nulla',
+  testWidgets('shows "Nessun risultato" when the search finds nothing',
       (tester) async {
     await provider.addTemplate(_tmpl('1', 'Affitto'));
     await tester.pumpWidget(buildWidget());

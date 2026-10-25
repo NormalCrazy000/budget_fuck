@@ -3,18 +3,18 @@ import 'package:intl/intl.dart';
 import '../models/transaction_template.dart';
 import 'confirm_delete_dialog.dart';
 
-/// Widget per visualizzare un singolo template nella lista.
+/// Shows a single template in a list.
 ///
-/// Simile a [TransactionTile] ma al posto della data mostra
-/// il tipo di template ("Entrata" o "Uscita") come sottotitolo.
+/// Like [TransactionTile], but shows the template type (income or expense)
+/// as subtitle instead of the date.
 ///
-/// Mostra:
-/// - Icona colorata (verde freccia giù per entrate, rosso freccia su per uscite)
-/// - Nome della categoria come titolo
-/// - Tipo: "Entrata" o "Uscita"
-/// - Importo con segno + o - e colore verde/rosso
+/// Shows:
+/// - colored icon (green down arrow for income, red up arrow for expenses)
+/// - category name as title
+/// - type: income or expense
+/// - amount with + or - sign, green/red
 ///
-/// Supporta swipe da destra a sinistra per eliminare (Dismissible).
+/// Swipe right-to-left to delete (Dismissible).
 class TemplateTile extends StatelessWidget {
   final TransactionTemplate template;
   final VoidCallback onDelete;
@@ -31,9 +31,9 @@ class TemplateTile extends StatelessWidget {
 
     return Dismissible(
       key: Key(template.id),
-      // Solo swipe verso sinistra (end to start)
+      // Swipe to the left only (end to start)
       direction: DismissDirection.endToStart,
-      // Sfondo rosso con icona cestino visibile durante lo swipe
+      // Red background with a trash icon shown while swiping
       background: Container(
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
@@ -44,7 +44,7 @@ class TemplateTile extends StatelessWidget {
           showConfirmDeleteDialog(context, template.category),
       onDismissed: (_) => onDelete(),
       child: ListTile(
-        // Icona circolare colorata per distinguere entrate da uscite
+        // Colored circular icon to tell income from expenses
         leading: CircleAvatar(
           backgroundColor:
               template.isIncome ? Colors.green.shade100 : Colors.red.shade100,
@@ -54,9 +54,9 @@ class TemplateTile extends StatelessWidget {
           ),
         ),
         title: Text(template.category),
-        // Al posto della data, mostra il tipo di transazione
+        // Show the transaction type instead of the date
         subtitle: Text(template.isIncome ? 'Entrata' : 'Uscita'),
-        // Importo formattato con segno e colore
+        // Amount formatted with sign and color
         trailing: Text(
           '${template.isIncome ? '+' : '-'}${currencyFormat.format(template.amount)}',
           style: TextStyle(

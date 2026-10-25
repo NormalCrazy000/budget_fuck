@@ -6,15 +6,15 @@ import '../utils/search.dart';
 import '../widgets/confirm_delete_dialog.dart';
 import '../widgets/search_field.dart';
 
-/// Schermata per visualizzare e gestire le categorie di transazione.
+/// Screen to view and manage transaction categories.
 ///
-/// Mostra la lista di tutte le categorie salvate in ordine alfabetico,
-/// filtrabile con la barra di ricerca in alto.
-/// Ogni categoria può essere eliminata con swipe verso sinistra.
-/// Il FAB apre un dialog per crearne di nuove con validazione
-/// (nome non vuoto, nessun duplicato) e suggerimenti delle categorie simili.
+/// Shows all saved categories in alphabetical order,
+/// filterable with the search bar at the top.
+/// Each category can be deleted by swiping left.
+/// The FAB opens a dialog to create new ones, with validation
+/// (non-empty name, no duplicates) and suggestions of similar categories.
 ///
-/// Accessibile dalla HomeScreen tramite l'icona categoria nella AppBar.
+/// Reached from HomeScreen via the category icon in the AppBar.
 class CategoriesScreen extends StatefulWidget {
   const CategoriesScreen({super.key});
 
@@ -27,7 +27,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // watch: ricostruisce il widget ad ogni notifyListeners() del provider
+    // watch: rebuilds the widget on every notifyListeners() of the provider
     final provider = context.watch<CategoryProvider>();
     final categories = provider.categories
         .where((c) => matchesSearch(c.name, _query))
@@ -44,7 +44,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
           Expanded(child: _buildList(provider, categories)),
         ],
       ),
-      // Pulsante flottante per aggiungere una nuova categoria
+      // Floating button to add a new category
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddDialog(context),
         child: const Icon(Icons.add),
@@ -52,7 +52,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     );
   }
 
-  /// Lista delle categorie filtrate, o messaggio se non c'è nulla da mostrare.
+  /// The filtered categories, or a message when there is nothing to show.
   Widget _buildList(CategoryProvider provider, List<Category> categories) {
     if (categories.isEmpty) {
       return Center(
@@ -66,11 +66,11 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       itemCount: categories.length,
       itemBuilder: (context, index) {
         final category = categories[index];
-        // Swipe verso sinistra per eliminare la categoria
+        // Swipe left to delete the category
         return Dismissible(
           key: Key(category.id),
           direction: DismissDirection.endToStart,
-          // Sfondo rosso con icona cestino visibile durante lo swipe
+          // Red background with a trash icon shown while swiping
           background: Container(
             alignment: Alignment.centerRight,
             padding: const EdgeInsets.only(right: 20),
@@ -99,12 +99,12 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   }
 }
 
-/// Dialog per aggiungere una nuova categoria.
+/// Dialog to add a new category.
 ///
-/// Usa [StatefulWidget] per gestire il ciclo di vita del [TextEditingController]:
-/// [dispose()] viene chiamato da Flutter solo dopo che l'animazione di uscita
-/// del dialog è completata e il widget è davvero rimosso dall'albero,
-/// evitando l'errore "controller used after disposed".
+/// Uses a [StatefulWidget] to manage the [TextEditingController] lifecycle:
+/// Flutter calls [dispose()] only after the dialog exit animation has
+/// completed and the widget is really removed from the tree,
+/// avoiding the "controller used after disposed" error.
 class _AddCategoryDialog extends StatefulWidget {
   final CategoryProvider provider;
 
@@ -115,7 +115,7 @@ class _AddCategoryDialog extends StatefulWidget {
 }
 
 class _AddCategoryDialogState extends State<_AddCategoryDialog> {
-  /// Numero massimo di categorie simili mostrate sotto il campo.
+  /// Maximum number of similar categories shown below the field.
   static const _maxSuggestions = 5;
 
   final _controller = TextEditingController();
@@ -137,15 +137,15 @@ class _AddCategoryDialogState extends State<_AddCategoryDialog> {
       setState(() => _errorText = 'Categoria già esistente');
       return;
     }
-    // notifyListeners() avviene mentre il dialog è ancora montato,
-    // poi chiudiamo in modo sicuro dopo aver verificato mounted.
+    // notifyListeners() happens while the dialog is still mounted,
+    // then we close it safely after checking mounted.
     await widget.provider.addCategory(name);
     if (mounted) Navigator.of(context).pop();
   }
 
   @override
   Widget build(BuildContext context) {
-    // Categorie esistenti simili al testo digitato, per evitare doppioni
+    // Existing categories similar to the typed text, to avoid duplicates
     final similar = _controller.text.trim().isEmpty
         ? const <String>[]
         : widget.provider.categories
@@ -168,7 +168,7 @@ class _AddCategoryDialogState extends State<_AddCategoryDialog> {
               border: const OutlineInputBorder(),
               errorText: _errorText,
             ),
-            // setState per aggiornare i suggerimenti ad ogni lettera
+            // setState to refresh the suggestions on every keystroke
             onChanged: (_) => setState(() {}),
             onSubmitted: (_) => _tryAdd(),
           ),

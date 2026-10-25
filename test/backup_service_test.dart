@@ -8,7 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('BackupService.exportToJson', () {
-    test('produce JSON valido', () {
+    test('produces valid JSON', () {
       final json = BackupService.exportToJson(
         transactions: [],
         categories: [],
@@ -17,7 +17,7 @@ void main() {
       expect(() => jsonDecode(json), returnsNormally);
     });
 
-    test('include version e exportDate', () {
+    test('includes version and exportDate', () {
       final json = BackupService.exportToJson(
         transactions: [],
         categories: [],
@@ -28,7 +28,7 @@ void main() {
       expect(data['exportDate'], isA<String>());
     });
 
-    test('serializza transazione con tutti i campi', () {
+    test('serializes a transaction with all fields', () {
       final date = DateTime(2026, 6, 14, 10, 30);
       final json = BackupService.exportToJson(
         transactions: [
@@ -52,7 +52,7 @@ void main() {
       expect(txJson['category'], 'Lavoro');
     });
 
-    test('serializza categoria con tutti i campi', () {
+    test('serializes a category with all fields', () {
       final json = BackupService.exportToJson(
         transactions: [],
         categories: [Category(id: 'c1', name: 'Alimentari')],
@@ -64,7 +64,7 @@ void main() {
       expect(catJson['name'], 'Alimentari');
     });
 
-    test('serializza template con tutti i campi', () {
+    test('serializes a template with all fields', () {
       final json = BackupService.exportToJson(
         transactions: [],
         categories: [],
@@ -85,7 +85,7 @@ void main() {
       expect(tmplJson['category'], 'Affitto');
     });
 
-    test('serializza più elementi correttamente', () {
+    test('serializes multiple items correctly', () {
       final json = BackupService.exportToJson(
         transactions: [
           Transaction(
@@ -124,7 +124,7 @@ void main() {
   });
 
   group('BackupService.parseJson', () {
-    test('round-trip transazione preserva tutti i campi', () {
+    test('transaction round-trip keeps all fields', () {
       final date = DateTime(2026, 6, 14, 10, 30);
       final json = BackupService.exportToJson(
         transactions: [
@@ -147,7 +147,7 @@ void main() {
       expect(t.category, 'Bollette');
     });
 
-    test('round-trip categoria preserva tutti i campi', () {
+    test('category round-trip keeps all fields', () {
       final json = BackupService.exportToJson(
         transactions: [],
         categories: [Category(id: 'c1', name: 'Salute')],
@@ -158,7 +158,7 @@ void main() {
       expect(c.name, 'Salute');
     });
 
-    test('round-trip template preserva tutti i campi', () {
+    test('template round-trip keeps all fields', () {
       final json = BackupService.exportToJson(
         transactions: [],
         categories: [],
@@ -178,7 +178,7 @@ void main() {
       expect(t.category, 'Stipendio');
     });
 
-    test('gestisce amount come intero nel JSON', () {
+    test('handles amount as an integer in the JSON', () {
       const json = '''
 {
   "version": 1,
@@ -190,7 +190,7 @@ void main() {
       expect(BackupService.parseJson(json).transactions.first.amount, 50.0);
     });
 
-    test('backup vuoto restituisce liste vuote', () {
+    test('empty backup returns empty lists', () {
       final json = BackupService.exportToJson(
         transactions: [],
         categories: [],
@@ -202,14 +202,14 @@ void main() {
       expect(data.templates, isEmpty);
     });
 
-    test('lancia eccezione per JSON non valido', () {
+    test('throws on invalid JSON', () {
       expect(
         () => BackupService.parseJson('non è json'),
         throwsA(isA<FormatException>()),
       );
     });
 
-    test('round-trip completo con più elementi', () {
+    test('full round-trip with multiple items', () {
       final json = BackupService.exportToJson(
         transactions: [
           Transaction(

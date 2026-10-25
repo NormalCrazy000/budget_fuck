@@ -1,36 +1,36 @@
-// hide Category per evitare conflitto con l'omonima classe di Flutter
+// hide Category to avoid a clash with Flutter's class of the same name
 import 'package:flutter/foundation.dart' hide Category;
 import 'package:hive/hive.dart';
 import '../models/category.dart';
 
-/// Provider per la gestione delle categorie di transazione.
+/// Provider that manages transaction categories.
 ///
-/// Gestisce lo stato delle categorie tramite [ChangeNotifier]:
-/// - CRUD delle categorie (add/delete) con persistenza su Hive
-/// - Getter con ordinamento alfabetico
-/// - Validazione duplicati (case-insensitive)
+/// Holds the category state via [ChangeNotifier]:
+/// - add/delete with Hive persistence
+/// - getter sorted alphabetically
+/// - duplicate check (case-insensitive)
 ///
-/// Viene iniettato nell'albero dei widget tramite [MultiProvider]
-/// e i widget lo consumano con `context.watch` o `context.read`.
+/// Injected into the widget tree via [MultiProvider]; widgets consume it
+/// with `context.watch` or `context.read`.
 class CategoryProvider extends ChangeNotifier {
   static const String _boxName = 'categories';
   late Box<Category> _box;
 
   CategoryProvider() {
-    // Recupera il box già aperto in main.dart
+    // Gets the box already opened in main.dart
     _box = Hive.box<Category>(_boxName);
   }
 
-  /// Restituisce tutte le categorie ordinate alfabeticamente (case-insensitive).
+  /// All categories sorted alphabetically (case-insensitive).
   List<Category> get categories {
     final list = _box.values.toList();
     list.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
     return list;
   }
 
-  /// Crea e salva una nuova categoria nel database locale.
-  /// Il nome viene trimmato prima del salvataggio.
-  /// L'id viene generato dal timestamp corrente in millisecondi.
+  /// Creates and saves a new category in the local database.
+  /// The name is trimmed before saving.
+  /// The id is the current timestamp in milliseconds.
   Future<void> addCategory(String name) async {
     final category = Category(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -40,21 +40,21 @@ class CategoryProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Elimina una categoria dal database tramite il suo id.
+  /// Deletes a category from the database by its id.
   Future<void> deleteCategory(String id) async {
     await _box.delete(id);
     notifyListeners();
   }
 
-  /// Verifica se esiste già una categoria con lo stesso nome.
-  /// Il confronto è case-insensitive e ignora spazi iniziali/finali.
+  /// Whether a category with the same name already exists.
+  /// The comparison is case-insensitive and ignores leading/trailing spaces.
   bool categoryExists(String name) {
     return _box.values.any(
       (c) => c.name.toLowerCase() == name.trim().toLowerCase(),
     );
   }
 
-  /// Sostituisce tutti i dati con la lista fornita (usato dall'import backup).
+  /// Replaces all data with the given list (used by backup import).
   Future<void> replaceAll(List<Category> cats) async {
     await _box.clear();
     for (final c in cats) {
@@ -63,7 +63,7 @@ class CategoryProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Aggiunge le categorie mancanti senza toccare quelle esistenti.
+  /// Adds the missing categories without touching the existing ones.
   Future<void> addAll(List<Category> cats) async {
     for (final c in cats) {
       if (!_box.containsKey(c.id)) {

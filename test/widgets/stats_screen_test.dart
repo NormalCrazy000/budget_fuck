@@ -6,7 +6,7 @@ import 'package:budget_fuck/models/transaction.dart';
 import 'package:budget_fuck/providers/transaction_provider.dart';
 import 'package:budget_fuck/screens/stats_screen.dart';
 
-/// Fake TransactionProvider che non dipende da Hive.
+/// Fake TransactionProvider that does not depend on Hive.
 class FakeTransactionProvider extends ChangeNotifier
     implements TransactionProvider {
   final List<Transaction> _all = [];
@@ -137,20 +137,20 @@ void main() {
     );
   }
 
-  testWidgets('mostra due tab Uscite ed Entrate', (tester) async {
+  testWidgets('shows the Uscite and Entrate tabs', (tester) async {
     await tester.pumpWidget(buildWidget());
 
     expect(find.text('Uscite'), findsOneWidget);
     expect(find.text('Entrate'), findsOneWidget);
   });
 
-  testWidgets('tab Uscite vuoto mostra messaggio', (tester) async {
+  testWidgets('empty Uscite tab shows a message', (tester) async {
     await tester.pumpWidget(buildWidget());
 
     expect(find.text('Nessuna uscita questo mese'), findsOneWidget);
   });
 
-  testWidgets('tab Entrate vuoto mostra messaggio', (tester) async {
+  testWidgets('empty Entrate tab shows a message', (tester) async {
     await tester.pumpWidget(buildWidget());
 
     await tester.tap(find.text('Entrate'));
@@ -159,7 +159,7 @@ void main() {
     expect(find.text('Nessuna entrata questo mese'), findsOneWidget);
   });
 
-  testWidgets('mostra categoria con importo corretto', (tester) async {
+  testWidgets('shows a category with the right amount', (tester) async {
     await provider.addTransaction(
       _tx(id: '1', amount: 50.0, isIncome: false, category: 'Alimentari'),
     );
@@ -167,11 +167,11 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Alimentari'), findsOneWidget);
-    // il formato it_IT è "50,00 €"
+    // the it_IT format is "50,00 €"
     expect(find.textContaining('50,00'), findsWidgets);
   });
 
-  testWidgets('aggrega più transazioni della stessa categoria', (tester) async {
+  testWidgets('groups transactions of the same category', (tester) async {
     await provider.addTransaction(
       _tx(id: '1', amount: 30.0, isIncome: false, category: 'Alimentari'),
     );
@@ -181,13 +181,13 @@ void main() {
     await tester.pumpWidget(buildWidget());
     await tester.pumpAndSettle();
 
-    // 30 + 20 = 50 come totale categoria
+    // 30 + 20 = 50 as the category total
     expect(find.textContaining('50,00'), findsWidgets);
-    // due transazioni
+    // two transactions
     expect(find.text('2 transazioni'), findsOneWidget);
   });
 
-  testWidgets('ordina categorie per importo decrescente', (tester) async {
+  testWidgets('sorts categories by descending amount', (tester) async {
     await provider.addTransaction(
       _tx(id: '1', amount: 10.0, isIncome: false, category: 'Bollette'),
     );
@@ -205,7 +205,7 @@ void main() {
     expect(alimentariPos, lessThan(bollettePos));
   });
 
-  testWidgets('mostra 100% per categoria unica', (tester) async {
+  testWidgets('shows 100% for a single category', (tester) async {
     await provider.addTransaction(
       _tx(id: '1', amount: 100.0, isIncome: false, category: 'Alimentari'),
     );
@@ -215,7 +215,7 @@ void main() {
     expect(find.text('100.0%'), findsOneWidget);
   });
 
-  testWidgets('calcola percentuale corretta con due categorie', (tester) async {
+  testWidgets('computes the right percentage with two categories', (tester) async {
     await provider.addTransaction(
       _tx(id: '1', amount: 75.0, isIncome: false, category: 'Alimentari'),
     );
@@ -229,7 +229,7 @@ void main() {
     expect(find.text('25.0%'), findsOneWidget);
   });
 
-  testWidgets('entrate e uscite sono nei tab separati', (tester) async {
+  testWidgets('income and expenses are in separate tabs', (tester) async {
     await provider.addTransaction(
       _tx(id: '1', amount: 100.0, isIncome: false, category: 'Spesa'),
     );
@@ -239,11 +239,11 @@ void main() {
     await tester.pumpWidget(buildWidget());
     await tester.pumpAndSettle();
 
-    // Tab Uscite: vede Spesa, non Stipendio
+    // Expenses tab: shows Spesa, not Stipendio
     expect(find.text('Spesa'), findsOneWidget);
     expect(find.text('Stipendio'), findsNothing);
 
-    // Passa a tab Entrate
+    // Switch to the income tab
     await tester.tap(find.text('Entrate'));
     await tester.pumpAndSettle();
 
@@ -251,7 +251,7 @@ void main() {
     expect(find.text('Spesa'), findsNothing);
   });
 
-  testWidgets('freccia sinistra va al mese precedente', (tester) async {
+  testWidgets('left arrow goes to the previous month', (tester) async {
     await tester.pumpWidget(buildWidget());
 
     await tester.tap(find.byIcon(Icons.chevron_left));
@@ -260,7 +260,7 @@ void main() {
     expect(find.text('MAGGIO 2026'), findsOneWidget);
   });
 
-  testWidgets('freccia destra va al mese successivo', (tester) async {
+  testWidgets('right arrow goes to the next month', (tester) async {
     await tester.pumpWidget(buildWidget());
 
     await tester.tap(find.byIcon(Icons.chevron_right));
@@ -269,7 +269,7 @@ void main() {
     expect(find.text('LUGLIO 2026'), findsOneWidget);
   });
 
-  testWidgets('transazioni di altri mesi non compaiono', (tester) async {
+  testWidgets('transactions of other months are not shown', (tester) async {
     await provider.addTransaction(
       _tx(
         id: '1',
@@ -282,11 +282,11 @@ void main() {
     await tester.pumpWidget(buildWidget());
     await tester.pumpAndSettle();
 
-    // Il provider è su giugno 2026, la transazione è di maggio
+    // The provider is on June 2026, the transaction is from May
     expect(find.text('Nessuna uscita questo mese'), findsOneWidget);
   });
 
-  testWidgets('singola transazione mostra testo al singolare', (tester) async {
+  testWidgets('a single transaction shows singular text', (tester) async {
     await provider.addTransaction(
       _tx(id: '1', amount: 10.0, isIncome: false, category: 'Altro'),
     );

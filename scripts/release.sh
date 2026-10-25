@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
-# Crea un tag di release su main e lo pusha su origin.
-# La GitHub Actions pipeline si attiva automaticamente al push del tag
-# e genera l'APK release allegato alla GitHub Release.
+# Creates a release tag on main and pushes it to origin.
+# The GitHub Actions pipeline starts automatically on the tag push
+# and builds the release APK attached to the GitHub Release.
 #
-# Il tag è annotato: il suo messaggio contiene le note di rilascio, che la
-# pipeline usa come descrizione della GitHub Release.
+# The tag is annotated: its message holds the release notes, which the
+# pipeline uses as the GitHub Release description.
 #
-# Uso: ./scripts/release.sh <versione> [file-note]
-# Esempi:
-#   ./scripts/release.sh 1.2.0              # note generate dai commit feat/fix
-#   ./scripts/release.sh 1.2.0 note.md      # note lette dal file (Markdown)
+# Usage: ./scripts/release.sh <version> [notes-file]
+# Examples:
+#   ./scripts/release.sh 1.2.0              # notes generated from feat/fix commits
+#   ./scripts/release.sh 1.2.0 notes.md     # notes read from the file (Markdown)
 
 set -euo pipefail
 
-# ── Validazione argomenti ──────────────────────────────────────────────────────
+# ── Argument validation ──────────────────────────────────────────────────────────
 
 if [[ $# -lt 1 || $# -gt 2 ]]; then
-  echo "Uso: $0 <versione> [file-note]  (es. 1.2.0 note.md)"
+  echo "Usage: $0 <version> [notes-file]  (e.g. 1.2.0 notes.md)"
   exit 1
 fi
 
@@ -25,40 +25,40 @@ TAG="v${VERSION}"
 NOTES_FILE="${2:-}"
 
 if [[ -n "$NOTES_FILE" && ! -s "$NOTES_FILE" ]]; then
-  echo "Errore: il file di note '${NOTES_FILE}' non esiste o è vuoto."
+  echo "Error: the notes file '${NOTES_FILE}' does not exist or is empty."
   exit 1
 fi
 
-# Verifica che la versione segua il formato x.y.z
+# Check the version follows the x.y.z format
 if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-  echo "Errore: la versione deve seguire il formato x.y.z (es. 1.2.0)"
+  echo "Error: the version must follow the x.y.z format (e.g. 1.2.0)"
   exit 1
 fi
 
-# ── Controlli pre-tag ─────────────────────────────────────────────────────────
+# ── Pre-tag checks ───────────────────────────────────────────────────────────────
 
-# Verifica che non ci siano modifiche non committate
+# Check there are no uncommitted changes
 if ! git diff --quiet || ! git diff --cached --quiet; then
-  echo "Errore: ci sono modifiche non committate. Committa prima di taggare."
+  echo "Error: there are uncommitted changes. Commit before tagging."
   exit 1
 fi
 
-# Verifica che il tag non esista già
+# Check the tag does not exist yet
 if git tag | grep -q "^${TAG}$"; then
-  echo "Errore: il tag ${TAG} esiste già."
+  echo "Error: tag ${TAG} already exists."
   exit 1
 fi
 
-# ── Aggiorna main ─────────────────────────────────────────────────────────────
+# ── Update main ──────────────────────────────────────────────────────────────────
 
-echo "Aggiornamento main..."
+echo "Updating main..."
 git checkout main
 git pull origin main
 
-# ── Note di rilascio ──────────────────────────────────────────────────────────
+# ── Release notes ────────────────────────────────────────────────────────────────
 
-# Senza file di note, le genera dai commit feat/fix dall'ultimo tag
-# (i commit tecnici come chore, ci e docs non compaiono).
+# Without a notes file, generate them from feat/fix commits since the last tag
+# (technical commits such as chore, ci and docs are left out).
 NOTES_TMP=$(mktemp)
 trap 'rm -f "$NOTES_TMP"' EXIT
 
@@ -83,29 +83,29 @@ else
 fi
 
 echo ""
-echo "Note di rilascio per ${TAG}:"
+echo "Release notes for ${TAG}:"
 echo "────────────────────────────────────────"
 cat "$NOTES_TMP"
 echo "────────────────────────────────────────"
 
-# ── Aggiorna la versione in pubspec.yaml ──────────────────────────────────────
+# ── Update the version in pubspec.yaml ───────────────────────────────────────────
 
 BUILD=$(git rev-list --count HEAD)
 sed -i "s/^version: .*/version: ${VERSION}+${BUILD}/" pubspec.yaml
 
-# ── Commit di release e tag ───────────────────────────────────────────────────
+# ── Release commit and tag ───────────────────────────────────────────────────────
 
 git add pubspec.yaml
 git commit -m "chore: release ${TAG}"
 
-echo "Creazione tag ${TAG}..."
-# --cleanup=verbatim mantiene le righe che iniziano con "#" (titoli Markdown)
+echo "Creating tag ${TAG}..."
+# --cleanup=verbatim keeps lines starting with "#" (Markdown headings)
 git tag -a "$TAG" -F "$NOTES_TMP" --cleanup=verbatim
 
-echo "Push main e tag su origin..."
+echo "Pushing main and tag to origin..."
 git push origin main
 git push origin "$TAG"
 
 echo ""
-echo "Tag ${TAG} pushato. La pipeline GitHub Actions sta buildando l'APK."
-echo "Segui il progresso su: https://github.com/$(git remote get-url origin | sed 's/.*github.com[:/]\(.*\)\.git/\1/')/actions"
+echo "Tag ${TAG} pushed. The GitHub Actions pipeline is building the APK."
+echo "Follow the progress at: https://github.com/$(git remote get-url origin | sed 's/.*github.com[:/]\(.*\)\.git/\1/')/actions"

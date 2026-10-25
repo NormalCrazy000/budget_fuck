@@ -1,4 +1,4 @@
-// Le print mostrano l'avanzamento dei passi durante i test di integrazione.
+// The prints show the progress of each step during integration tests.
 // ignore_for_file: avoid_print
 
 import 'package:flutter/material.dart';
@@ -17,34 +17,34 @@ void main() {
     await resetStorage();
   });
 
-  testWidgets('Creare template, applicarli a un mese, verificare nella home',
+  testWidgets('Create templates, apply them to a month, check the home screen',
       (tester) async {
-    // Pre-popolare le categorie necessarie per il dropdown
+    // Pre-fill the categories needed by the category picker
     final categoryBox = Hive.box<Category>('categories');
     await categoryBox.put('c1', Category(id: 'c1', name: 'Stipendio'));
     await categoryBox.put('c2', Category(id: 'c2', name: 'Affitto'));
 
     await startApp(tester);
 
-    // === Navigare alla schermata Template ===
+    // === Go to the Templates screen ===
     await tester.tap(find.byIcon(Icons.list_alt));
     await tester.pumpAndSettle();
 
     expect(find.text('Template'), findsOneWidget);
     expect(find.text('Nessun template'), findsOneWidget);
-    print('OK: Schermata template vuota');
+    print('OK: empty templates screen');
 
-    // === Creare template "Stipendio" (entrata) ===
+    // === Create the "Stipendio" template (income) ===
     await tester.tap(find.byType(FloatingActionButton));
     await tester.pumpAndSettle();
 
     expect(find.text('Nuovo Template'), findsOneWidget);
-    // Default è già Entrata, ma tappiamo per sicurezza
+    // Income is the default, but tap it to be sure
     await tester.tap(find.text('Entrata'));
     await tester.pumpAndSettle();
-    // Inserire importo
+    // Enter the amount
     await tester.enterText(find.byType(TextFormField), '2000');
-    // Selezionare categoria dal campo con ricerca
+    // Pick the category in the searchable field
     await tester.tap(find.byType(DropdownMenu<String>));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Stipendio').last);
@@ -54,9 +54,9 @@ void main() {
 
     expect(find.text('Stipendio'), findsOneWidget);
     expect(find.text('Nessun template'), findsNothing);
-    print('OK: Template Stipendio creato');
+    print('OK: Stipendio template created');
 
-    // === Creare template "Affitto" (uscita) ===
+    // === Create the "Affitto" template (expense) ===
     await tester.tap(find.byType(FloatingActionButton));
     await tester.pumpAndSettle();
 
@@ -72,22 +72,22 @@ void main() {
 
     expect(find.text('Stipendio'), findsOneWidget);
     expect(find.text('Affitto'), findsOneWidget);
-    print('OK: Template Affitto creato');
+    print('OK: Affitto template created');
 
-    // === Tornare alla home ===
+    // === Back home ===
     await tester.tap(find.byType(BackButton));
     await tester.pumpAndSettle();
 
-    // === Navigare ad Applica Template ===
+    // === Go to Apply Templates ===
     await tester.tap(find.byIcon(Icons.play_circle_outline));
     await tester.pumpAndSettle();
 
     expect(find.text('Applica Template'), findsOneWidget);
     expect(find.text('Stipendio'), findsOneWidget);
     expect(find.text('Affitto'), findsOneWidget);
-    print('OK: Schermata applica template con 2 template');
+    print('OK: apply templates screen with 2 templates');
 
-    // === Selezionare tutti e applicare ===
+    // === Select all and apply ===
     await tester.tap(find.text('Seleziona Tutti'));
     await tester.pumpAndSettle();
 
@@ -96,17 +96,17 @@ void main() {
     await tester.tap(find.text('Applica (2)'));
     await tester.pumpAndSettle();
 
-    // === Siamo tornati alla home - verificare le transazioni ===
+    // === Back home - check the transactions ===
     expect(find.text('Stipendio'), findsOneWidget);
     expect(find.text('Affitto'), findsOneWidget);
     expect(find.textContaining('2.000'), findsWidgets);
     expect(find.textContaining('800'), findsWidgets);
-    print('OK: Template applicati, transazioni visibili nella home');
+    print('OK: templates applied, transactions shown on the home screen');
 
-    print('\nTEST PASSED: Creazione e applicazione template funzionano');
+    print('\nTEST PASSED: creating and applying templates works');
   });
 
-  testWidgets('Applicazione parziale - selezionare solo alcuni template',
+  testWidgets('Partial apply - select only some templates',
       (tester) async {
     // Pre-populate templates
     final templateBox = Hive.box<TransactionTemplate>('templates');
@@ -140,11 +140,11 @@ void main() {
 
     await startApp(tester);
 
-    // Navigare ad Applica Template
+    // Go to Apply Templates
     await tester.tap(find.byIcon(Icons.play_circle_outline));
     await tester.pumpAndSettle();
 
-    // Selezionare solo Stipendio (primo checkbox)
+    // Select only Stipendio (first checkbox)
     final checkboxes = find.byType(CheckboxListTile);
     expect(checkboxes, findsNWidgets(3));
 
@@ -157,18 +157,18 @@ void main() {
     await tester.tap(find.text('Applica (1)'));
     await tester.pumpAndSettle();
 
-    // Solo Stipendio deve apparire nella home
+    // Only Stipendio must appear on the home screen
     expect(find.text('Stipendio'), findsOneWidget);
     expect(find.text('Affitto'), findsNothing);
     expect(find.text('Bollette'), findsNothing);
-    print('OK: Applicazione parziale - solo Stipendio applicato');
+    print('OK: partial apply - only Stipendio applied');
 
-    print('\nTEST PASSED: Applicazione parziale funziona');
+    print('\nTEST PASSED: partial apply works');
   });
 
-  testWidgets('Template persistono dopo chiusura e riapertura',
+  testWidgets('Templates persist after close and reopen',
       (tester) async {
-    // Creare template
+    // Create a template
     final templateBox = Hive.box<TransactionTemplate>('templates');
     await templateBox.put(
       't1',
@@ -182,20 +182,20 @@ void main() {
 
     await startApp(tester);
 
-    // Navigare ai template e verificare
+    // Go to the templates and check
     await tester.tap(find.byIcon(Icons.list_alt));
     await tester.pumpAndSettle();
     expect(find.text('Stipendio'), findsOneWidget);
-    print('SESSIONE 1: Template presente nella UI');
+    print('SESSION 1: template shown in the UI');
 
-    // Verificare persistenza: chiudere e riaprire il box direttamente
-    // (senza ricaricare la UI, perché i provider mantengono riferimenti al box chiuso)
+    // Check persistence: close and reopen the box directly
+    // (without reloading the UI, since the providers keep references to the closed box)
     await Hive.box<TransactionTemplate>('templates').close();
     final reopened = await Hive.openBox<TransactionTemplate>('templates');
     expect(reopened.values.length, 1);
     expect(reopened.values.first.category, 'Stipendio');
-    print('SESSIONE 2: Template ancora presente dopo riapertura box');
+    print('SESSION 2: template still there after reopening the box');
 
-    print('\nTEST PASSED: Template persistono');
+    print('\nTEST PASSED: templates persist');
   });
 }

@@ -12,14 +12,14 @@ import 'categories_screen.dart';
 import 'stats_screen.dart';
 import 'templates_screen.dart';
 
-/// Schermata principale dell'app.
+/// Main screen of the app.
 ///
-/// Layout dall'alto verso il basso:
-/// 1. Selettore mese/anno con frecce di navigazione
-/// 2. Tre card di riepilogo (Entrate, Uscite, Bilancio)
-/// 3. Barra di ricerca per categoria (i totali restano quelli del mese intero)
-/// 4. Lista scrollabile delle transazioni del mese selezionato
-/// 5. FAB per aggiungere una nuova transazione
+/// Layout from top to bottom:
+/// 1. month/year selector with navigation arrows
+/// 2. three summary cards (income, expenses, balance)
+/// 3. search bar by category (totals still cover the whole month)
+/// 4. scrollable list of the selected month's transactions
+/// 5. FAB to add a new transaction
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -32,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // watch: ricostruisce il widget ad ogni notifyListeners() del provider
+    // watch: rebuilds the widget on every notifyListeners() of the provider
     final provider = context.watch<TransactionProvider>();
     final transactions = provider.transactions
         .where((t) => matchesSearch(t.category, _query))
@@ -57,7 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
               );
             },
           ),
-          // Navigazione alla gestione categorie
+          // Go to category management
           IconButton(
             icon: const Icon(Icons.category_outlined),
             tooltip: 'Gestisci Categorie',
@@ -106,7 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Column(
         children: [
-          // Selettore mese: freccia sinistra, nome mese, freccia destra
+          // Month selector: left arrow, month name, right arrow
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
@@ -131,7 +131,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
-          // Tre card affiancate con i totali del mese
+          // Three side-by-side cards with the month totals
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
@@ -151,7 +151,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 _SummaryCard(
                   label: 'Bilancio',
                   amount: currencyFormat.format(provider.balance),
-                  // Blu se positivo, arancione se negativo
+                  // Blue if positive, orange if negative
                   color: provider.balance >= 0 ? Colors.blue : Colors.orange,
                 ),
               ],
@@ -165,7 +165,7 @@ class _HomeScreenState extends State<HomeScreen> {
             onChanged: (value) => setState(() => _query = value),
           ),
 
-          // Lista delle transazioni filtrate, o messaggio se vuota
+          // Filtered transactions, or a message when empty
           Expanded(
             child: transactions.isEmpty
                 ? Center(
@@ -191,7 +191,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
 
-      // Pulsante flottante per aggiungere una nuova transazione
+      // Floating button to add a new transaction
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.of(context).push(
@@ -206,8 +206,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-/// Card compatta per mostrare un singolo totale (entrate, uscite o bilancio).
-/// Si espande per occupare 1/3 della larghezza disponibile.
+/// Compact card showing a single total (income, expenses or balance).
+/// Expands to take 1/3 of the available width.
 class _SummaryCard extends StatelessWidget {
   final String label;
   final String amount;
@@ -236,7 +236,7 @@ class _SummaryCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 4),
-              // FittedBox ridimensiona il testo se l'importo è troppo lungo
+              // FittedBox scales the text down if the amount is too long
               FittedBox(
                 fit: BoxFit.scaleDown,
                 child: Text(

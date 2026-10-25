@@ -7,14 +7,14 @@ import '../widgets/search_field.dart';
 import '../widgets/template_tile.dart';
 import 'add_template_screen.dart';
 
-/// Schermata per visualizzare e gestire i template predefiniti.
+/// Screen to view and manage the predefined templates.
 ///
-/// Mostra la lista di tutti i template salvati, filtrabile per categoria
-/// con la barra di ricerca in alto. Ogni template può essere
-/// eliminato con swipe verso sinistra. Il FAB apre [AddTemplateScreen]
-/// per crearne di nuovi.
+/// Shows all saved templates, filterable by category
+/// with the search bar at the top. Each template can be
+/// deleted by swiping left. The FAB opens [AddTemplateScreen]
+/// to create new ones.
 ///
-/// Accessibile dalla HomeScreen tramite l'icona lista nella AppBar.
+/// Reached from HomeScreen via the list icon in the AppBar.
 class TemplatesScreen extends StatefulWidget {
   const TemplatesScreen({super.key});
 
@@ -27,7 +27,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // watch: ricostruisce il widget ad ogni notifyListeners() del provider
+    // watch: rebuilds the widget on every notifyListeners() of the provider
     final provider = context.watch<TemplateProvider>();
     final templates = provider.templates
         .where((t) => matchesSearch(t.category, _query))
@@ -47,7 +47,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
           Expanded(child: _buildList(provider, templates)),
         ],
       ),
-      // Pulsante flottante per aggiungere un nuovo template
+      // Floating button to add a new template
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.of(context).push(
@@ -61,7 +61,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
     );
   }
 
-  /// Lista dei template filtrati, o messaggio se non c'è nulla da mostrare.
+  /// The filtered templates, or a message when there is nothing to show.
   Widget _buildList(
     TemplateProvider provider,
     List<TransactionTemplate> templates,

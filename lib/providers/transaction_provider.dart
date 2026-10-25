@@ -2,20 +2,20 @@ import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import '../models/transaction.dart';
 
-/// Provider centrale per la gestione delle transazioni.
+/// Main provider for transactions.
 ///
-/// Gestisce lo stato dell'app tramite [ChangeNotifier]:
-/// - CRUD delle transazioni (add/delete) con persistenza su Hive
-/// - Filtro per mese/anno con navigazione avanti/indietro
-/// - Proprietà calcolate per totali entrate, uscite e bilancio
+/// Holds the app state via [ChangeNotifier]:
+/// - add/delete with Hive persistence
+/// - month/year filter with previous/next navigation
+/// - computed totals for income, expenses and balance
 ///
-/// Viene iniettato nell'albero dei widget tramite [ChangeNotifierProvider]
-/// e i widget lo consumano con `context.watch` o `context.read`.
+/// Injected into the widget tree via [ChangeNotifierProvider]; widgets
+/// consume it with `context.watch` or `context.read`.
 class TransactionProvider extends ChangeNotifier {
   static const String _boxName = 'transactions';
   late Box<Transaction> _box;
 
-  /// Mese e anno attualmente selezionati per il filtro
+  /// Month and year currently selected for the filter
   int _selectedMonth = DateTime.now().month;
   int _selectedYear = DateTime.now().year;
 
@@ -23,12 +23,11 @@ class TransactionProvider extends ChangeNotifier {
   int get selectedYear => _selectedYear;
 
   TransactionProvider() {
-    // Recupera il box già aperto in main.dart
+    // Gets the box already opened in main.dart
     _box = Hive.box<Transaction>(_boxName);
   }
 
-  /// Restituisce le transazioni filtrate per il mese/anno selezionato,
-  /// ordinate dalla più recente alla più vecchia.
+  /// Transactions of the selected month/year, newest first.
   List<Transaction> get transactions {
     return _box.values.where((t) {
       return t.date.month == _selectedMonth && t.date.year == _selectedYear;
@@ -36,31 +35,31 @@ class TransactionProvider extends ChangeNotifier {
       ..sort((a, b) => b.date.compareTo(a.date));
   }
 
-  /// Somma di tutte le entrate del mese selezionato.
+  /// Sum of all income in the selected month.
   double get totalIncome {
     return transactions
         .where((t) => t.isIncome)
         .fold(0.0, (sum, t) => sum + t.amount);
   }
 
-  /// Somma di tutte le uscite del mese selezionato.
+  /// Sum of all expenses in the selected month.
   double get totalExpense {
     return transactions
         .where((t) => !t.isIncome)
         .fold(0.0, (sum, t) => sum + t.amount);
   }
 
-  /// Bilancio netto: entrate - uscite. Può essere negativo.
+  /// Net balance: income - expenses. Can be negative.
   double get balance => totalIncome - totalExpense;
 
-  /// Imposta direttamente mese e anno per il filtro.
+  /// Sets the filter month and year directly.
   void setMonth(int month, int year) {
     _selectedMonth = month;
     _selectedYear = year;
     notifyListeners();
   }
 
-  /// Naviga al mese precedente. Gestisce il passaggio dicembre -> gennaio.
+  /// Goes to the previous month, handling the January -> December rollover.
   void previousMonth() {
     if (_selectedMonth == 1) {
       _selectedMonth = 12;
@@ -71,7 +70,7 @@ class TransactionProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Naviga al mese successivo. Gestisce il passaggio dicembre -> gennaio.
+  /// Goes to the next month, handling the December -> January rollover.
   void nextMonth() {
     if (_selectedMonth == 12) {
       _selectedMonth = 1;
@@ -82,23 +81,23 @@ class TransactionProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Salva una nuova transazione nel database locale.
-  /// Usa l'id come chiave per permettere accesso diretto.
+  /// Saves a new transaction in the local database.
+  /// The id is used as the key for direct access.
   Future<void> addTransaction(Transaction transaction) async {
     await _box.put(transaction.id, transaction);
     notifyListeners();
   }
 
-  /// Elimina una transazione dal database tramite il suo id.
+  /// Deletes a transaction from the database by its id.
   Future<void> deleteTransaction(String id) async {
     await _box.delete(id);
     notifyListeners();
   }
 
-  /// Restituisce tutte le transazioni (tutti i mesi) per il backup.
+  /// All transactions (every month), used by the backup.
   List<Transaction> get allTransactions => _box.values.toList();
 
-  /// Sostituisce tutti i dati con la lista fornita (usato dall'import backup).
+  /// Replaces all data with the given list (used by backup import).
   Future<void> replaceAll(List<Transaction> transactions) async {
     await _box.clear();
     for (final t in transactions) {
@@ -107,7 +106,7 @@ class TransactionProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Aggiunge le transazioni mancanti senza toccare quelle esistenti.
+  /// Adds the missing transactions without touching the existing ones.
   Future<void> addAll(List<Transaction> transactions) async {
     for (final t in transactions) {
       if (!_box.containsKey(t.id)) {

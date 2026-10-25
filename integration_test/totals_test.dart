@@ -1,4 +1,4 @@
-// Le print mostrano l'avanzamento dei passi durante i test di integrazione.
+// The prints show the progress of each step during integration tests.
 // ignore_for_file: avoid_print
 
 import 'package:flutter_test/flutter_test.dart';
@@ -15,16 +15,16 @@ void main() {
     );
   });
 
-  testWidgets('Verificare che i totali si aggiornino correttamente',
+  testWidgets('Totals update correctly',
       (tester) async {
     await startApp(tester);
 
-    // --- Stato iniziale: tutti i totali a 0 ---
-    // Le card mostrano €0,00 per entrate, uscite, bilancio
+    // --- Initial state: all totals at 0 ---
+    // The cards show €0,00 for income, expenses, balance
     expect(find.textContaining('0,00'), findsWidgets);
-    print('OK: Totali iniziali a zero');
+    print('OK: initial totals are zero');
 
-    // --- Aggiungere prima entrata: Stipendio 2000 ---
+    // --- First income: Stipendio 2000 ---
     await addTransaction(
       tester,
       category: 'Stipendio',
@@ -32,11 +32,11 @@ void main() {
       isIncome: true,
     );
 
-    // Entrate: 2.000,00 | Uscite: 0,00 | Bilancio: 2.000,00
+    // Income: 2.000,00 | Expenses: 0,00 | Balance: 2.000,00
     expect(find.textContaining('2.000'), findsWidgets);
-    print('OK: Dopo entrata 2000 - totali aggiornati');
+    print('OK: after income 2000 - totals updated');
 
-    // --- Aggiungere uscita: Affitto 800 ---
+    // --- Expense: Affitto 800 ---
     await addTransaction(
       tester,
       category: 'Affitto',
@@ -44,13 +44,13 @@ void main() {
       isIncome: false,
     );
 
-    // Entrate: 2.000,00 | Uscite: 800,00 | Bilancio: 1.200,00
-    expect(find.textContaining('2.000'), findsWidgets); // entrate
-    expect(find.textContaining('800'), findsWidgets); // uscite
-    expect(find.textContaining('1.200'), findsWidgets); // bilancio
-    print('OK: Dopo uscita 800 - entrate 2000, uscite 800, bilancio 1200');
+    // Income: 2.000,00 | Expenses: 800,00 | Balance: 1.200,00
+    expect(find.textContaining('2.000'), findsWidgets); // income
+    expect(find.textContaining('800'), findsWidgets); // expenses
+    expect(find.textContaining('1.200'), findsWidgets); // balance
+    print('OK: after expense 800 - income 2000, expenses 800, balance 1200');
 
-    // --- Aggiungere seconda entrata: Freelance 500 ---
+    // --- Second income: Freelance 500 ---
     await addTransaction(
       tester,
       category: 'Freelance',
@@ -58,13 +58,13 @@ void main() {
       isIncome: true,
     );
 
-    // Entrate: 2.500,00 | Uscite: 800,00 | Bilancio: 1.700,00
-    expect(find.textContaining('2.500'), findsWidgets); // entrate
-    expect(find.textContaining('800'), findsWidgets); // uscite
-    expect(find.textContaining('1.700'), findsWidgets); // bilancio
-    print('OK: Dopo entrata 500 - entrate 2500, uscite 800, bilancio 1700');
+    // Income: 2.500,00 | Expenses: 800,00 | Balance: 1.700,00
+    expect(find.textContaining('2.500'), findsWidgets); // income
+    expect(find.textContaining('800'), findsWidgets); // expenses
+    expect(find.textContaining('1.700'), findsWidgets); // balance
+    print('OK: after income 500 - income 2500, expenses 800, balance 1700');
 
-    // --- Aggiungere seconda uscita: Spesa 300 ---
+    // --- Second expense: Spesa 300 ---
     await addTransaction(
       tester,
       category: 'Spesa',
@@ -72,30 +72,30 @@ void main() {
       isIncome: false,
     );
 
-    // Entrate: 2.500,00 | Uscite: 1.100,00 | Bilancio: 1.400,00
-    expect(find.textContaining('2.500'), findsWidgets); // entrate
-    expect(find.textContaining('1.100'), findsWidgets); // uscite
-    expect(find.textContaining('1.400'), findsWidgets); // bilancio
-    print('OK: Dopo uscita 300 - entrate 2500, uscite 1100, bilancio 1400');
+    // Income: 2.500,00 | Expenses: 1.100,00 | Balance: 1.400,00
+    expect(find.textContaining('2.500'), findsWidgets); // income
+    expect(find.textContaining('1.100'), findsWidgets); // expenses
+    expect(find.textContaining('1.400'), findsWidgets); // balance
+    print('OK: after expense 300 - income 2500, expenses 1100, balance 1400');
 
-    // --- Eliminare "Spesa" (swipe + conferma) e verificare ricalcolo ---
+    // --- Delete "Spesa" (swipe + confirm) and check the recomputed totals ---
     await swipeToDelete(tester, 'Spesa');
     await tester.tap(find.text('Elimina'));
-    // I totali si aggiornano quando l'eliminazione su Hive è completata
+    // Totals refresh once the delete on Hive has completed
     await waitFor(tester, find.textContaining('1.700'));
 
-    // "Spesa" non deve più essere visibile
+    // "Spesa" must no longer be visible
     expect(find.text('Spesa'), findsNothing);
 
-    // Entrate: 2.500,00 | Uscite: 800,00 | Bilancio: 1.700,00
-    // Verifichiamo le 3 transazioni rimaste
+    // Income: 2.500,00 | Expenses: 800,00 | Balance: 1.700,00
+    // Check the 3 remaining transactions
     expect(find.text('Stipendio'), findsOneWidget);
     expect(find.text('Freelance'), findsOneWidget);
     expect(find.text('Affitto'), findsOneWidget);
-    expect(find.textContaining('2.500'), findsWidgets); // entrate invariate
-    expect(find.textContaining('1.700'), findsWidgets); // bilancio ricalcolato
-    print('OK: Dopo eliminazione Spesa - uscite tornate a 800, bilancio 1700');
+    expect(find.textContaining('2.500'), findsWidgets); // income unchanged
+    expect(find.textContaining('1.700'), findsWidgets); // balance recomputed
+    print('OK: after deleting Spesa - expenses back to 800, balance 1700');
 
-    print('\nTEST PASSED: Tutti i totali si aggiornano correttamente');
+    print('\nTEST PASSED: all totals update correctly');
   });
 }

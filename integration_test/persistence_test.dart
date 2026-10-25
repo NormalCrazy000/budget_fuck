@@ -1,4 +1,4 @@
-// Le print mostrano l'avanzamento dei passi durante i test di integrazione.
+// The prints show the progress of each step during integration tests.
 // ignore_for_file: avoid_print
 
 import 'package:flutter_test/flutter_test.dart';
@@ -15,13 +15,13 @@ void main() {
     await resetStorage(categories: ['Stipendio', 'Affitto']);
   });
 
-  testWidgets('Chiudere e riaprire app - verificare che i dati persistono',
+  testWidgets('Close and reopen the app - data persists',
       (tester) async {
-    // === SESSIONE 1: Aggiungere transazioni ===
+    // === SESSION 1: add transactions ===
     await startApp(tester);
 
     expect(find.text('Nessuna transazione questo mese'), findsOneWidget);
-    print('SESSIONE 1: App avviata, nessuna transazione');
+    print('SESSION 1: app started, no transactions');
 
     await addTransaction(
       tester,
@@ -36,38 +36,38 @@ void main() {
       isIncome: false,
     );
 
-    // Verificare che le transazioni sono presenti
+    // The transactions must be there
     expect(find.text('Stipendio'), findsOneWidget);
     expect(find.text('Affitto'), findsOneWidget);
     expect(find.textContaining('2.000'), findsWidgets);
     expect(find.textContaining('750'), findsWidgets);
-    expect(find.textContaining('1.250'), findsWidgets); // bilancio
-    print('SESSIONE 1: Stipendio 2000 e Affitto 750 aggiunti, bilancio 1250');
+    expect(find.textContaining('1.250'), findsWidgets); // balance
+    print('SESSION 1: Stipendio 2000 and Affitto 750 added, balance 1250');
 
-    // === CHIUSURA APP: chiudere il box, come alla chiusura dell'app ===
+    // === APP CLOSE: close the box, as when the app closes ===
     await Hive.box<Transaction>('transactions').close();
-    print('SESSIONE 1: App chiusa (Hive box closed)');
+    print('SESSION 1: app closed (Hive box closed)');
 
-    // === SESSIONE 2: Riavviare l'app (riapre il box come main()) ===
+    // === SESSION 2: restart the app (reopens the box like main()) ===
     await startApp(tester);
-    print('SESSIONE 2: App riavviata');
+    print('SESSION 2: app restarted');
 
-    // === VERIFICHE PERSISTENZA ===
-    // Le transazioni devono essere ancora presenti
+    // === PERSISTENCE CHECKS ===
+    // The transactions must still be there
     expect(find.text('Stipendio'), findsOneWidget);
     expect(find.text('Affitto'), findsOneWidget);
-    print('SESSIONE 2: OK - Transazioni ancora visibili nella lista');
+    print('SESSION 2: OK - transactions still in the list');
 
-    // I totali devono essere gli stessi
-    expect(find.textContaining('2.000'), findsWidgets); // entrate
-    expect(find.textContaining('750'), findsWidgets); // uscite
-    expect(find.textContaining('1.250'), findsWidgets); // bilancio
-    print('SESSIONE 2: OK - Totali invariati (entrate 2000, uscite 750, bilancio 1250)');
+    // The totals must be the same
+    expect(find.textContaining('2.000'), findsWidgets); // income
+    expect(find.textContaining('750'), findsWidgets); // expenses
+    expect(find.textContaining('1.250'), findsWidgets); // balance
+    print('SESSION 2: OK - totals unchanged (income 2000, expenses 750, balance 1250)');
 
-    // Il messaggio "nessuna transazione" NON deve apparire
+    // The "no transactions" message must NOT appear
     expect(find.text('Nessuna transazione questo mese'), findsNothing);
-    print('SESSIONE 2: OK - Nessun messaggio "nessuna transazione"');
+    print('SESSION 2: OK - no "no transactions" message');
 
-    print('\nTEST PASSED: I dati persistono dopo chiusura e riapertura dell\'app');
+    print('\nTEST PASSED: data persists after closing and reopening the app');
   });
 }

@@ -8,15 +8,15 @@ import 'package:budget_fuck/models/category.dart';
 import 'package:budget_fuck/models/transaction.dart';
 import 'package:budget_fuck/models/transaction_template.dart';
 
-/// Cartella temporanea per i dati Hive dei test di integrazione.
+/// Temporary directory for the integration tests' Hive data.
 ///
-/// I test cancellano i box all'avvio: usando questa cartella (passata anche
-/// a `runBudgetApp`) non toccano mai i dati reali dell'app.
+/// The tests clear the boxes at startup: by using this directory (also
+/// passed to `runBudgetApp`) they never touch the real app data.
 final String testStoragePath =
     Directory.systemTemp.createTempSync('budget_tracker_it_').path;
 
-/// Svuota i tre box nella cartella temporanea e inserisce le [categories]
-/// indicate, così i form che richiedono una categoria sono utilizzabili.
+/// Clears the three boxes in the temporary directory and inserts the given
+/// [categories], so the forms that require a category can be used.
 Future<void> resetStorage({List<String> categories = const []}) async {
   Hive.init(testStoragePath);
   if (!Hive.isAdapterRegistered(0)) {
@@ -38,13 +38,13 @@ Future<void> resetStorage({List<String> categories = const []}) async {
   }
 }
 
-/// Avvia l'app sulla cartella temporanea e attende il primo frame completo.
+/// Starts the app on the temporary directory and waits for the first full frame.
 Future<void> startApp(WidgetTester tester) async {
   await app.runBudgetApp(storagePath: testStoragePath);
   await tester.pumpAndSettle();
 }
 
-/// Sceglie [category] nel campo categoria con ricerca del form aperto.
+/// Picks [category] in the searchable category field of the open form.
 Future<void> selectCategory(WidgetTester tester, String category) async {
   await tester.tap(find.byType(DropdownMenu<String>));
   await tester.pumpAndSettle();
@@ -55,7 +55,7 @@ Future<void> selectCategory(WidgetTester tester, String category) async {
   await tester.pumpAndSettle();
 }
 
-/// Aggiunge una transazione dalla Home tramite il form "Nuova Transazione".
+/// Adds a transaction from the home screen via the new transaction form.
 Future<void> addTransaction(
   WidgetTester tester, {
   required String category,
@@ -68,7 +68,7 @@ Future<void> addTransaction(
   await tester.tap(find.text(isIncome ? 'Entrata' : 'Uscita'));
   await tester.pumpAndSettle();
 
-  // L'importo è l'unico TextFormField del form
+  // The amount is the only TextFormField of the form
   await tester.enterText(find.byType(TextFormField), amount);
   await selectCategory(tester, category);
 
@@ -76,11 +76,11 @@ Future<void> addTransaction(
   await tester.pumpAndSettle();
 }
 
-/// Fa lo swipe verso sinistra sulla riga che contiene [text] e attende
-/// il dialog "Conferma eliminazione".
+/// Swipes left on the row containing [text] and waits for the delete
+/// confirmation dialog.
 ///
-/// Trascina per quasi tutta la larghezza della riga, così lo swipe supera
-/// la soglia di eliminazione qualunque sia la dimensione della finestra.
+/// Drags almost the full row width, so the swipe passes the dismiss
+/// threshold whatever the window size.
 Future<void> swipeToDelete(WidgetTester tester, String text) async {
   final row = find.ancestor(
     of: find.text(text),
@@ -92,11 +92,11 @@ Future<void> swipeToDelete(WidgetTester tester, String text) async {
   expect(find.text('Conferma eliminazione'), findsOneWidget);
 }
 
-/// Attende che [finder] trovi almeno un widget, aggiornando lo schermo.
+/// Waits until [finder] finds at least one widget, pumping frames.
 ///
-/// Serve dopo le operazioni che scrivono su Hive: lo schermo può aggiornarsi
-/// un attimo dopo [WidgetTester.pumpAndSettle], quando la scrittura su disco
-/// è terminata (es. i totali dopo un'eliminazione).
+/// Needed after operations that write to Hive: the screen can update
+/// just after [WidgetTester.pumpAndSettle], when the disk write has
+/// finished (e.g. the totals after a delete).
 Future<void> waitFor(
   WidgetTester tester,
   Finder finder, {

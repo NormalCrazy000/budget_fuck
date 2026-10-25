@@ -1,5 +1,5 @@
-# Controlla una volta al mese gli aggiornamenti delle dipendenze e apre PR verso main.
-# Gli aggiornamenti minor/patch sono raggruppati in un'unica PR per ridurre il rumore.
+# Checks for dependency updates once a month and opens PRs to main.
+# Minor/patch updates are grouped into a single PR to reduce noise.
 version: 2
 updates:
   - package-ecosystem: pub

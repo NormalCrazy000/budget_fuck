@@ -1,4 +1,4 @@
-// Le print mostrano l'avanzamento dei passi durante i test di integrazione.
+// The prints show the progress of each step during integration tests.
 // ignore_for_file: avoid_print
 
 import 'package:flutter/material.dart';
@@ -19,7 +19,7 @@ void main() {
   });
 
   group('Delete confirmation dialog', () {
-    testWidgets('transazione: annulla non elimina, conferma elimina',
+    testWidgets('transaction: cancel keeps it, confirm deletes it',
         (tester) async {
       final now = DateTime.now();
       final txBox = Hive.box<Transaction>('transactions');
@@ -38,7 +38,7 @@ void main() {
 
       expect(find.text('Stipendio'), findsOneWidget);
 
-      // Swipe per eliminare - annulla
+      // Swipe to delete - cancel
       await swipeToDelete(tester, 'Stipendio');
       expect(find.text('Conferma eliminazione'), findsOneWidget);
 
@@ -46,16 +46,16 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Stipendio'), findsOneWidget);
 
-      // Swipe di nuovo - conferma
+      // Swipe again - confirm
       await swipeToDelete(tester, 'Stipendio');
       await tester.tap(find.text('Elimina'));
       await tester.pumpAndSettle();
 
       expect(find.text('Stipendio'), findsNothing);
-      print('OK: Conferma eliminazione transazione funziona');
+      print('OK: transaction delete confirmation works');
     });
 
-    testWidgets('template: annulla non elimina, conferma elimina',
+    testWidgets('template: cancel keeps it, confirm deletes it',
         (tester) async {
       final templateBox = Hive.box<TransactionTemplate>('templates');
       await templateBox.put(
@@ -70,13 +70,13 @@ void main() {
 
       await startApp(tester);
 
-      // Navigare alla schermata Template
+      // Go to the Templates screen
       await tester.tap(find.byIcon(Icons.list_alt));
       await tester.pumpAndSettle();
 
       expect(find.text('Stipendio'), findsOneWidget);
 
-      // Swipe per eliminare - annulla
+      // Swipe to delete - cancel
       await swipeToDelete(tester, 'Stipendio');
       expect(find.text('Conferma eliminazione'), findsOneWidget);
 
@@ -84,18 +84,18 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Stipendio'), findsOneWidget);
 
-      // Swipe e conferma
+      // Swipe and confirm
       await swipeToDelete(tester, 'Stipendio');
       await tester.tap(find.text('Elimina'));
       await tester.pumpAndSettle();
-      // Aspetta la dismiss animation
+      // Wait for the dismiss animation
       await tester.pumpAndSettle(const Duration(seconds: 1));
 
       expect(find.text('Stipendio'), findsNothing);
-      print('OK: Conferma eliminazione template funziona');
+      print('OK: template delete confirmation works');
     });
 
-    testWidgets('categoria: annulla non elimina, conferma elimina',
+    testWidgets('category: cancel keeps it, confirm deletes it',
         (tester) async {
       final categoryBox = Hive.box<Category>('categories');
       await categoryBox.put(
@@ -105,30 +105,30 @@ void main() {
 
       await startApp(tester);
 
-      // Navigare alla schermata Categorie
+      // Go to the Categories screen
       await tester.tap(find.byIcon(Icons.category_outlined));
       await tester.pumpAndSettle();
 
       expect(find.text('Alimentari'), findsOneWidget);
 
-      // Swipe per eliminare - annulla
+      // Swipe to delete - cancel
       await swipeToDelete(tester, 'Alimentari');
       expect(find.text('Conferma eliminazione'), findsOneWidget);
 
       await tester.tap(find.text('Annulla'));
       await tester.pumpAndSettle();
-      // Aspetta che il Dismissible torni in posizione
+      // Wait for the Dismissible to slide back
       await tester.pumpAndSettle(const Duration(seconds: 1));
       expect(find.text('Alimentari'), findsOneWidget);
 
-      // Swipe e conferma
+      // Swipe and confirm
       await swipeToDelete(tester, 'Alimentari');
       await tester.tap(find.text('Elimina'));
       await tester.pumpAndSettle();
       await tester.pumpAndSettle(const Duration(seconds: 1));
 
       expect(find.text('Alimentari'), findsNothing);
-      print('OK: Conferma eliminazione categoria funziona');
+      print('OK: category delete confirmation works');
     });
   });
 }

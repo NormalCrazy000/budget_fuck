@@ -6,14 +6,14 @@ import '../providers/category_provider.dart';
 import '../providers/transaction_provider.dart';
 import '../widgets/category_picker_field.dart';
 
-/// Schermata per aggiungere una nuova transazione (entrata o uscita).
+/// Screen to add a new transaction (income or expense).
 ///
-/// Contiene un form con:
-/// - Toggle entrata/uscita (verde/rosso)
-/// - Campo categoria con ricerca (obbligatorio, popolato da [CategoryProvider])
-/// - Campo importo numerico con validazione
-/// - Selettore data con DatePicker nativo
-/// - Pulsante salva che persiste su Hive e torna alla home
+/// Contains a form with:
+/// - income/expense toggle (green/red)
+/// - searchable category field (required, filled from [CategoryProvider])
+/// - numeric amount field with validation
+/// - date selection with the native DatePicker
+/// - save button that persists to Hive and goes back home
 class AddTransactionScreen extends StatefulWidget {
   const AddTransactionScreen({super.key});
 
@@ -24,12 +24,12 @@ class AddTransactionScreen extends StatefulWidget {
 class _AddTransactionScreenState extends State<AddTransactionScreen> {
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
-  bool _isIncome = true; // Default: entrata
+  bool _isIncome = true; // Default: income
   DateTime _selectedDate = DateTime.now();
-  String? _selectedCategory; // Categoria selezionata dal dropdown
+  String? _selectedCategory; // Category picked in the form
 
-  // Categorie caricate una sola volta all'apertura della schermata.
-  // Non serve context.watch perché la lista non cambia mentre il form è aperto.
+  // Categories loaded once when the screen opens.
+  // No context.watch needed: the list does not change while the form is open.
   List<String> _categoryNames = [];
   bool _categoriesLoaded = false;
 
@@ -37,7 +37,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (!_categoriesLoaded) {
-      // read: lettura one-shot, non sottoscrive a notifiche future
+      // read: one-shot read, does not subscribe to future notifications
       _categoryNames = context
           .read<CategoryProvider>()
           .categories
@@ -53,7 +53,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     super.dispose();
   }
 
-  /// Apre il DatePicker nativo e aggiorna la data selezionata.
+  /// Opens the native DatePicker and updates the selected date.
   Future<void> _pickDate() async {
     final picked = await showDatePicker(
       context: context,
@@ -66,8 +66,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     }
   }
 
-  /// Valida il form, crea la transazione e la salva tramite il provider.
-  /// L'id viene generato dal timestamp corrente in millisecondi.
+  /// Validates the form, creates the transaction and saves it via the provider.
+  /// The id is the current timestamp in milliseconds.
   void _save() {
     if (!_formKey.currentState!.validate()) return;
 
@@ -79,7 +79,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       category: _selectedCategory!,
     );
 
-    // read: accede al provider senza sottoscriversi (azione one-shot)
+    // read: accesses the provider without subscribing (one-shot action)
     context.read<TransactionProvider>().addTransaction(transaction);
     Navigator.of(context).pop();
   }
@@ -96,10 +96,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
           key: _formKey,
           child: ListView(
             children: [
-              // Toggle Entrata/Uscita: due bottoni affiancati con bordi arrotondati
+              // Income/expense toggle: two side-by-side buttons with rounded corners
               Row(
                 children: [
-                  // Bottone "Entrata" (metà sinistra)
+                  // "Income" button (left half)
                   Expanded(
                     child: GestureDetector(
                       onTap: () => setState(() => _isIncome = true),
@@ -122,7 +122,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                       ),
                     ),
                   ),
-                  // Bottone "Uscita" (metà destra)
+                  // "Expense" button (right half)
                   Expanded(
                     child: GestureDetector(
                       onTap: () => setState(() => _isIncome = false),
@@ -149,7 +149,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               ),
               const SizedBox(height: 24),
 
-              // Campo importo (solo numeri con decimali)
+              // Amount field (numbers with decimals only)
               TextFormField(
                 controller: _amountController,
                 decoration: const InputDecoration(
@@ -170,8 +170,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Selezione della categoria (obbligatoria) con ricerca.
-              // Usa _categoryNames caricato una volta in didChangeDependencies.
+              // Category selection (required) with search.
+              // Uses _categoryNames, loaded once in didChangeDependencies.
               CategoryPickerField(
                 categoryNames: _categoryNames,
                 onChanged: (value) {
@@ -180,7 +180,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Riga con data selezionata e bottone per cambiarla
+              // Row with the selected date and a button to change it
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.calendar_today),
@@ -194,7 +194,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               ),
               const SizedBox(height: 24),
 
-              // Pulsante salva: colore dinamico in base al tipo di transazione
+              // Save button: color depends on the transaction type
               ElevatedButton(
                 onPressed: _save,
                 style: ElevatedButton.styleFrom(

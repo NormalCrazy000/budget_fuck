@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import '../utils/search.dart';
 
-/// Campo per scegliere una categoria con ricerca, da usare dentro un [Form].
+/// Searchable category picker, to be used inside a [Form].
 ///
-/// Sostituisce il menu a tendina classico: l'utente può scrivere nel campo
-/// e la lista mostra solo le categorie che contengono il testo digitato
-/// (ignorando maiuscole e accenti, vedi [matchesSearch]).
+/// Replaces the classic dropdown: the user can type in the field and the
+/// list only shows the categories containing the typed text (ignoring case
+/// and accents, see [matchesSearch]).
 ///
-/// La validazione fallisce con "Seleziona una categoria" se non è stata
-/// scelta una voce dalla lista: il testo digitato da solo non basta.
+/// Validation fails unless an entry was picked from the list: typed text
+/// alone is not enough.
 class CategoryPickerField extends StatefulWidget {
   final List<String> categoryNames;
   final ValueChanged<String?> onChanged;
@@ -39,8 +39,8 @@ class _CategoryPickerFieldState extends State<CategoryPickerField> {
     super.dispose();
   }
 
-  /// Se l'utente modifica il testo dopo aver scelto una categoria,
-  /// la scelta viene annullata: il valore deve sempre venire dalla lista.
+  /// If the user edits the text after picking a category, the choice is
+  /// cleared: the value must always come from the list.
   void _onTextChanged() {
     final field = _fieldKey.currentState;
     if (field == null || field.value == null) return;
@@ -67,12 +67,12 @@ class _CategoryPickerFieldState extends State<CategoryPickerField> {
           hintText: 'Cerca categoria',
           leadingIcon: const Icon(Icons.search),
           errorText: field.errorText,
-          // Occupa tutta la larghezza disponibile, come gli altri campi del form
+          // Take the full available width, like the other form fields
           expandedInsets: EdgeInsets.zero,
           enableFilter: true,
           requestFocusOnTap: true,
           filterCallback: (entries, filter) {
-            // Se il testo coincide con la voce già scelta mostra tutta la lista
+            // If the text matches the picked entry, show the whole list
             if (filter == field.value) return entries;
             return entries
                 .where((entry) => matchesSearch(entry.label, filter))

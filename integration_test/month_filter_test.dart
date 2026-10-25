@@ -1,4 +1,4 @@
-// Le print mostrano l'avanzamento dei passi durante i test di integrazione.
+// The prints show the progress of each step during integration tests.
 // ignore_for_file: avoid_print
 
 import 'package:flutter/material.dart';
@@ -16,10 +16,10 @@ void main() {
     await resetStorage();
     final box = Hive.box<Transaction>('transactions');
 
-    // Inserire transazioni in mesi diversi direttamente nel DB
+    // Insert transactions in different months directly into the DB
     final now = DateTime.now();
 
-    // Mese corrente: 2 transazioni
+    // Current month: 2 transactions
     await box.put(
       'current_1',
       Transaction(
@@ -41,7 +41,7 @@ void main() {
       ),
     );
 
-    // Mese precedente: 1 transazione
+    // Previous month: 1 transaction
     final prevMonth = now.month == 1 ? 12 : now.month - 1;
     final prevYear = now.month == 1 ? now.year - 1 : now.year;
     await box.put(
@@ -55,7 +55,7 @@ void main() {
       ),
     );
 
-    // Mese successivo: 1 transazione
+    // Next month: 1 transaction
     final nextMonth = now.month == 12 ? 1 : now.month + 1;
     final nextYear = now.month == 12 ? now.year + 1 : now.year;
     await box.put(
@@ -70,53 +70,53 @@ void main() {
     );
   });
 
-  testWidgets('Cambiare mese e verificare filtro transazioni', (tester) async {
+  testWidgets('Change month and check the transaction filter', (tester) async {
     await startApp(tester);
 
-    // === MESE CORRENTE (Febbraio 2026) ===
-    // Deve mostrare solo le transazioni di febbraio
+    // === CURRENT MONTH ===
+    // Only the current month's transactions must be shown
     expect(find.text('Stipendio Febbraio'), findsOneWidget);
     expect(find.text('Affitto Febbraio'), findsOneWidget);
-    // Non deve mostrare transazioni di altri mesi
+    // No transactions from other months
     expect(find.text('Stipendio Gennaio'), findsNothing);
     expect(find.text('Previsione Marzo'), findsNothing);
-    // Totali: entrate 2000, uscite 800, bilancio 1200
+    // Totals: income 2000, expenses 800, balance 1200
     expect(find.textContaining('2.000'), findsWidgets);
     expect(find.textContaining('800'), findsWidgets);
     expect(find.textContaining('1.200'), findsWidgets);
-    print('OK: Mese corrente - 2 transazioni, totali corretti');
+    print('OK: current month - 2 transactions, correct totals');
 
-    // === NAVIGARE AL MESE PRECEDENTE (Gennaio) ===
+    // === GO TO THE PREVIOUS MONTH ===
     await tester.tap(find.byIcon(Icons.chevron_left));
     await tester.pumpAndSettle();
 
-    // Deve mostrare solo la transazione di gennaio
+    // Only the previous month's transaction must be shown
     expect(find.text('Stipendio Gennaio'), findsOneWidget);
-    // Non deve mostrare transazioni di febbraio o marzo
+    // No transactions from the current or next month
     expect(find.text('Stipendio Febbraio'), findsNothing);
     expect(find.text('Affitto Febbraio'), findsNothing);
     expect(find.text('Previsione Marzo'), findsNothing);
-    // Totali: entrate 1800, uscite 0, bilancio 1800
+    // Totals: income 1800, expenses 0, balance 1800
     expect(find.textContaining('1.800'), findsWidgets);
-    print('OK: Mese precedente - solo Stipendio Gennaio, totali ricalcolati');
+    print('OK: previous month - only its transaction, totals recomputed');
 
-    // === NAVIGARE AVANTI DI 2 MESI (torna a corrente, poi al successivo) ===
+    // === GO FORWARD 2 MONTHS (back to current, then next) ===
     await tester.tap(find.byIcon(Icons.chevron_right));
     await tester.pumpAndSettle();
     await tester.tap(find.byIcon(Icons.chevron_right));
     await tester.pumpAndSettle();
 
-    // Deve mostrare solo la transazione di marzo
+    // Only the next month's transaction must be shown
     expect(find.text('Previsione Marzo'), findsOneWidget);
-    // Non deve mostrare transazioni di altri mesi
+    // No transactions from other months
     expect(find.text('Stipendio Febbraio'), findsNothing);
     expect(find.text('Affitto Febbraio'), findsNothing);
     expect(find.text('Stipendio Gennaio'), findsNothing);
-    // Totali: entrate 0, uscite 500, bilancio -500
+    // Totals: income 0, expenses 500, balance -500
     expect(find.textContaining('500'), findsWidgets);
-    print('OK: Mese successivo - solo Previsione Marzo, totali ricalcolati');
+    print('OK: next month - only its transaction, totals recomputed');
 
-    // === TORNARE AL MESE CORRENTE E VERIFICARE ===
+    // === BACK TO THE CURRENT MONTH ===
     await tester.tap(find.byIcon(Icons.chevron_left));
     await tester.pumpAndSettle();
 
@@ -124,8 +124,8 @@ void main() {
     expect(find.text('Affitto Febbraio'), findsOneWidget);
     expect(find.text('Stipendio Gennaio'), findsNothing);
     expect(find.text('Previsione Marzo'), findsNothing);
-    print('OK: Tornati al mese corrente - transazioni di febbraio ripristinate');
+    print('OK: back to the current month - transactions restored');
 
-    print('\nTEST PASSED: Il filtro per mese funziona correttamente');
+    print('\nTEST PASSED: the month filter works');
   });
 }

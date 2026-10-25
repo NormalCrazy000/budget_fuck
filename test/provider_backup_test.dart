@@ -35,7 +35,7 @@ void main() {
 
     setUp(() => provider = TransactionProvider());
 
-    test('allTransactions restituisce tutte le transazioni di ogni mese', () async {
+    test('allTransactions returns the transactions of every month', () async {
       await provider.addTransaction(Transaction(
         id: '1',
         amount: 100.0,
@@ -53,7 +53,7 @@ void main() {
       expect(provider.allTransactions.length, 2);
     });
 
-    test('replaceAll sostituisce i dati esistenti', () async {
+    test('replaceAll replaces the existing data', () async {
       await provider.addTransaction(Transaction(
         id: 'old',
         amount: 999.0,
@@ -75,7 +75,7 @@ void main() {
       expect(all.first.id, 'new1');
     });
 
-    test('replaceAll con lista vuota svuota il box', () async {
+    test('replaceAll with an empty list clears the box', () async {
       await provider.addTransaction(Transaction(
         id: '1',
         amount: 50.0,
@@ -87,7 +87,7 @@ void main() {
       expect(provider.allTransactions, isEmpty);
     });
 
-    test('addAll aggiunge solo gli id mancanti', () async {
+    test('addAll only adds missing ids', () async {
       await provider.addTransaction(Transaction(
         id: 'existing',
         amount: 100.0,
@@ -123,20 +123,20 @@ void main() {
 
     setUp(() => provider = CategoryProvider());
 
-    test('replaceAll sostituisce le categorie esistenti', () async {
+    test('replaceAll replaces the existing categories', () async {
       await provider.addCategory('Vecchia');
       await provider.replaceAll([Category(id: 'c1', name: 'Nuova')]);
       expect(provider.categories.length, 1);
       expect(provider.categories.first.name, 'Nuova');
     });
 
-    test('replaceAll con lista vuota svuota il box', () async {
+    test('replaceAll with an empty list clears the box', () async {
       await provider.addCategory('Alimentari');
       await provider.replaceAll([]);
       expect(provider.categories, isEmpty);
     });
 
-    test('addAll aggiunge solo le categorie con id mancanti', () async {
+    test('addAll only adds categories with missing ids', () async {
       await provider.addCategory('Alimentari');
       final existingId = provider.categories.first.id;
       await provider.addAll([
@@ -155,7 +155,7 @@ void main() {
 
     setUp(() => provider = TemplateProvider());
 
-    test('replaceAll sostituisce i template esistenti', () async {
+    test('replaceAll replaces the existing templates', () async {
       await provider.addTemplate(TransactionTemplate(
         id: 'old',
         amount: 999.0,
@@ -174,7 +174,7 @@ void main() {
       expect(provider.templates.first.id, 'new');
     });
 
-    test('replaceAll con lista vuota svuota il box', () async {
+    test('replaceAll with an empty list clears the box', () async {
       await provider.addTemplate(TransactionTemplate(
         id: '1',
         amount: 800.0,
@@ -185,7 +185,7 @@ void main() {
       expect(provider.templates, isEmpty);
     });
 
-    test('addAll aggiunge solo i template con id mancanti', () async {
+    test('addAll only adds templates with missing ids', () async {
       await provider.addTemplate(TransactionTemplate(
         id: 'existing',
         amount: 800.0,

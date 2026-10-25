@@ -12,27 +12,27 @@ import 'providers/transaction_provider.dart';
 import 'screens/home_screen.dart';
 import 'services/storage_location.dart';
 
-/// Entry point dell'applicazione.
+/// App entry point.
 void main() => runBudgetApp();
 
-/// Inizializza Hive (database locale), registra i TypeAdapter per i modelli
-/// Transaction, TransactionTemplate e Category, carica la localizzazione
-/// italiana e avvia l'app.
+/// Initializes Hive (local database), registers the TypeAdapters for the
+/// Transaction, TransactionTemplate and Category models, loads the Italian
+/// locale data and starts the app.
 ///
-/// [storagePath] permette di usare una cartella diversa da quella predefinita
-/// (vedi [appStorageDirectory]): i test di integrazione la usano per lavorare
-/// su una cartella temporanea senza toccare i dati reali.
+/// [storagePath] overrides the default data directory (see
+/// [appStorageDirectory]): integration tests use it to work on a temporary
+/// directory without touching the real data.
 Future<void> runBudgetApp({String? storagePath}) async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Inizializza Hive nella cartella dei dati (sul web non serve un path)
+  // Initialize Hive in the data directory (the web needs no path)
   if (kIsWeb) {
     await Hive.initFlutter();
   } else {
     Hive.init(storagePath ?? await appStorageDirectory());
   }
 
-  // Registra gli adapter solo se non sono già registrati (utile nei test)
+  // Register the adapters only once (useful in tests)
   if (!Hive.isAdapterRegistered(0)) {
     Hive.registerAdapter(TransactionAdapter());
   }
@@ -43,21 +43,21 @@ Future<void> runBudgetApp({String? storagePath}) async {
     Hive.registerAdapter(CategoryAdapter());
   }
 
-  // Apre i box (li crea se non esistono)
+  // Open the boxes (created if missing)
   await Hive.openBox<Transaction>('transactions');
   await Hive.openBox<TransactionTemplate>('templates');
   await Hive.openBox<Category>('categories');
 
-  // Inizializza i dati di formattazione per la lingua italiana (date, mesi)
+  // Load the Italian formatting data (dates, month names)
   await initializeDateFormatting('it');
 
   runApp(const BudgetApp());
 }
 
-/// Widget radice dell'applicazione.
-/// Configura il [MultiProvider] per lo state management globale
-/// (TransactionProvider + TemplateProvider + CategoryProvider) e definisce
-/// il tema Material 3 con colore primario teal.
+/// Root widget of the app.
+/// Sets up the [MultiProvider] for global state management
+/// (TransactionProvider + TemplateProvider + CategoryProvider) and the
+/// Material 3 theme with a teal primary color.
 class BudgetApp extends StatelessWidget {
   const BudgetApp({super.key});
 
