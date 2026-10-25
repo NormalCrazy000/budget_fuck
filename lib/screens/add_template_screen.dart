@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../models/transaction_template.dart';
 import '../providers/category_provider.dart';
 import '../providers/template_provider.dart';
+import '../widgets/category_picker_field.dart';
 
 /// Schermata per creare un nuovo template di transazione predefinito.
 ///
@@ -11,7 +12,7 @@ import '../providers/template_provider.dart';
 ///
 /// Contiene un form con:
 /// - Toggle entrata/uscita (verde/rosso)
-/// - Dropdown categoria (obbligatorio, popolato da [CategoryProvider])
+/// - Campo categoria con ricerca (obbligatorio, popolato da [CategoryProvider])
 /// - Campo importo numerico con validazione
 /// - Pulsante salva che persiste su Hive e torna alla lista template
 class AddTemplateScreen extends StatefulWidget {
@@ -155,28 +156,12 @@ class _AddTemplateScreenState extends State<AddTemplateScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Dropdown per la selezione della categoria (obbligatoria).
+              // Selezione della categoria (obbligatoria) con ricerca.
               // Usa _categoryNames caricato una volta in didChangeDependencies.
-              DropdownButtonFormField<String>(
-                initialValue: _selectedCategory,
-                decoration: const InputDecoration(
-                  labelText: 'Categoria',
-                  border: OutlineInputBorder(),
-                ),
-                items: _categoryNames
-                    .map((name) => DropdownMenuItem<String>(
-                          value: name,
-                          child: Text(name),
-                        ))
-                    .toList(),
+              CategoryPickerField(
+                categoryNames: _categoryNames,
                 onChanged: (value) {
                   setState(() => _selectedCategory = value);
-                },
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Seleziona una categoria';
-                  }
-                  return null;
                 },
               ),
               const SizedBox(height: 24),

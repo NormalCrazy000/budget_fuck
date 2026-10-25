@@ -4,12 +4,13 @@ import 'package:provider/provider.dart';
 import '../models/transaction.dart';
 import '../providers/category_provider.dart';
 import '../providers/transaction_provider.dart';
+import '../widgets/category_picker_field.dart';
 
 /// Schermata per aggiungere una nuova transazione (entrata o uscita).
 ///
 /// Contiene un form con:
 /// - Toggle entrata/uscita (verde/rosso)
-/// - Dropdown categoria (obbligatorio, popolato da [CategoryProvider])
+/// - Campo categoria con ricerca (obbligatorio, popolato da [CategoryProvider])
 /// - Campo importo numerico con validazione
 /// - Selettore data con DatePicker nativo
 /// - Pulsante salva che persiste su Hive e torna alla home
@@ -169,28 +170,12 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Dropdown per la selezione della categoria (obbligatoria).
+              // Selezione della categoria (obbligatoria) con ricerca.
               // Usa _categoryNames caricato una volta in didChangeDependencies.
-              DropdownButtonFormField<String>(
-                initialValue: _selectedCategory,
-                decoration: const InputDecoration(
-                  labelText: 'Categoria',
-                  border: OutlineInputBorder(),
-                ),
-                items: _categoryNames
-                    .map((name) => DropdownMenuItem<String>(
-                          value: name,
-                          child: Text(name),
-                        ))
-                    .toList(),
+              CategoryPickerField(
+                categoryNames: _categoryNames,
                 onChanged: (value) {
                   setState(() => _selectedCategory = value);
-                },
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Seleziona una categoria';
-                  }
-                  return null;
                 },
               ),
               const SizedBox(height: 16),

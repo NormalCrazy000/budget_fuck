@@ -20,6 +20,7 @@ Cross-platform Flutter app for tracking monthly income and expenses.
 - **Predefined templates**: create recurring transaction templates (salary, rent, bills, etc.)
 - **Template application**: apply templates in bulk or selectively to any month
 - **Backup & Restore**: export all data to JSON and re-import it (replace or merge mode)
+- **Search**: search bar on categories, templates and the month's transactions (case- and accent-insensitive); similar existing categories suggested while creating one; searchable category picker when adding transactions/templates
 - Local data persistence (data survives app restarts)
 - Material 3 UI with Italian localization
 
@@ -44,7 +45,9 @@ lib/
 │   └── apply_templates_screen.dart
 ├── services/
 │   └── backup_service.dart        # JSON serialization/deserialization
-└── widgets/                   # Reusable components
+├── utils/
+│   └── search.dart                # matchesSearch(): case/accent-insensitive matching
+└── widgets/                   # Reusable components (SearchField, CategoryPickerField, ...)
 ```
 
 `*.g.dart` files are **auto-generated** — do not edit them by hand.
@@ -200,14 +203,18 @@ test/
 ├── backup_service_test.dart         # Unit tests for JSON serialization/deserialization
 ├── category_provider_test.dart      # Unit tests for the category provider (real Hive)
 ├── provider_backup_test.dart        # Unit tests for replaceAll/addAll on all three providers
+├── search_test.dart                 # Unit tests for matchesSearch/normalizeForSearch
 ├── template_provider_test.dart      # Unit tests for the template provider (real Hive)
 ├── confirm_delete_dialog_test.dart  # Widget test for the confirmation dialog
 ├── widget_test.dart                 # Smoke test (placeholder)
 └── widgets/
     ├── backup_screen_test.dart      # Widget test for the backup screen (rendering and buttons)
-    ├── categories_screen_test.dart  # Widget test for the categories screen
+    ├── categories_screen_test.dart  # Widget test for the categories screen (incl. search and suggestions)
+    ├── category_picker_field_test.dart # Widget test for the searchable category picker
+    ├── home_screen_test.dart        # Widget test for transaction search on the home screen
     ├── stats_screen_test.dart       # Widget test for the statistics screen (13 cases)
     ├── template_tile_test.dart      # Widget test for the template tile
+    ├── templates_screen_test.dart   # Widget test for template search
     └── transaction_tile_test.dart   # Widget test for the transaction tile
 ```
 

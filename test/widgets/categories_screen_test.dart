@@ -50,6 +50,13 @@ class FakeCategoryProvider extends ChangeNotifier implements CategoryProvider {
   }
 }
 
+/// Campo di testo dentro il dialog "Nuova Categoria"
+/// (la schermata ha anche la barra di ricerca).
+final dialogTextField = find.descendant(
+  of: find.byType(AlertDialog),
+  matching: find.byType(TextField),
+);
+
 void main() {
   late FakeCategoryProvider provider;
 
@@ -123,7 +130,7 @@ void main() {
       expect(find.text('Nuova Categoria'), findsOneWidget);
 
       // Digita il nome della categoria
-      await tester.enterText(find.byType(TextField), 'Trasporti');
+      await tester.enterText(dialogTextField, 'Trasporti');
       await tester.pumpAndSettle();
 
       // Conferma
@@ -151,7 +158,7 @@ void main() {
       await tester.tap(find.byType(FloatingActionButton));
       await tester.pumpAndSettle();
 
-      await tester.enterText(find.byType(TextField), 'Salute');
+      await tester.enterText(dialogTextField, 'Salute');
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle();
 
@@ -160,4 +167,114 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+
+  group('ricerca', () {
+    /// Barra di ricerca in cima alla lista (fuori dal dialog).
+    final searchField = find.widgetWithText(TextField, 'Cerca categoria');
+
+    setUp(() async {
+      await provider.addCategory('Spesa');
+      await provider.addCategory('Spese mediche');
+      await provider.addCategory('Caffè');
+      await provider.addCategory('Affitto');
+    });
+
+    testWidgets('filtra la lista mentre si scrive', (tester) async {
+      await tester.pumpWidget(buildWidget());
+      await tester.pumpAndSettle();
+
+      await tester.enterText(searchField, 'spes');
+      await tester.pumpAndSettle();
+
+      expect(find.text('Spesa'), findsOneWidget);
+      expect(find.text('Spese mediche'), findsOneWidget);
+      expect(find.text('Affitto'), findsNothing);
+      expect(find.text('Caffè'), findsNothing);
+    });
+
+    testWidgets('ignora gli accenti', (tester) async {
+      await tester.pumpWidget(buildWidget());
+      await tester.pumpAndSettle();
+
+      await tester.enterText(searchField, 'caffe');
+      await tester.pumpAndSettle();
+
+      expect(find.text('Caffè'), findsOneWidget);
+      expect(find.text('Spesa'), findsNothing);
+    });
+
+    testWidgets('mostra "Nessun risultato" se non trova nulla', (tester) async {
+      await tester.pumpWidget(buildWidget());
+      await tester.pumpAndSettle();
+
+      await tester.enterText(searchField, 'xyz');
+      await tester.pumpAndSettle();
+
+      expect(find.text('Nessun risultato'), findsOneWidget);
+      expect(find.text('Nessuna categoria'), findsNothing);
+    });
+
+    testWidgets('il pulsante X svuota la ricerca e mostra tutto',
+        (tester) async {
+      await tester.pumpWidget(buildWidget());
+      await tester.pumpAndSettle();
+
+      await tester.enterText(searchField, 'xyz');
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('Cancella ricerca'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Spesa'), findsOneWidget);
+      expect(find.text('Affitto'), findsOneWidget);
+      expect(find.byTooltip('Cancella ricerca'), findsNothing);
+    });
+  });
+
+  group('suggerimenti nel dialog', () {
+    setUp(() async {
+      await provider.addCategory('Spesa');
+      await provider.addCategory('Spese mediche');
+      await provider.addCategory('Affitto');
+    });
+
+    testWidgets('mostra le categorie simili già esistenti', (tester) async {
+      await tester.pumpWidget(buildWidget());
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(FloatingActionButton));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(dialogTextField, 'spe');
+      await tester.pumpAndSettle();
+
+      final chips = find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.byType(Chip),
+      );
+      expect(find.text('Già esistenti:'), findsOneWidget);
+      expect(chips, findsNWidgets(2));
+      expect(
+        find.descendant(of: chips, matching: find.text('Spesa')),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(of: chips, matching: find.text('Spese mediche')),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('nessun suggerimento con campo vuoto o senza somiglianze',
+        (tester) async {
+      await tester.pumpWidget(buildWidget());
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(FloatingActionButton));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Già esistenti:'), findsNothing);
+
+      await tester.enterText(dialogTextField, 'Trasporti');
+      await tester.pumpAndSettle();
+
+      expect(find.text('Già esistenti:'), findsNothing);
+    });
+  });
 }

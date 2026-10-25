@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../providers/transaction_provider.dart';
+import '../utils/search.dart';
+import '../widgets/search_field.dart';
 import '../widgets/transaction_tile.dart';
 import 'add_transaction_screen.dart';
 import 'apply_templates_screen.dart';
@@ -15,15 +17,26 @@ import 'templates_screen.dart';
 /// Layout dall'alto verso il basso:
 /// 1. Selettore mese/anno con frecce di navigazione
 /// 2. Tre card di riepilogo (Entrate, Uscite, Bilancio)
-/// 3. Lista scrollabile delle transazioni del mese selezionato
-/// 4. FAB per aggiungere una nuova transazione
-class HomeScreen extends StatelessWidget {
+/// 3. Barra di ricerca per categoria (i totali restano quelli del mese intero)
+/// 4. Lista scrollabile delle transazioni del mese selezionato
+/// 5. FAB per aggiungere una nuova transazione
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  String _query = '';
 
   @override
   Widget build(BuildContext context) {
     // watch: ricostruisce il widget ad ogni notifyListeners() del provider
     final provider = context.watch<TransactionProvider>();
+    final transactions = provider.transactions
+        .where((t) => matchesSearch(t.category, _query))
+        .toList();
     final currencyFormat = NumberFormat.currency(locale: 'it_IT', symbol: '\u20ac');
     final monthFormat = DateFormat('MMMM yyyy', 'it');
     final monthDate = DateTime(provider.selectedYear, provider.selectedMonth);
@@ -147,19 +160,26 @@ class HomeScreen extends StatelessWidget {
 
           const Divider(),
 
-          // Lista delle transazioni del mese, o messaggio se vuota
+          SearchField(
+            hintText: 'Cerca per categoria',
+            onChanged: (value) => setState(() => _query = value),
+          ),
+
+          // Lista delle transazioni filtrate, o messaggio se vuota
           Expanded(
-            child: provider.transactions.isEmpty
-                ? const Center(
+            child: transactions.isEmpty
+                ? Center(
                     child: Text(
-                      'Nessuna transazione questo mese',
-                      style: TextStyle(color: Colors.grey, fontSize: 16),
+                      provider.transactions.isEmpty
+                          ? 'Nessuna transazione questo mese'
+                          : 'Nessun risultato',
+                      style: const TextStyle(color: Colors.grey, fontSize: 16),
                     ),
                   )
                 : ListView.builder(
-                    itemCount: provider.transactions.length,
+                    itemCount: transactions.length,
                     itemBuilder: (context, index) {
-                      final transaction = provider.transactions[index];
+                      final transaction = transactions[index];
                       return TransactionTile(
                         transaction: transaction,
                         onDelete: () =>

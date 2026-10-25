@@ -60,8 +60,8 @@ void main() {
     await tester.pumpAndSettle();
     // Inserire importo
     await tester.enterText(find.byType(TextFormField), '2000');
-    // Selezionare categoria dal dropdown
-    await tester.tap(find.byType(DropdownButtonFormField<String>));
+    // Selezionare categoria dal campo con ricerca
+    await tester.tap(find.byType(DropdownMenu<String>));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Stipendio').last);
     await tester.pumpAndSettle();
@@ -79,7 +79,7 @@ void main() {
     await tester.tap(find.text('Uscita'));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField), '800');
-    await tester.tap(find.byType(DropdownButtonFormField<String>));
+    await tester.tap(find.byType(DropdownMenu<String>));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Affitto').last);
     await tester.pumpAndSettle();
