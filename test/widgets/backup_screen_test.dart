@@ -15,6 +15,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
+import '../helpers/localized_app.dart';
+
 class _FakeTransactionProvider extends ChangeNotifier
     implements TransactionProvider {
   final List<Transaction> _all = [];
@@ -179,45 +181,45 @@ Widget _buildWidget({_FakeSaveDialog? saveDialog}) {
         value: _FakeTemplateProvider(),
       ),
     ],
-    child: MaterialApp(home: BackupScreen(saveFileDialog: dialog.call)),
+    child: localizedApp(home: BackupScreen(saveFileDialog: dialog.call)),
   );
 }
 
 void main() {
-  testWidgets('shows the Backup & Ripristino title', (tester) async {
+  testWidgets('shows the Backup & restore title', (tester) async {
     await tester.pumpWidget(_buildWidget());
-    expect(find.text('Backup & Ripristino'), findsOneWidget);
+    expect(find.text('Backup & restore'), findsOneWidget);
   });
 
-  testWidgets('shows the Salva su file button', (tester) async {
+  testWidgets('shows the Save to file button', (tester) async {
     await tester.pumpWidget(_buildWidget());
-    expect(find.text('Salva su file'), findsOneWidget);
+    expect(find.text('Save to file'), findsOneWidget);
   });
 
-  testWidgets('on phones also shows the Condividi button',
+  testWidgets('on phones also shows the Share button',
       (tester) async {
     debugDefaultTargetPlatformOverride = TargetPlatform.android;
     await tester.pumpWidget(_buildWidget());
-    expect(find.text('Condividi'), findsOneWidget);
+    expect(find.text('Share'), findsOneWidget);
     debugDefaultTargetPlatformOverride = null;
   });
 
-  testWidgets('on desktop hides the Condividi button', (tester) async {
+  testWidgets('on desktop hides the Share button', (tester) async {
     debugDefaultTargetPlatformOverride = TargetPlatform.linux;
     await tester.pumpWidget(_buildWidget());
-    expect(find.text('Condividi'), findsNothing);
-    expect(find.text('Salva su file'), findsOneWidget);
+    expect(find.text('Share'), findsNothing);
+    expect(find.text('Save to file'), findsOneWidget);
     debugDefaultTargetPlatformOverride = null;
   });
 
-  testWidgets('Salva su file passes a valid JSON backup to the dialog',
+  testWidgets('Save to file passes a valid JSON backup to the dialog',
       (tester) async {
     final dialog = _FakeSaveDialog(
       result: Uri.file('/tmp/budget_backup.json'),
     );
     await tester.pumpWidget(_buildWidget(saveDialog: dialog));
 
-    await tester.tap(find.text('Salva su file'));
+    await tester.tap(find.text('Save to file'));
     await tester.pumpAndSettle();
 
     expect(dialog.calls, 1);
@@ -226,7 +228,7 @@ void main() {
     // The content must be a backup that can be imported again
     final data = BackupService.parseJson(utf8.decode(dialog.bytes!));
     expect(data.transactions, isEmpty);
-    expect(find.textContaining('Backup salvato'), findsOneWidget);
+    expect(find.textContaining('Backup saved'), findsOneWidget);
   });
 
   testWidgets('cancelling the dialog shows no message',
@@ -234,22 +236,22 @@ void main() {
     final dialog = _FakeSaveDialog(result: null);
     await tester.pumpWidget(_buildWidget(saveDialog: dialog));
 
-    await tester.tap(find.text('Salva su file'));
+    await tester.tap(find.text('Save to file'));
     await tester.pumpAndSettle();
 
     expect(dialog.calls, 1);
     expect(find.byType(SnackBar), findsNothing);
   });
 
-  testWidgets('shows the Importa backup button', (tester) async {
+  testWidgets('shows the Import backup button', (tester) async {
     await tester.pumpWidget(_buildWidget());
-    expect(find.text('Importa backup'), findsOneWidget);
+    expect(find.text('Import backup'), findsOneWidget);
   });
 
   testWidgets('shows the description text', (tester) async {
     await tester.pumpWidget(_buildWidget());
     expect(
-      find.textContaining('Esporta tutti i dati'),
+      find.textContaining('Export all your data'),
       findsOneWidget,
     );
   });

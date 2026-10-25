@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../models/category.dart';
 import '../providers/category_provider.dart';
 import '../utils/search.dart';
@@ -27,6 +28,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     // watch: rebuilds the widget on every notifyListeners() of the provider
     final provider = context.watch<CategoryProvider>();
     final categories = provider.categories
@@ -34,11 +36,11 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
         .toList();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Categorie'), centerTitle: true),
+      appBar: AppBar(title: Text(l10n.categories), centerTitle: true),
       body: Column(
         children: [
           SearchField(
-            hintText: 'Cerca categoria',
+            hintText: l10n.searchCategory,
             onChanged: (value) => setState(() => _query = value),
           ),
           Expanded(child: _buildList(provider, categories)),
@@ -57,7 +59,9 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     if (categories.isEmpty) {
       return Center(
         child: Text(
-          provider.categories.isEmpty ? 'Nessuna categoria' : 'Nessun risultato',
+          provider.categories.isEmpty
+              ? AppLocalizations.of(context).noCategories
+              : AppLocalizations.of(context).noResults,
           style: const TextStyle(color: Colors.grey, fontSize: 16),
         ),
       );
@@ -130,11 +134,15 @@ class _AddCategoryDialogState extends State<_AddCategoryDialog> {
   Future<void> _tryAdd() async {
     final name = _controller.text.trim();
     if (name.isEmpty) {
-      setState(() => _errorText = 'Il nome non può essere vuoto');
+      setState(
+        () => _errorText = AppLocalizations.of(context).categoryNameEmpty,
+      );
       return;
     }
     if (widget.provider.categoryExists(name)) {
-      setState(() => _errorText = 'Categoria già esistente');
+      setState(
+        () => _errorText = AppLocalizations.of(context).categoryAlreadyExists,
+      );
       return;
     }
     // notifyListeners() happens while the dialog is still mounted,
@@ -145,6 +153,7 @@ class _AddCategoryDialogState extends State<_AddCategoryDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     // Existing categories similar to the typed text, to avoid duplicates
     final similar = _controller.text.trim().isEmpty
         ? const <String>[]
@@ -155,7 +164,7 @@ class _AddCategoryDialogState extends State<_AddCategoryDialog> {
               .toList();
 
     return AlertDialog(
-      title: const Text('Nuova Categoria'),
+      title: Text(l10n.newCategory),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -164,7 +173,7 @@ class _AddCategoryDialogState extends State<_AddCategoryDialog> {
             controller: _controller,
             autofocus: true,
             decoration: InputDecoration(
-              labelText: 'Nome categoria',
+              labelText: l10n.categoryName,
               border: const OutlineInputBorder(),
               errorText: _errorText,
             ),
@@ -174,7 +183,10 @@ class _AddCategoryDialogState extends State<_AddCategoryDialog> {
           ),
           if (similar.isNotEmpty) ...[
             const SizedBox(height: 12),
-            const Text('Già esistenti:', style: TextStyle(color: Colors.grey)),
+            Text(
+              l10n.similarExistingCategories,
+              style: const TextStyle(color: Colors.grey),
+            ),
             const SizedBox(height: 4),
             Wrap(
               spacing: 6,
@@ -190,9 +202,9 @@ class _AddCategoryDialogState extends State<_AddCategoryDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Annulla'),
+          child: Text(l10n.cancel),
         ),
-        FilledButton(onPressed: _tryAdd, child: const Text('Aggiungi')),
+        FilledButton(onPressed: _tryAdd, child: Text(l10n.add)),
       ],
     );
   }

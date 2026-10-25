@@ -7,6 +7,7 @@ import 'package:budget_fuck/main.dart' as app;
 import 'package:budget_fuck/models/category.dart';
 import 'package:budget_fuck/models/transaction.dart';
 import 'package:budget_fuck/models/transaction_template.dart';
+import 'package:budget_fuck/providers/settings_provider.dart';
 
 /// Temporary directory for the integration tests' Hive data.
 ///
@@ -15,8 +16,9 @@ import 'package:budget_fuck/models/transaction_template.dart';
 final String testStoragePath =
     Directory.systemTemp.createTempSync('budget_tracker_it_').path;
 
-/// Clears the three boxes in the temporary directory and inserts the given
-/// [categories], so the forms that require a category can be used.
+/// Clears the boxes in the temporary directory, sets the app language to
+/// English and inserts the given [categories], so the forms that require a
+/// category can be used.
 Future<void> resetStorage({List<String> categories = const []}) async {
   Hive.init(testStoragePath);
   if (!Hive.isAdapterRegistered(0)) {
@@ -30,6 +32,10 @@ Future<void> resetStorage({List<String> categories = const []}) async {
   }
   await (await Hive.openBox<Transaction>('transactions')).clear();
   await (await Hive.openBox<TransactionTemplate>('templates')).clear();
+  // Run the app in English whatever the machine language
+  final settingsBox = await Hive.openBox<String>(SettingsProvider.boxName);
+  await settingsBox.clear();
+  await settingsBox.put(SettingsProvider.languageKey, 'en');
   final categoryBox = await Hive.openBox<Category>('categories');
   await categoryBox.clear();
   for (final (index, name) in categories.indexed) {
@@ -65,14 +71,14 @@ Future<void> addTransaction(
   await tester.tap(find.byType(FloatingActionButton));
   await tester.pumpAndSettle();
 
-  await tester.tap(find.text(isIncome ? 'Entrata' : 'Uscita'));
+  await tester.tap(find.text(isIncome ? 'Income' : 'Expense'));
   await tester.pumpAndSettle();
 
   // The amount is the only TextFormField of the form
   await tester.enterText(find.byType(TextFormField), amount);
   await selectCategory(tester, category);
 
-  await tester.tap(find.text('Salva'));
+  await tester.tap(find.text('Save'));
   await tester.pumpAndSettle();
 }
 
@@ -89,7 +95,7 @@ Future<void> swipeToDelete(WidgetTester tester, String text) async {
   final width = tester.getSize(row).width;
   await tester.drag(row, Offset(-width * 0.9, 0));
   await tester.pumpAndSettle();
-  expect(find.text('Conferma eliminazione'), findsOneWidget);
+  expect(find.text('Confirm deletion'), findsOneWidget);
 }
 
 /// Waits until [finder] finds at least one widget, pumping frames.

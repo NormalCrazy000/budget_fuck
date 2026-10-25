@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../models/transaction_template.dart';
 import '../providers/template_provider.dart';
 import '../utils/search.dart';
@@ -27,6 +28,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     // watch: rebuilds the widget on every notifyListeners() of the provider
     final provider = context.watch<TemplateProvider>();
     final templates = provider.templates
@@ -35,13 +37,13 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Template'),
+        title: Text(l10n.templates),
         centerTitle: true,
       ),
       body: Column(
         children: [
           SearchField(
-            hintText: 'Cerca per categoria',
+            hintText: l10n.searchByCategory,
             onChanged: (value) => setState(() => _query = value),
           ),
           Expanded(child: _buildList(provider, templates)),
@@ -69,7 +71,9 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
     if (templates.isEmpty) {
       return Center(
         child: Text(
-          provider.templates.isEmpty ? 'Nessun template' : 'Nessun risultato',
+          provider.templates.isEmpty
+              ? AppLocalizations.of(context).noTemplates
+              : AppLocalizations.of(context).noResults,
           style: const TextStyle(color: Colors.grey, fontSize: 16),
         ),
       );

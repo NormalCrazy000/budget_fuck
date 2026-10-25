@@ -20,7 +20,7 @@ void main() {
     // === SESSION 1: add transactions ===
     await startApp(tester);
 
-    expect(find.text('Nessuna transazione questo mese'), findsOneWidget);
+    expect(find.text('No transactions this month'), findsOneWidget);
     print('SESSION 1: app started, no transactions');
 
     await addTransaction(
@@ -39,9 +39,9 @@ void main() {
     // The transactions must be there
     expect(find.text('Stipendio'), findsOneWidget);
     expect(find.text('Affitto'), findsOneWidget);
-    expect(find.textContaining('2.000'), findsWidgets);
+    expect(find.textContaining('2,000'), findsWidgets);
     expect(find.textContaining('750'), findsWidgets);
-    expect(find.textContaining('1.250'), findsWidgets); // balance
+    expect(find.textContaining('1,250'), findsWidgets); // balance
     print('SESSION 1: Stipendio 2000 and Affitto 750 added, balance 1250');
 
     // === APP CLOSE: close the box, as when the app closes ===
@@ -59,13 +59,13 @@ void main() {
     print('SESSION 2: OK - transactions still in the list');
 
     // The totals must be the same
-    expect(find.textContaining('2.000'), findsWidgets); // income
+    expect(find.textContaining('2,000'), findsWidgets); // income
     expect(find.textContaining('750'), findsWidgets); // expenses
-    expect(find.textContaining('1.250'), findsWidgets); // balance
+    expect(find.textContaining('1,250'), findsWidgets); // balance
     print('SESSION 2: OK - totals unchanged (income 2000, expenses 750, balance 1250)');
 
     // The "no transactions" message must NOT appear
-    expect(find.text('Nessuna transazione questo mese'), findsNothing);
+    expect(find.text('No transactions this month'), findsNothing);
     print('SESSION 2: OK - no "no transactions" message');
 
     print('\nTEST PASSED: data persists after closing and reopening the app');

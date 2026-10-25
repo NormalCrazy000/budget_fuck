@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../models/transaction.dart';
 import '../providers/category_provider.dart';
 import '../providers/transaction_provider.dart';
+import '../utils/formatters.dart';
 import '../widgets/category_picker_field.dart';
 
 /// Screen to add a new transaction (income or expense).
@@ -73,7 +74,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
     final transaction = Transaction(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
-      amount: double.parse(_amountController.text),
+      amount: parseAmount(_amountController.text)!,
       isIncome: _isIncome,
       date: _selectedDate,
       category: _selectedCategory!,
@@ -86,9 +87,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Nuova Transazione'),
+        title: Text(l10n.newTransaction),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -113,7 +115,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                         ),
                         alignment: Alignment.center,
                         child: Text(
-                          'Entrata',
+                          l10n.income,
                           style: TextStyle(
                             color: _isIncome ? Colors.white : Colors.black54,
                             fontWeight: FontWeight.bold,
@@ -136,7 +138,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                         ),
                         alignment: Alignment.center,
                         child: Text(
-                          'Uscita',
+                          l10n.expense,
                           style: TextStyle(
                             color: !_isIncome ? Colors.white : Colors.black54,
                             fontWeight: FontWeight.bold,
@@ -152,18 +154,18 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               // Amount field (numbers with decimals only)
               TextFormField(
                 controller: _amountController,
-                decoration: const InputDecoration(
-                  labelText: 'Importo (\u20ac)',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.amountLabel,
+                  border: const OutlineInputBorder(),
                 ),
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Inserisci un importo';
+                    return l10n.enterAmount;
                   }
-                  final amount = double.tryParse(value);
+                  final amount = parseAmount(value);
                   if (amount == null || amount <= 0) {
-                    return 'Inserisci un importo valido';
+                    return l10n.enterValidAmount;
                   }
                   return null;
                 },
@@ -185,11 +187,11 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.calendar_today),
                 title: Text(
-                  DateFormat('dd MMMM yyyy', 'it').format(_selectedDate),
+                  longDateFormat(context).format(_selectedDate),
                 ),
                 trailing: TextButton(
                   onPressed: _pickDate,
-                  child: const Text('Cambia'),
+                  child: Text(l10n.change),
                 ),
               ),
               const SizedBox(height: 24),
@@ -202,8 +204,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                   backgroundColor: _isIncome ? Colors.green : Colors.red,
                   foregroundColor: Colors.white,
                 ),
-                child: const Text(
-                  'Salva',
+                child: Text(
+                  l10n.save,
                   style: TextStyle(fontSize: 18),
                 ),
               ),

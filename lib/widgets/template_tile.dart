@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../models/transaction_template.dart';
 import 'confirm_delete_dialog.dart';
+import '../l10n/app_localizations.dart';
+import '../utils/formatters.dart';
 
 /// Shows a single template in a list.
 ///
@@ -27,7 +28,8 @@ class TemplateTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currencyFormat = NumberFormat.currency(locale: 'it_IT', symbol: '\u20ac');
+    final l10n = AppLocalizations.of(context);
+    final currency = currencyFormat(context);
 
     return Dismissible(
       key: Key(template.id),
@@ -55,10 +57,10 @@ class TemplateTile extends StatelessWidget {
         ),
         title: Text(template.category),
         // Show the transaction type instead of the date
-        subtitle: Text(template.isIncome ? 'Entrata' : 'Uscita'),
+        subtitle: Text(template.isIncome ? l10n.income : l10n.expense),
         // Amount formatted with sign and color
         trailing: Text(
-          '${template.isIncome ? '+' : '-'}${currencyFormat.format(template.amount)}',
+          '${template.isIncome ? '+' : '-'}${currency.format(template.amount)}',
           style: TextStyle(
             color: template.isIncome ? Colors.green : Colors.red,
             fontWeight: FontWeight.bold,

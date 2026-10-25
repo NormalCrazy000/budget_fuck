@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 
 /// Reusable search bar for the top of lists.
 ///
@@ -48,7 +49,7 @@ class _SearchFieldState extends State<SearchField> {
               ? null
               : IconButton(
                   icon: const Icon(Icons.clear),
-                  tooltip: 'Cancella ricerca',
+                  tooltip: AppLocalizations.of(context).clearSearch,
                   onPressed: _clear,
                 ),
           border: const OutlineInputBorder(),

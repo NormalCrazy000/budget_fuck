@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:budget_fuck/widgets/category_picker_field.dart';
 
+import '../helpers/localized_app.dart';
+
 void main() {
   const categories = ['Affitto', 'Caffè', 'Spesa', 'Spese mediche'];
 
@@ -14,7 +16,7 @@ void main() {
   });
 
   Widget buildWidget() {
-    return MaterialApp(
+    return localizedApp(
       home: Scaffold(
         body: Form(
           key: formKey,
@@ -80,7 +82,7 @@ void main() {
 
     expect(formKey.currentState!.validate(), isFalse);
     await tester.pumpAndSettle();
-    expect(find.text('Seleziona una categoria'), findsOneWidget);
+    expect(find.text('Select a category'), findsOneWidget);
     expect(selected, isNull);
   });
 

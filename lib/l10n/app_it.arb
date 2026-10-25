@@ -1,0 +1,84 @@
+{
+  "@@locale": "it",
+
+  "appTitle": "Budget Tracker",
+
+  "income": "Entrata",
+  "expense": "Uscita",
+  "incomeTotal": "Entrate",
+  "expensesTotal": "Uscite",
+  "balance": "Bilancio",
+
+  "statistics": "Statistiche",
+  "manageCategories": "Gestisci categorie",
+  "manageTemplates": "Gestisci template",
+  "applyTemplates": "Applica template",
+  "settings": "Impostazioni",
+  "backupAndRestore": "Backup & Ripristino",
+
+  "searchByCategory": "Cerca per categoria",
+  "searchCategory": "Cerca categoria",
+  "clearSearch": "Cancella ricerca",
+  "noResults": "Nessun risultato",
+
+  "noTransactionsThisMonth": "Nessuna transazione questo mese",
+
+  "categories": "Categorie",
+  "noCategories": "Nessuna categoria",
+  "newCategory": "Nuova categoria",
+  "categoryName": "Nome categoria",
+  "categoryNameEmpty": "Il nome non può essere vuoto",
+  "categoryAlreadyExists": "Categoria già esistente",
+  "similarExistingCategories": "Già esistenti:",
+  "category": "Categoria",
+  "selectCategory": "Seleziona una categoria",
+
+  "cancel": "Annulla",
+  "add": "Aggiungi",
+  "save": "Salva",
+  "change": "Cambia",
+  "delete": "Elimina",
+
+  "newTransaction": "Nuova transazione",
+  "amountLabel": "Importo (€)",
+  "enterAmount": "Inserisci un importo",
+  "enterValidAmount": "Inserisci un importo valido",
+
+  "confirmDeletion": "Conferma eliminazione",
+  "confirmDeletionMessage": "Sei sicuro di voler eliminare {item}?",
+
+  "noExpensesThisMonth": "Nessuna uscita questo mese",
+  "noIncomeThisMonth": "Nessuna entrata questo mese",
+  "totalExpenses": "Totale uscite",
+  "totalIncome": "Totale entrate",
+  "transactionCount": "{count, plural, =1{1 transazione} other{{count} transazioni}}",
+
+  "templates": "Template",
+  "noTemplates": "Nessun template",
+  "newTemplate": "Nuovo template",
+  "noTemplatesAvailable": "Nessun template disponibile",
+  "selectAll": "Seleziona tutti",
+  "deselectAll": "Deseleziona tutti",
+  "applyCount": "Applica ({count})",
+
+  "backupDescription": "Esporta tutti i dati in un file JSON oppure importa un backup precedente.",
+  "saveToFile": "Salva su file",
+  "share": "Condividi",
+  "importBackup": "Importa backup",
+  "saveBackupDialogTitle": "Salva backup",
+  "backupSaved": "Backup salvato",
+  "backupSavedTo": "Backup salvato in: {path}",
+  "exportError": "Errore esportazione: {error}",
+  "invalidFile": "File non valido: {error}",
+  "importMode": "Modalità importazione",
+  "importSummary": "Trovati:\n• {transactions, plural, =1{1 transazione} other{{transactions} transazioni}}\n• {categories, plural, =1{1 categoria} other{{categories} categorie}}\n• {templates, plural, =1{1 template} other{{templates} template}}\n\nCome vuoi procedere?",
+  "merge": "Unisci",
+  "replaceAll": "Sostituisci tutto",
+  "importCompleted": "Importazione completata",
+  "importError": "Errore importazione: {error}",
+
+  "language": "Lingua",
+  "languageSystem": "Automatica (lingua del telefono)",
+  "languageItalian": "Italiano",
+  "languageEnglish": "English"
+}

@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:budget_fuck/widgets/confirm_delete_dialog.dart';
 
+import 'helpers/localized_app.dart';
+
 void main() {
   group('showConfirmDeleteDialog', () {
     testWidgets('shows the right title, message and buttons', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        localizedApp(
           home: Builder(
             builder: (context) => ElevatedButton(
               onPressed: () =>
@@ -20,20 +22,20 @@ void main() {
       await tester.tap(find.text('Apri'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Conferma eliminazione'), findsOneWidget);
+      expect(find.text('Confirm deletion'), findsOneWidget);
       expect(
-        find.text('Sei sicuro di voler eliminare Alimentari?'),
+        find.text('Are you sure you want to delete Alimentari?'),
         findsOneWidget,
       );
-      expect(find.text('Annulla'), findsOneWidget);
-      expect(find.text('Elimina'), findsOneWidget);
+      expect(find.text('Cancel'), findsOneWidget);
+      expect(find.text('Delete'), findsOneWidget);
     });
 
-    testWidgets('Annulla returns false', (tester) async {
+    testWidgets('Cancel returns false', (tester) async {
       bool? result;
 
       await tester.pumpWidget(
-        MaterialApp(
+        localizedApp(
           home: Builder(
             builder: (context) => ElevatedButton(
               onPressed: () async {
@@ -49,17 +51,17 @@ void main() {
       await tester.tap(find.text('Apri'));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Annulla'));
+      await tester.tap(find.text('Cancel'));
       await tester.pumpAndSettle();
 
       expect(result, false);
     });
 
-    testWidgets('Elimina returns true', (tester) async {
+    testWidgets('Delete returns true', (tester) async {
       bool? result;
 
       await tester.pumpWidget(
-        MaterialApp(
+        localizedApp(
           home: Builder(
             builder: (context) => ElevatedButton(
               onPressed: () async {
@@ -75,7 +77,7 @@ void main() {
       await tester.tap(find.text('Apri'));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Elimina'));
+      await tester.tap(find.text('Delete'));
       await tester.pumpAndSettle();
 
       expect(result, true);

@@ -19,7 +19,7 @@ void main() {
     await startApp(tester);
 
     // Initial state: no transactions
-    expect(find.text('Nessuna transazione questo mese'), findsOneWidget);
+    expect(find.text('No transactions this month'), findsOneWidget);
 
     // --- Add an INCOME ---
     await addTransaction(
@@ -32,7 +32,7 @@ void main() {
     // Back home - the income must appear
     expect(find.text('Stipendio'), findsOneWidget);
     // The "no transactions" message must be gone
-    expect(find.text('Nessuna transazione questo mese'), findsNothing);
+    expect(find.text('No transactions this month'), findsNothing);
 
     // --- Add an EXPENSE ---
     await addTransaction(
@@ -48,9 +48,9 @@ void main() {
 
     // Check the totals
     // Income: 1500, expenses: 800, balance: 700
-    expect(find.textContaining('1.500'), findsWidgets); // income + in the tile
+    expect(find.textContaining('1,500'), findsWidgets); // income + in the tile
     expect(find.textContaining('800'), findsWidgets); // expenses + in the tile
-    expect(find.textContaining('700,00'), findsWidgets); // balance
+    expect(find.textContaining('700.00'), findsWidgets); // balance
 
     print('TEST PASSED: income and expense added and shown in the list');
   });

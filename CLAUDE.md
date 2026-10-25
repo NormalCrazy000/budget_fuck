@@ -19,10 +19,10 @@ Cross-platform Flutter app for tracking monthly income and expenses.
 - Delete transactions, templates and categories via swipe + confirmation dialog
 - **Predefined templates**: create recurring transaction templates (salary, rent, bills, etc.)
 - **Template application**: apply templates in bulk or selectively to any month
-- **Backup & Restore**: export all data to JSON and re-import it (replace or merge mode). Export via "Salva su file" (system "Save as" dialog: on Android any folder, e.g. Download or Drive) or "Condividi" (share sheet, Android/iOS only)
+- **Backup & Restore**: export all data to JSON and re-import it (replace or merge mode). Reached from Settings (gear icon on the home AppBar). Export via "Save to file" (system "Save as" dialog: on Android any folder, e.g. Download or Drive) or "Share" (share sheet, Android/iOS only)
 - **Search**: search bar on categories, templates and the month's transactions (case- and accent-insensitive); similar existing categories suggested while creating one; searchable category picker when adding transactions/templates
 - Local data persistence (data survives app restarts). Hive directory: app documents dir on Android/iOS, app support dir on desktop (Linux: `~/.local/share/<application id>`), see `lib/services/storage_location.dart`
-- Material 3 UI with Italian localization
+- Material 3 UI in **English and Italian**: follows the device language (English if unsupported), can be changed in Settings
 
 ## Structure
 
@@ -38,6 +38,7 @@ lib/
 │   ├── home_screen.dart           # Main screen with transaction list
 │   ├── stats_screen.dart          # Per-category statistics (expenses/income) by month
 │   ├── backup_screen.dart         # JSON export/import (backup & restore)
+│   ├── settings_screen.dart       # Language choice + link to backup & restore
 │   ├── add_transaction_screen.dart
 │   ├── categories_screen.dart
 │   ├── templates_screen.dart
@@ -46,7 +47,9 @@ lib/
 ├── services/
 │   ├── backup_service.dart        # JSON serialization/deserialization
 │   └── storage_location.dart      # Hive data directory per platform
+├── l10n/                      # Translations: app_en.arb (template), app_it.arb + generated app_localizations*.dart
 ├── utils/
+│   ├── formatters.dart            # Locale-aware currency/date/percent formats, parseAmount()
 │   └── search.dart                # matchesSearch(): case/accent-insensitive matching
 └── widgets/                   # Reusable components (SearchField, CategoryPickerField, ...)
 ```
@@ -100,6 +103,7 @@ flutter test integration_test/persistence_test.dart -d linux
 flutter test integration_test/month_filter_test.dart -d linux
 flutter test integration_test/templates_test.dart -d linux
 flutter test integration_test/delete_confirmation_test.dart -d linux
+flutter test integration_test/language_test.dart -d linux
 
 # Release build
 flutter build linux --release
@@ -127,6 +131,16 @@ flutter install                     # install directly on a connected device
 # 7. Creates the annotated vVERSION tag (message = release notes) and pushes main + tag
 # → GitHub Actions triggers automatically on the tag push and builds the APK
 ```
+
+## Localization (i18n)
+
+- Every user-visible string lives in `lib/l10n/app_en.arb` (template) and `lib/l10n/app_it.arb`; code reads them with `AppLocalizations.of(context).<key>` (import `../l10n/app_localizations.dart`). **Never hard-code UI text.**
+- Adding a string: add the key (with `@key` metadata for placeholders/plurals) to `app_en.arb`, translate it in `app_it.arb`, then `flutter gen-l10n` (also runs on `flutter pub get`/build). The generated `app_localizations*.dart` files are committed.
+- Adding a language: create `app_<code>.arb`, add the option in `SettingsScreen.languageOptions`/`languageLabel` (language names are written in their own language).
+- Language choice: `SettingsProvider` stores the code in the `settings` Hive box (`Box<String>`, no adapter); null = device language. `SettingsProvider.resolveLocale` picks the first supported device language, otherwise English.
+- Numbers and dates: use `lib/utils/formatters.dart` (`currencyFormat`, `monthYearFormat`, `longDateFormat`, `shortDateFormat`, `percentFormat`), never a hard-coded locale; parse typed amounts with `parseAmount` (accepts `,` and `.`).
+- User data (category names, etc.) is never translated.
+- Code, comments, identifiers, commit messages and docs are in **English**.
 
 ## Code conventions
 
@@ -172,7 +186,8 @@ chore(release): release tasks
 | `hive` | ^2.2.3 | Local NoSQL database |
 | `hive_flutter` | ^1.1.0 | Hive integration with Flutter |
 | `provider` | ^6.1.2 | State management |
-| `intl` | ^0.19.0 | Date/currency formatting (Italian) |
+| `flutter_localizations` | SDK | Material/Cupertino translations for supported locales |
+| `intl` | ^0.20.3 | Date/currency formatting, ARB message formatting |
 | `cupertino_icons` | ^1.0.8 | iOS-style icons |
 | `path_provider` | ^2.1.4 | Documents directory for the backup file |
 | `share_plus` | ^13.3.1 | File sharing on Android/iOS |
@@ -198,13 +213,14 @@ chore(release): release tasks
 ### Widget tests (screens/widgets)
 - Use a `FakeProvider` that implements the real provider without Hive
 - The pattern is `class FakeXProvider extends ChangeNotifier implements XProvider`
-- Minimal wrapper: `MaterialApp > ChangeNotifierProvider.value > Widget`
-- Screens using `DateFormat` with the `it` locale require `initializeDateFormatting('it', null)` in `setUpAll`
-- The currency format `NumberFormat.currency(locale: 'it_IT', symbol: '€')` produces `"50,00 €"` (symbol after, non-breaking space) — use `find.textContaining(...)` to avoid depending on the separator
+- Wrap screens with `localizedApp(home: ...)` from `test/helpers/localized_app.dart` (a `MaterialApp` with the app localizations); tests run in **English** by default, pass `locale: const Locale('it')` to check Italian
+- Screens that format dates require `initializeDateFormatting()` in `setUpAll`
+- English currency format is `"€50.00"`, Italian is `"50,00 €"` (non-breaking space before €) — use `find.textContaining(...)` on the number
+- Tests that run the whole `BudgetApp` with real Hive must do Hive I/O inside `tester.runAsync` (see `test/app_locale_test.dart`); `tester.platformDispatcher.localesTestValue` simulates the device language
 
 ### Integration tests
 - Use the helpers in `integration_test/test_helpers.dart`:
-  - `resetStorage(categories: [...])` clears the boxes in a temp directory (`testStoragePath`) and seeds categories (required by the add forms)
+  - `resetStorage(categories: [...])` clears the boxes in a temp directory (`testStoragePath`), sets the app language to **English** (so tests do not depend on the machine language) and seeds categories (required by the add forms)
   - `startApp(tester)` runs the real app on that directory
   - `addTransaction(...)`, `selectCategory(...)` drive the current forms (amount + searchable category picker)
   - `swipeToDelete(tester, text)` drags almost the full row width (a short fling is flaky on desktop windows) and waits for the confirm dialog
@@ -222,6 +238,10 @@ test/
 ├── category_provider_test.dart      # Unit tests for the category provider (real Hive)
 ├── provider_backup_test.dart        # Unit tests for replaceAll/addAll on all three providers
 ├── search_test.dart                 # Unit tests for matchesSearch/normalizeForSearch
+├── settings_provider_test.dart      # Unit tests for the language preference and resolveLocale
+├── app_locale_test.dart             # Whole app with a simulated device language
+├── helpers/
+│   └── localized_app.dart           # MaterialApp with the app localizations for widget tests
 ├── template_provider_test.dart      # Unit tests for the template provider (real Hive)
 ├── confirm_delete_dialog_test.dart  # Widget test for the confirmation dialog
 ├── widget_test.dart                 # Smoke test (placeholder)
@@ -229,7 +249,9 @@ test/
     ├── backup_screen_test.dart      # Widget test for the backup screen (rendering and buttons)
     ├── categories_screen_test.dart  # Widget test for the categories screen (incl. search and suggestions)
     ├── category_picker_field_test.dart # Widget test for the searchable category picker
-    ├── home_screen_test.dart        # Widget test for transaction search on the home screen
+    ├── formatters_test.dart         # Locale-aware formats (English/Italian) and parseAmount
+    ├── home_screen_test.dart        # Widget test for transaction search and labels in both languages
+    ├── settings_screen_test.dart    # Widget test for the language choice
     ├── stats_screen_test.dart       # Widget test for the statistics screen (13 cases)
     ├── template_tile_test.dart      # Widget test for the template tile
     ├── templates_screen_test.dart   # Widget test for template search

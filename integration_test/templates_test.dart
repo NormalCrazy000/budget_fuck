@@ -30,17 +30,17 @@ void main() {
     await tester.tap(find.byIcon(Icons.list_alt));
     await tester.pumpAndSettle();
 
-    expect(find.text('Template'), findsOneWidget);
-    expect(find.text('Nessun template'), findsOneWidget);
+    expect(find.text('Templates'), findsOneWidget);
+    expect(find.text('No templates'), findsOneWidget);
     print('OK: empty templates screen');
 
     // === Create the "Stipendio" template (income) ===
     await tester.tap(find.byType(FloatingActionButton));
     await tester.pumpAndSettle();
 
-    expect(find.text('Nuovo Template'), findsOneWidget);
+    expect(find.text('New template'), findsOneWidget);
     // Income is the default, but tap it to be sure
-    await tester.tap(find.text('Entrata'));
+    await tester.tap(find.text('Income'));
     await tester.pumpAndSettle();
     // Enter the amount
     await tester.enterText(find.byType(TextFormField), '2000');
@@ -49,25 +49,25 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Stipendio').last);
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Salva'));
+    await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
 
     expect(find.text('Stipendio'), findsOneWidget);
-    expect(find.text('Nessun template'), findsNothing);
+    expect(find.text('No templates'), findsNothing);
     print('OK: Stipendio template created');
 
     // === Create the "Affitto" template (expense) ===
     await tester.tap(find.byType(FloatingActionButton));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Uscita'));
+    await tester.tap(find.text('Expense'));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField), '800');
     await tester.tap(find.byType(DropdownMenu<String>));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Affitto').last);
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Salva'));
+    await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
 
     expect(find.text('Stipendio'), findsOneWidget);
@@ -82,24 +82,24 @@ void main() {
     await tester.tap(find.byIcon(Icons.play_circle_outline));
     await tester.pumpAndSettle();
 
-    expect(find.text('Applica Template'), findsOneWidget);
+    expect(find.text('Apply templates'), findsOneWidget);
     expect(find.text('Stipendio'), findsOneWidget);
     expect(find.text('Affitto'), findsOneWidget);
     print('OK: apply templates screen with 2 templates');
 
     // === Select all and apply ===
-    await tester.tap(find.text('Seleziona Tutti'));
+    await tester.tap(find.text('Select all'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Applica (2)'), findsOneWidget);
+    expect(find.text('Apply (2)'), findsOneWidget);
 
-    await tester.tap(find.text('Applica (2)'));
+    await tester.tap(find.text('Apply (2)'));
     await tester.pumpAndSettle();
 
     // === Back home - check the transactions ===
     expect(find.text('Stipendio'), findsOneWidget);
     expect(find.text('Affitto'), findsOneWidget);
-    expect(find.textContaining('2.000'), findsWidgets);
+    expect(find.textContaining('2,000'), findsWidgets);
     expect(find.textContaining('800'), findsWidgets);
     print('OK: templates applied, transactions shown on the home screen');
 
@@ -152,9 +152,9 @@ void main() {
     await tester.tap(find.text('Stipendio'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Applica (1)'), findsOneWidget);
+    expect(find.text('Apply (1)'), findsOneWidget);
 
-    await tester.tap(find.text('Applica (1)'));
+    await tester.tap(find.text('Apply (1)'));
     await tester.pumpAndSettle();
 
     // Only Stipendio must appear on the home screen

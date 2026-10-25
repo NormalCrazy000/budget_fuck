@@ -81,9 +81,9 @@ void main() {
     expect(find.text('Stipendio Gennaio'), findsNothing);
     expect(find.text('Previsione Marzo'), findsNothing);
     // Totals: income 2000, expenses 800, balance 1200
-    expect(find.textContaining('2.000'), findsWidgets);
+    expect(find.textContaining('2,000'), findsWidgets);
     expect(find.textContaining('800'), findsWidgets);
-    expect(find.textContaining('1.200'), findsWidgets);
+    expect(find.textContaining('1,200'), findsWidgets);
     print('OK: current month - 2 transactions, correct totals');
 
     // === GO TO THE PREVIOUS MONTH ===
@@ -97,7 +97,7 @@ void main() {
     expect(find.text('Affitto Febbraio'), findsNothing);
     expect(find.text('Previsione Marzo'), findsNothing);
     // Totals: income 1800, expenses 0, balance 1800
-    expect(find.textContaining('1.800'), findsWidgets);
+    expect(find.textContaining('1,800'), findsWidgets);
     print('OK: previous month - only its transaction, totals recomputed');
 
     // === GO FORWARD 2 MONTHS (back to current, then next) ===

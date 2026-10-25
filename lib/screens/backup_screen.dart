@@ -9,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../l10n/app_localizations.dart';
 import '../providers/category_provider.dart';
 import '../providers/template_provider.dart';
 import '../providers/transaction_provider.dart';
@@ -37,6 +38,8 @@ class BackupScreen extends StatefulWidget {
 
 class _BackupScreenState extends State<BackupScreen> {
   bool _isLoading = false;
+
+  AppLocalizations get _l10n => AppLocalizations.of(context);
 
   /// Sharing files (WhatsApp, Gmail, ...) is only available on phones;
   /// on desktop only "save to file" is offered.
@@ -68,18 +71,18 @@ class _BackupScreenState extends State<BackupScreen> {
         fileName: _backupFileName(),
         bytes: utf8.encode(_backupJson()),
         mimeType: 'application/json',
-        dialogTitle: 'Salva backup',
+        dialogTitle: _l10n.saveBackupDialogTitle,
       );
       // null: the user closed the dialog without saving
       if (uri != null && mounted) {
         _showSnackBar(
           uri.scheme == 'file'
-              ? 'Backup salvato in: ${uri.toFilePath()}'
-              : 'Backup salvato',
+              ? _l10n.backupSavedTo(uri.toFilePath())
+              : _l10n.backupSaved,
         );
       }
     } catch (e) {
-      if (mounted) _showSnackBar('Errore esportazione: $e', isError: true);
+      if (mounted) _showSnackBar(_l10n.exportError('$e'), isError: true);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -101,7 +104,7 @@ class _BackupScreenState extends State<BackupScreen> {
         ShareParams(files: [XFile(file.path)], subject: fileName),
       );
     } catch (e) {
-      if (mounted) _showSnackBar('Errore esportazione: $e', isError: true);
+      if (mounted) _showSnackBar(_l10n.exportError('$e'), isError: true);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -126,7 +129,7 @@ class _BackupScreenState extends State<BackupScreen> {
       final content = utf8.decode(await picked.readAsBytes());
       data = BackupService.parseJson(content);
     } catch (e) {
-      if (mounted) _showSnackBar('File non valido: $e', isError: true);
+      if (mounted) _showSnackBar(_l10n.invalidFile('$e'), isError: true);
       return;
     }
 
@@ -135,26 +138,26 @@ class _BackupScreenState extends State<BackupScreen> {
     final mode = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Modalità importazione'),
+        title: Text(_l10n.importMode),
         content: Text(
-          'Trovati:\n'
-          '• ${data.transactions.length} transazioni\n'
-          '• ${data.categories.length} categorie\n'
-          '• ${data.templates.length} template\n\n'
-          'Come vuoi procedere?',
+          _l10n.importSummary(
+            data.transactions.length,
+            data.categories.length,
+            data.templates.length,
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Annulla'),
+            child: Text(_l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, 'merge'),
-            child: const Text('Unisci'),
+            child: Text(_l10n.merge),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, 'replace'),
-            child: const Text('Sostituisci tutto'),
+            child: Text(_l10n.replaceAll),
           ),
         ],
       ),
@@ -178,9 +181,9 @@ class _BackupScreenState extends State<BackupScreen> {
         await tmplProvider.addAll(data.templates);
       }
 
-      if (mounted) _showSnackBar('Importazione completata');
+      if (mounted) _showSnackBar(_l10n.importCompleted);
     } catch (e) {
-      if (mounted) _showSnackBar('Errore importazione: $e', isError: true);
+      if (mounted) _showSnackBar(_l10n.importError('$e'), isError: true);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -198,7 +201,7 @@ class _BackupScreenState extends State<BackupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Backup & Ripristino')),
+      appBar: AppBar(title: Text(_l10n.backupAndRestore)),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Padding(
@@ -206,29 +209,29 @@ class _BackupScreenState extends State<BackupScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Text(
-                    'Esporta tutti i dati in un file JSON oppure importa un backup precedente.',
-                    style: TextStyle(fontSize: 16),
+                  Text(
+                    _l10n.backupDescription,
+                    style: const TextStyle(fontSize: 16),
                   ),
                   const SizedBox(height: 32),
                   FilledButton.icon(
                     onPressed: _saveToFile,
                     icon: const Icon(Icons.save_alt),
-                    label: const Text('Salva su file'),
+                    label: Text(_l10n.saveToFile),
                   ),
                   if (_canShare) ...[
                     const SizedBox(height: 16),
                     FilledButton.tonalIcon(
                       onPressed: _share,
                       icon: const Icon(Icons.share),
-                      label: const Text('Condividi'),
+                      label: Text(_l10n.share),
                     ),
                   ],
                   const SizedBox(height: 16),
                   OutlinedButton.icon(
                     onPressed: _import,
                     icon: const Icon(Icons.download),
-                    label: const Text('Importa backup'),
+                    label: Text(_l10n.importBackup),
                   ),
                 ],
               ),

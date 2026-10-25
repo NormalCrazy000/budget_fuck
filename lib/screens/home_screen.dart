@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../providers/transaction_provider.dart';
+import '../utils/formatters.dart';
 import '../utils/search.dart';
 import '../widgets/search_field.dart';
 import '../widgets/transaction_tile.dart';
 import 'add_transaction_screen.dart';
 import 'apply_templates_screen.dart';
-import 'backup_screen.dart';
 import 'categories_screen.dart';
+import 'settings_screen.dart';
 import 'stats_screen.dart';
 import 'templates_screen.dart';
 
@@ -37,18 +38,19 @@ class _HomeScreenState extends State<HomeScreen> {
     final transactions = provider.transactions
         .where((t) => matchesSearch(t.category, _query))
         .toList();
-    final currencyFormat = NumberFormat.currency(locale: 'it_IT', symbol: '\u20ac');
-    final monthFormat = DateFormat('MMMM yyyy', 'it');
+    final l10n = AppLocalizations.of(context);
+    final currency = currencyFormat(context);
+    final monthFormat = monthYearFormat(context);
     final monthDate = DateTime(provider.selectedYear, provider.selectedMonth);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Budget Tracker'),
+        title: Text(l10n.appTitle),
         centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.bar_chart),
-            tooltip: 'Statistiche',
+            tooltip: l10n.statistics,
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
@@ -60,7 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
           // Go to category management
           IconButton(
             icon: const Icon(Icons.category_outlined),
-            tooltip: 'Gestisci Categorie',
+            tooltip: l10n.manageCategories,
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
@@ -71,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.list_alt),
-            tooltip: 'Gestisci Template',
+            tooltip: l10n.manageTemplates,
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
@@ -82,7 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.play_circle_outline),
-            tooltip: 'Applica Template',
+            tooltip: l10n.applyTemplates,
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
@@ -91,13 +93,14 @@ class _HomeScreenState extends State<HomeScreen> {
               );
             },
           ),
+          // Settings: language and backup & restore
           IconButton(
-            icon: const Icon(Icons.backup),
-            tooltip: 'Backup & Ripristino',
+            icon: const Icon(Icons.settings),
+            tooltip: l10n.settings,
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (_) => const BackupScreen(),
+                  builder: (_) => const SettingsScreen(),
                 ),
               );
             },
@@ -137,20 +140,20 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Row(
               children: [
                 _SummaryCard(
-                  label: 'Entrate',
-                  amount: currencyFormat.format(provider.totalIncome),
+                  label: l10n.incomeTotal,
+                  amount: currency.format(provider.totalIncome),
                   color: Colors.green,
                 ),
                 const SizedBox(width: 8),
                 _SummaryCard(
-                  label: 'Uscite',
-                  amount: currencyFormat.format(provider.totalExpense),
+                  label: l10n.expensesTotal,
+                  amount: currency.format(provider.totalExpense),
                   color: Colors.red,
                 ),
                 const SizedBox(width: 8),
                 _SummaryCard(
-                  label: 'Bilancio',
-                  amount: currencyFormat.format(provider.balance),
+                  label: l10n.balance,
+                  amount: currency.format(provider.balance),
                   // Blue if positive, orange if negative
                   color: provider.balance >= 0 ? Colors.blue : Colors.orange,
                 ),
@@ -161,7 +164,7 @@ class _HomeScreenState extends State<HomeScreen> {
           const Divider(),
 
           SearchField(
-            hintText: 'Cerca per categoria',
+            hintText: l10n.searchByCategory,
             onChanged: (value) => setState(() => _query = value),
           ),
 
@@ -171,8 +174,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 ? Center(
                     child: Text(
                       provider.transactions.isEmpty
-                          ? 'Nessuna transazione questo mese'
-                          : 'Nessun risultato',
+                          ? l10n.noTransactionsThisMonth
+                          : l10n.noResults,
                       style: const TextStyle(color: Colors.grey, fontSize: 16),
                     ),
                   )

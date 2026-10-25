@@ -6,6 +6,8 @@ import 'package:budget_fuck/models/transaction.dart';
 import 'package:budget_fuck/providers/transaction_provider.dart';
 import 'package:budget_fuck/screens/stats_screen.dart';
 
+import '../helpers/localized_app.dart';
+
 /// Fake TransactionProvider that does not depend on Hive.
 class FakeTransactionProvider extends ChangeNotifier
     implements TransactionProvider {
@@ -121,7 +123,7 @@ void main() {
   late FakeTransactionProvider provider;
 
   setUpAll(() async {
-    await initializeDateFormatting('it', null);
+    await initializeDateFormatting();
   });
 
   setUp(() {
@@ -129,7 +131,7 @@ void main() {
   });
 
   Widget buildWidget() {
-    return MaterialApp(
+    return localizedApp(
       home: ChangeNotifierProvider<TransactionProvider>.value(
         value: provider,
         child: const StatsScreen(),
@@ -137,26 +139,26 @@ void main() {
     );
   }
 
-  testWidgets('shows the Uscite and Entrate tabs', (tester) async {
+  testWidgets('shows the Expenses and Income tabs', (tester) async {
     await tester.pumpWidget(buildWidget());
 
-    expect(find.text('Uscite'), findsOneWidget);
-    expect(find.text('Entrate'), findsOneWidget);
+    expect(find.text('Expenses'), findsOneWidget);
+    expect(find.text('Income'), findsOneWidget);
   });
 
-  testWidgets('empty Uscite tab shows a message', (tester) async {
+  testWidgets('empty Expenses tab shows a message', (tester) async {
     await tester.pumpWidget(buildWidget());
 
-    expect(find.text('Nessuna uscita questo mese'), findsOneWidget);
+    expect(find.text('No expenses this month'), findsOneWidget);
   });
 
-  testWidgets('empty Entrate tab shows a message', (tester) async {
+  testWidgets('empty Income tab shows a message', (tester) async {
     await tester.pumpWidget(buildWidget());
 
-    await tester.tap(find.text('Entrate'));
+    await tester.tap(find.text('Income'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Nessuna entrata questo mese'), findsOneWidget);
+    expect(find.text('No income this month'), findsOneWidget);
   });
 
   testWidgets('shows a category with the right amount', (tester) async {
@@ -167,8 +169,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Alimentari'), findsOneWidget);
-    // the it_IT format is "50,00 €"
-    expect(find.textContaining('50,00'), findsWidgets);
+    // the English format is "€50.00"
+    expect(find.textContaining('50.00'), findsWidgets);
   });
 
   testWidgets('groups transactions of the same category', (tester) async {
@@ -182,9 +184,9 @@ void main() {
     await tester.pumpAndSettle();
 
     // 30 + 20 = 50 as the category total
-    expect(find.textContaining('50,00'), findsWidgets);
+    expect(find.textContaining('50.00'), findsWidgets);
     // two transactions
-    expect(find.text('2 transazioni'), findsOneWidget);
+    expect(find.text('2 transactions'), findsOneWidget);
   });
 
   testWidgets('sorts categories by descending amount', (tester) async {
@@ -244,7 +246,7 @@ void main() {
     expect(find.text('Stipendio'), findsNothing);
 
     // Switch to the income tab
-    await tester.tap(find.text('Entrate'));
+    await tester.tap(find.text('Income'));
     await tester.pumpAndSettle();
 
     expect(find.text('Stipendio'), findsOneWidget);
@@ -257,7 +259,7 @@ void main() {
     await tester.tap(find.byIcon(Icons.chevron_left));
     await tester.pumpAndSettle();
 
-    expect(find.text('MAGGIO 2026'), findsOneWidget);
+    expect(find.text('MAY 2026'), findsOneWidget);
   });
 
   testWidgets('right arrow goes to the next month', (tester) async {
@@ -266,7 +268,7 @@ void main() {
     await tester.tap(find.byIcon(Icons.chevron_right));
     await tester.pumpAndSettle();
 
-    expect(find.text('LUGLIO 2026'), findsOneWidget);
+    expect(find.text('JULY 2026'), findsOneWidget);
   });
 
   testWidgets('transactions of other months are not shown', (tester) async {
@@ -283,7 +285,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // The provider is on June 2026, the transaction is from May
-    expect(find.text('Nessuna uscita questo mese'), findsOneWidget);
+    expect(find.text('No expenses this month'), findsOneWidget);
   });
 
   testWidgets('a single transaction shows singular text', (tester) async {
@@ -293,6 +295,6 @@ void main() {
     await tester.pumpWidget(buildWidget());
     await tester.pumpAndSettle();
 
-    expect(find.text('1 transazione'), findsOneWidget);
+    expect(find.text('1 transaction'), findsOneWidget);
   });
 }

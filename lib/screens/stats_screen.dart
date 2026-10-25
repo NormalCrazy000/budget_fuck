@@ -1,28 +1,30 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../models/transaction.dart';
 import '../providers/transaction_provider.dart';
+import '../utils/formatters.dart';
 
 class StatsScreen extends StatelessWidget {
   const StatsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final provider = context.watch<TransactionProvider>();
-    final monthFormat = DateFormat('MMMM yyyy', 'it');
+    final monthFormat = monthYearFormat(context);
     final monthDate = DateTime(provider.selectedYear, provider.selectedMonth);
 
     return DefaultTabController(
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Statistiche'),
+          title: Text(l10n.statistics),
           centerTitle: true,
-          bottom: const TabBar(
+          bottom: TabBar(
             tabs: [
-              Tab(text: 'Uscite'),
-              Tab(text: 'Entrate'),
+              Tab(text: l10n.expensesTotal),
+              Tab(text: l10n.incomeTotal),
             ],
           ),
         ),
@@ -84,12 +86,14 @@ class _CategoryBreakdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currencyFormat = NumberFormat.currency(locale: 'it_IT', symbol: '€');
+    final l10n = AppLocalizations.of(context);
+    final currency = currencyFormat(context);
+    final percentText = percentFormat(context);
 
     if (transactions.isEmpty) {
       return Center(
         child: Text(
-          isExpense ? 'Nessuna uscita questo mese' : 'Nessuna entrata questo mese',
+          isExpense ? l10n.noExpensesThisMonth : l10n.noIncomeThisMonth,
           style: const TextStyle(color: Colors.grey, fontSize: 16),
         ),
       );
@@ -119,11 +123,11 @@ class _CategoryBreakdown extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                isExpense ? 'Totale uscite' : 'Totale entrate',
+                isExpense ? l10n.totalExpenses : l10n.totalIncome,
                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
               ),
               Text(
-                currencyFormat.format(total),
+                currency.format(total),
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 15,
@@ -164,7 +168,7 @@ class _CategoryBreakdown extends StatelessWidget {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          currencyFormat.format(categoryTotal),
+                          currency.format(categoryTotal),
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: color,
@@ -187,11 +191,11 @@ class _CategoryBreakdown extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          '$count ${count == 1 ? 'transazione' : 'transazioni'}',
+                          l10n.transactionCount(count),
                           style: const TextStyle(color: Colors.grey, fontSize: 12),
                         ),
                         Text(
-                          '${(percent * 100).toStringAsFixed(1)}%',
+                          percentText.format(percent),
                           style: const TextStyle(color: Colors.grey, fontSize: 12),
                         ),
                       ],

@@ -5,6 +5,8 @@ import 'package:budget_fuck/models/category.dart';
 import 'package:budget_fuck/providers/category_provider.dart';
 import 'package:budget_fuck/screens/categories_screen.dart';
 
+import '../helpers/localized_app.dart';
+
 /// Fake CategoryProvider that does not depend on Hive.
 class FakeCategoryProvider extends ChangeNotifier implements CategoryProvider {
   final List<Category> _categories = [];
@@ -65,7 +67,7 @@ void main() {
   });
 
   Widget buildWidget() {
-    return MaterialApp(
+    return localizedApp(
       home: ChangeNotifierProvider<CategoryProvider>.value(
         value: provider,
         child: const CategoriesScreen(),
@@ -81,9 +83,9 @@ void main() {
     await tester.drag(find.text('Alimentari'), const Offset(-500, 0));
     await tester.pumpAndSettle();
 
-    expect(find.text('Conferma eliminazione'), findsOneWidget);
+    expect(find.text('Confirm deletion'), findsOneWidget);
     expect(
-      find.text('Sei sicuro di voler eliminare Alimentari?'),
+      find.text('Are you sure you want to delete Alimentari?'),
       findsOneWidget,
     );
   });
@@ -96,7 +98,7 @@ void main() {
     await tester.drag(find.text('Alimentari'), const Offset(-500, 0));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Elimina'));
+    await tester.tap(find.text('Delete'));
     await tester.pumpAndSettle();
 
     expect(provider.categories, isEmpty);
@@ -110,7 +112,7 @@ void main() {
     await tester.drag(find.text('Alimentari'), const Offset(-500, 0));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Annulla'));
+    await tester.tap(find.text('Cancel'));
     await tester.pumpAndSettle();
 
     expect(provider.categories.length, 1);
@@ -127,18 +129,18 @@ void main() {
       await tester.tap(find.byType(FloatingActionButton));
       await tester.pumpAndSettle();
 
-      expect(find.text('Nuova Categoria'), findsOneWidget);
+      expect(find.text('New category'), findsOneWidget);
 
       // Type the category name
       await tester.enterText(dialogTextField, 'Trasporti');
       await tester.pumpAndSettle();
 
       // Confirm
-      await tester.tap(find.text('Aggiungi'));
+      await tester.tap(find.text('Add'));
       await tester.pumpAndSettle();
 
       // The dialog must be closed
-      expect(find.text('Nuova Categoria'), findsNothing);
+      expect(find.text('New category'), findsNothing);
 
       // The category must appear in the list
       expect(find.text('Trasporti'), findsOneWidget);
@@ -162,7 +164,7 @@ void main() {
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle();
 
-      expect(find.text('Nuova Categoria'), findsNothing);
+      expect(find.text('New category'), findsNothing);
       expect(find.text('Salute'), findsOneWidget);
       expect(tester.takeException(), isNull);
     },
@@ -170,7 +172,7 @@ void main() {
 
   group('search', () {
     /// Search bar at the top of the list (outside the dialog).
-    final searchField = find.widgetWithText(TextField, 'Cerca categoria');
+    final searchField = find.widgetWithText(TextField, 'Search category');
 
     setUp(() async {
       await provider.addCategory('Spesa');
@@ -203,15 +205,15 @@ void main() {
       expect(find.text('Spesa'), findsNothing);
     });
 
-    testWidgets('shows "Nessun risultato" when nothing matches', (tester) async {
+    testWidgets('shows "No results" when nothing matches', (tester) async {
       await tester.pumpWidget(buildWidget());
       await tester.pumpAndSettle();
 
       await tester.enterText(searchField, 'xyz');
       await tester.pumpAndSettle();
 
-      expect(find.text('Nessun risultato'), findsOneWidget);
-      expect(find.text('Nessuna categoria'), findsNothing);
+      expect(find.text('No results'), findsOneWidget);
+      expect(find.text('No categories'), findsNothing);
     });
 
     testWidgets('the X button clears the search and shows everything',
@@ -221,12 +223,12 @@ void main() {
 
       await tester.enterText(searchField, 'xyz');
       await tester.pumpAndSettle();
-      await tester.tap(find.byTooltip('Cancella ricerca'));
+      await tester.tap(find.byTooltip('Clear search'));
       await tester.pumpAndSettle();
 
       expect(find.text('Spesa'), findsOneWidget);
       expect(find.text('Affitto'), findsOneWidget);
-      expect(find.byTooltip('Cancella ricerca'), findsNothing);
+      expect(find.byTooltip('Clear search'), findsNothing);
     });
   });
 
@@ -250,7 +252,7 @@ void main() {
         of: find.byType(AlertDialog),
         matching: find.byType(Chip),
       );
-      expect(find.text('Già esistenti:'), findsOneWidget);
+      expect(find.text('Already existing:'), findsOneWidget);
       expect(chips, findsNWidgets(2));
       expect(
         find.descendant(of: chips, matching: find.text('Spesa')),
@@ -269,12 +271,12 @@ void main() {
       await tester.tap(find.byType(FloatingActionButton));
       await tester.pumpAndSettle();
 
-      expect(find.text('Già esistenti:'), findsNothing);
+      expect(find.text('Already existing:'), findsNothing);
 
       await tester.enterText(dialogTextField, 'Trasporti');
       await tester.pumpAndSettle();
 
-      expect(find.text('Già esistenti:'), findsNothing);
+      expect(find.text('Already existing:'), findsNothing);
     });
   });
 }

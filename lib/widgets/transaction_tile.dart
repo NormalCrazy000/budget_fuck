@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../models/transaction.dart';
 import 'confirm_delete_dialog.dart';
+import '../utils/formatters.dart';
 
 /// Shows a single transaction in a list.
 ///
 /// Shows:
 /// - colored icon (green down arrow for income, red up arrow for expenses)
 /// - category name as title
-/// - date in dd/MM/yyyy format as subtitle
+/// - short date in the app language as subtitle (e.g. 26/10/2026)
 /// - amount with + or - sign, green/red
 ///
 /// Swipe right-to-left to delete (Dismissible).
@@ -24,8 +24,8 @@ class TransactionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currencyFormat = NumberFormat.currency(locale: 'it_IT', symbol: '\u20ac');
-    final dateFormat = DateFormat('dd/MM/yyyy');
+    final currency = currencyFormat(context);
+    final dateFormat = shortDateFormat(context);
 
     return Dismissible(
       key: Key(transaction.id),
@@ -55,7 +55,7 @@ class TransactionTile extends StatelessWidget {
         subtitle: Text(dateFormat.format(transaction.date)),
         // Amount formatted with sign and color
         trailing: Text(
-          '${transaction.isIncome ? '+' : '-'}${currencyFormat.format(transaction.amount)}',
+          '${transaction.isIncome ? '+' : '-'}${currency.format(transaction.amount)}',
           style: TextStyle(
             color: transaction.isIncome ? Colors.green : Colors.red,
             fontWeight: FontWeight.bold,

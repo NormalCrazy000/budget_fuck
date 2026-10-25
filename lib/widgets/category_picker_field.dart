@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../utils/search.dart';
+import '../l10n/app_localizations.dart';
 
 /// Searchable category picker, to be used inside a [Form].
 ///
@@ -52,19 +53,20 @@ class _CategoryPickerFieldState extends State<CategoryPickerField> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return FormField<String>(
       key: _fieldKey,
       validator: (value) {
         if (value == null || value.isEmpty) {
-          return 'Seleziona una categoria';
+          return l10n.selectCategory;
         }
         return null;
       },
       builder: (field) {
         return DropdownMenu<String>(
           controller: _controller,
-          label: const Text('Categoria'),
-          hintText: 'Cerca categoria',
+          label: Text(l10n.category),
+          hintText: l10n.searchCategory,
           leadingIcon: const Icon(Icons.search),
           errorText: field.errorText,
           // Take the full available width, like the other form fields

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../models/transaction.dart';
 import '../models/transaction_template.dart';
 import '../providers/template_provider.dart';
 import '../providers/transaction_provider.dart';
+import '../utils/formatters.dart';
 
 /// Screen to apply predefined templates to a specific month.
 ///
@@ -95,21 +96,22 @@ class _ApplyTemplatesScreenState extends State<ApplyTemplatesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final templates = context.watch<TemplateProvider>().templates;
-    final monthFormat = DateFormat('MMMM yyyy', 'it');
+    final monthFormat = monthYearFormat(context);
     final monthDate = DateTime(_selectedYear, _selectedMonth);
-    final currencyFormat = NumberFormat.currency(locale: 'it_IT', symbol: '\u20ac');
+    final currency = currencyFormat(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Applica Template'),
+        title: Text(l10n.applyTemplates),
         centerTitle: true,
       ),
       body: templates.isEmpty
-          ? const Center(
+          ? Center(
               child: Text(
-                'Nessun template disponibile',
-                style: TextStyle(color: Colors.grey, fontSize: 16),
+                l10n.noTemplatesAvailable,
+                style: const TextStyle(color: Colors.grey, fontSize: 16),
               ),
             )
           : Column(
@@ -164,12 +166,12 @@ class _ApplyTemplatesScreenState extends State<ApplyTemplatesScreen> {
                     children: [
                       TextButton(
                         onPressed: () => _selectAll(templates),
-                        child: const Text('Seleziona Tutti'),
+                        child: Text(l10n.selectAll),
                       ),
                       const SizedBox(width: 8),
                       TextButton(
                         onPressed: _deselectAll,
-                        child: const Text('Deseleziona Tutti'),
+                        child: Text(l10n.deselectAll),
                       ),
                     ],
                   ),
@@ -205,7 +207,7 @@ class _ApplyTemplatesScreenState extends State<ApplyTemplatesScreen> {
                         ),
                         title: Text(template.category),
                         subtitle: Text(
-                          '${template.isIncome ? '+' : '-'}${currencyFormat.format(template.amount)}',
+                          '${template.isIncome ? '+' : '-'}${currency.format(template.amount)}',
                           style: TextStyle(
                             color: template.isIncome ? Colors.green : Colors.red,
                             fontWeight: FontWeight.bold,
@@ -228,7 +230,7 @@ class _ApplyTemplatesScreenState extends State<ApplyTemplatesScreen> {
                         foregroundColor: Colors.white,
                       ),
                       child: Text(
-                        'Applica (${_selectedIds.length})',
+                        l10n.applyCount(_selectedIds.length),
                         style: const TextStyle(fontSize: 18),
                       ),
                     ),

@@ -6,6 +6,8 @@ import 'package:budget_fuck/models/transaction.dart';
 import 'package:budget_fuck/providers/transaction_provider.dart';
 import 'package:budget_fuck/screens/home_screen.dart';
 
+import '../helpers/localized_app.dart';
+
 /// Fake TransactionProvider that does not depend on Hive.
 class FakeTransactionProvider extends ChangeNotifier
     implements TransactionProvider {
@@ -117,7 +119,7 @@ void main() {
   late FakeTransactionProvider provider;
 
   setUpAll(() async {
-    await initializeDateFormatting('it', null);
+    await initializeDateFormatting();
   });
 
   setUp(() async {
@@ -129,8 +131,9 @@ void main() {
     ]);
   });
 
-  Widget buildWidget() {
-    return MaterialApp(
+  Widget buildWidget({Locale locale = const Locale('en')}) {
+    return localizedApp(
+      locale: locale,
       home: ChangeNotifierProvider<TransactionProvider>.value(
         value: provider,
         child: const HomeScreen(),
@@ -138,7 +141,7 @@ void main() {
     );
   }
 
-  final searchField = find.widgetWithText(TextField, 'Cerca per categoria');
+  final searchField = find.widgetWithText(TextField, 'Search by category');
 
   testWidgets('search filters transactions by category',
       (tester) async {
@@ -162,12 +165,12 @@ void main() {
     await tester.pumpAndSettle();
 
     // Income 2000, expenses 800 + 150 = 950, balance 1050
-    expect(find.textContaining('2.000,00'), findsOneWidget);
-    expect(find.textContaining('950,00'), findsOneWidget);
-    expect(find.textContaining('1.050,00'), findsOneWidget);
+    expect(find.textContaining('2,000.00'), findsOneWidget);
+    expect(find.textContaining('950.00'), findsOneWidget);
+    expect(find.textContaining('1,050.00'), findsOneWidget);
   });
 
-  testWidgets('shows "Nessun risultato" when the search finds nothing',
+  testWidgets('shows "No results" when the search finds nothing',
       (tester) async {
     await tester.pumpWidget(buildWidget());
     await tester.pumpAndSettle();
@@ -175,7 +178,31 @@ void main() {
     await tester.enterText(searchField, 'xyz');
     await tester.pumpAndSettle();
 
-    expect(find.text('Nessun risultato'), findsOneWidget);
-    expect(find.text('Nessuna transazione questo mese'), findsNothing);
+    expect(find.text('No results'), findsOneWidget);
+    expect(find.text('No transactions this month'), findsNothing);
+  });
+
+  testWidgets('in Italian shows Italian labels and amounts', (tester) async {
+    await tester.pumpWidget(buildWidget(locale: const Locale('it')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Entrate'), findsOneWidget);
+    expect(find.text('Uscite'), findsOneWidget);
+    expect(find.text('Bilancio'), findsOneWidget);
+    expect(find.text('GIUGNO 2026'), findsOneWidget);
+    expect(find.widgetWithText(TextField, 'Cerca per categoria'), findsOneWidget);
+    // Italian format: dot for thousands, comma for decimals, € after
+    expect(find.textContaining('2.000,00'), findsWidgets);
+  });
+
+  testWidgets('in English shows English labels and amounts', (tester) async {
+    await tester.pumpWidget(buildWidget());
+    await tester.pumpAndSettle();
+
+    expect(find.text('Income'), findsOneWidget);
+    expect(find.text('Expenses'), findsOneWidget);
+    expect(find.text('Balance'), findsOneWidget);
+    expect(find.text('JUNE 2026'), findsOneWidget);
+    expect(find.textContaining('€2,000.00'), findsWidgets);
   });
 }

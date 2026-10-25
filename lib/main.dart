@@ -1,12 +1,15 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
+import 'l10n/app_localizations.dart';
 import 'models/category.dart';
 import 'models/transaction.dart';
 import 'models/transaction_template.dart';
 import 'providers/category_provider.dart';
+import 'providers/settings_provider.dart';
 import 'providers/template_provider.dart';
 import 'providers/transaction_provider.dart';
 import 'screens/home_screen.dart';
@@ -16,8 +19,8 @@ import 'services/storage_location.dart';
 void main() => runBudgetApp();
 
 /// Initializes Hive (local database), registers the TypeAdapters for the
-/// Transaction, TransactionTemplate and Category models, loads the Italian
-/// locale data and starts the app.
+/// Transaction, TransactionTemplate and Category models, loads the date
+/// formatting data and starts the app.
 ///
 /// [storagePath] overrides the default data directory (see
 /// [appStorageDirectory]): integration tests use it to work on a temporary
@@ -47,17 +50,18 @@ Future<void> runBudgetApp({String? storagePath}) async {
   await Hive.openBox<Transaction>('transactions');
   await Hive.openBox<TransactionTemplate>('templates');
   await Hive.openBox<Category>('categories');
+  await Hive.openBox<String>(SettingsProvider.boxName);
 
-  // Load the Italian formatting data (dates, month names)
-  await initializeDateFormatting('it');
+  // Load the date formatting data (month names) for every locale
+  await initializeDateFormatting();
 
   runApp(const BudgetApp());
 }
 
 /// Root widget of the app.
 /// Sets up the [MultiProvider] for global state management
-/// (TransactionProvider + TemplateProvider + CategoryProvider) and the
-/// Material 3 theme with a teal primary color.
+/// (transactions, templates, categories and settings), the localizations
+/// and the Material 3 theme with a teal primary color.
 class BudgetApp extends StatelessWidget {
   const BudgetApp({super.key});
 
@@ -68,15 +72,29 @@ class BudgetApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => TransactionProvider()),
         ChangeNotifierProvider(create: (_) => TemplateProvider()),
         ChangeNotifierProvider(create: (_) => CategoryProvider()),
+        ChangeNotifierProvider(create: (_) => SettingsProvider()),
       ],
-      child: MaterialApp(
-        title: 'Budget Tracker',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorSchemeSeed: Colors.teal,
-          useMaterial3: true,
+      // Consumer: rebuilds the app when the user changes the language
+      child: Consumer<SettingsProvider>(
+        builder: (context, settings, _) => MaterialApp(
+          onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            colorSchemeSeed: Colors.teal,
+            useMaterial3: true,
+          ),
+          // null = device language, resolved by localeListResolutionCallback
+          locale: settings.locale,
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          localeListResolutionCallback: SettingsProvider.resolveLocale,
+          home: const HomeScreen(),
         ),
-        home: const HomeScreen(),
       ),
     );
   }

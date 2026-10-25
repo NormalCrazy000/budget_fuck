@@ -5,6 +5,8 @@ import 'package:budget_fuck/models/transaction_template.dart';
 import 'package:budget_fuck/providers/template_provider.dart';
 import 'package:budget_fuck/screens/templates_screen.dart';
 
+import '../helpers/localized_app.dart';
+
 /// Fake TemplateProvider that does not depend on Hive.
 class FakeTemplateProvider extends ChangeNotifier implements TemplateProvider {
   final List<TransactionTemplate> _templates = [];
@@ -65,7 +67,7 @@ void main() {
   });
 
   Widget buildWidget() {
-    return MaterialApp(
+    return localizedApp(
       home: ChangeNotifierProvider<TemplateProvider>.value(
         value: provider,
         child: const TemplatesScreen(),
@@ -73,14 +75,14 @@ void main() {
     );
   }
 
-  final searchField = find.widgetWithText(TextField, 'Cerca per categoria');
+  final searchField = find.widgetWithText(TextField, 'Search by category');
 
-  testWidgets('empty list shows "Nessun template" and the search bar',
+  testWidgets('empty list shows "No templates" and the search bar',
       (tester) async {
     await tester.pumpWidget(buildWidget());
     await tester.pumpAndSettle();
 
-    expect(find.text('Nessun template'), findsOneWidget);
+    expect(find.text('No templates'), findsOneWidget);
     expect(searchField, findsOneWidget);
   });
 
@@ -101,7 +103,7 @@ void main() {
     expect(find.text('Affitto'), findsNothing);
   });
 
-  testWidgets('shows "Nessun risultato" when the search finds nothing',
+  testWidgets('shows "No results" when the search finds nothing',
       (tester) async {
     await provider.addTemplate(_tmpl('1', 'Affitto'));
     await tester.pumpWidget(buildWidget());
@@ -110,7 +112,7 @@ void main() {
     await tester.enterText(searchField, 'xyz');
     await tester.pumpAndSettle();
 
-    expect(find.text('Nessun risultato'), findsOneWidget);
-    expect(find.text('Nessun template'), findsNothing);
+    expect(find.text('No results'), findsOneWidget);
+    expect(find.text('No templates'), findsNothing);
   });
 }

@@ -40,15 +40,15 @@ void main() {
 
       // Swipe to delete - cancel
       await swipeToDelete(tester, 'Stipendio');
-      expect(find.text('Conferma eliminazione'), findsOneWidget);
+      expect(find.text('Confirm deletion'), findsOneWidget);
 
-      await tester.tap(find.text('Annulla'));
+      await tester.tap(find.text('Cancel'));
       await tester.pumpAndSettle();
       expect(find.text('Stipendio'), findsOneWidget);
 
       // Swipe again - confirm
       await swipeToDelete(tester, 'Stipendio');
-      await tester.tap(find.text('Elimina'));
+      await tester.tap(find.text('Delete'));
       await tester.pumpAndSettle();
 
       expect(find.text('Stipendio'), findsNothing);
@@ -78,15 +78,15 @@ void main() {
 
       // Swipe to delete - cancel
       await swipeToDelete(tester, 'Stipendio');
-      expect(find.text('Conferma eliminazione'), findsOneWidget);
+      expect(find.text('Confirm deletion'), findsOneWidget);
 
-      await tester.tap(find.text('Annulla'));
+      await tester.tap(find.text('Cancel'));
       await tester.pumpAndSettle();
       expect(find.text('Stipendio'), findsOneWidget);
 
       // Swipe and confirm
       await swipeToDelete(tester, 'Stipendio');
-      await tester.tap(find.text('Elimina'));
+      await tester.tap(find.text('Delete'));
       await tester.pumpAndSettle();
       // Wait for the dismiss animation
       await tester.pumpAndSettle(const Duration(seconds: 1));
@@ -113,9 +113,9 @@ void main() {
 
       // Swipe to delete - cancel
       await swipeToDelete(tester, 'Alimentari');
-      expect(find.text('Conferma eliminazione'), findsOneWidget);
+      expect(find.text('Confirm deletion'), findsOneWidget);
 
-      await tester.tap(find.text('Annulla'));
+      await tester.tap(find.text('Cancel'));
       await tester.pumpAndSettle();
       // Wait for the Dismissible to slide back
       await tester.pumpAndSettle(const Duration(seconds: 1));
@@ -123,7 +123,7 @@ void main() {
 
       // Swipe and confirm
       await swipeToDelete(tester, 'Alimentari');
-      await tester.tap(find.text('Elimina'));
+      await tester.tap(find.text('Delete'));
       await tester.pumpAndSettle();
       await tester.pumpAndSettle(const Duration(seconds: 1));
 

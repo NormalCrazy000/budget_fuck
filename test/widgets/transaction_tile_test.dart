@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:budget_fuck/models/transaction.dart';
 import 'package:budget_fuck/widgets/transaction_tile.dart';
 
+import '../helpers/localized_app.dart';
+
 void main() {
   late Transaction transaction;
   late bool deleted;
@@ -19,7 +21,7 @@ void main() {
   });
 
   Widget buildWidget() {
-    return MaterialApp(
+    return localizedApp(
       home: Scaffold(
         body: ListView(
           children: [
@@ -40,9 +42,9 @@ void main() {
     await tester.drag(find.text('Alimentari'), const Offset(-500, 0));
     await tester.pumpAndSettle();
 
-    expect(find.text('Conferma eliminazione'), findsOneWidget);
+    expect(find.text('Confirm deletion'), findsOneWidget);
     expect(
-      find.text('Sei sicuro di voler eliminare Alimentari?'),
+      find.text('Are you sure you want to delete Alimentari?'),
       findsOneWidget,
     );
   });
@@ -53,7 +55,7 @@ void main() {
     await tester.drag(find.text('Alimentari'), const Offset(-500, 0));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Annulla'));
+    await tester.tap(find.text('Cancel'));
     await tester.pumpAndSettle();
 
     expect(deleted, false);
@@ -67,7 +69,7 @@ void main() {
     await tester.drag(find.text('Alimentari'), const Offset(-500, 0));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Elimina'));
+    await tester.tap(find.text('Delete'));
     await tester.pumpAndSettle();
 
     expect(deleted, true);

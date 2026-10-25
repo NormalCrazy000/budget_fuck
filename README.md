@@ -7,7 +7,7 @@ A simple, offline-first Flutter app to track monthly income and expenses.
 
 All data is stored locally on the device — no account, no cloud, no tracking.
 
-> **Note:** the app UI is currently available in **Italian** only.
+> The app is available in **English** and **Italian**. It follows the device language (English if the device language is not supported) and the language can be changed in Settings.
 
 ## Features
 
@@ -18,6 +18,7 @@ All data is stored locally on the device — no account, no cloud, no tracking.
 - **Templates** — define recurring transactions (salary, rent, bills, …) and apply them to any month, all at once or selectively
 - **Backup & restore** — export all data to a JSON file (save it anywhere on the device, or share it via other apps) and import it back, either replacing or merging with existing data
 - **Safe deletes** — swipe to delete with a confirmation dialog
+- **Languages** — English and Italian, with amounts and dates in the local format
 - **Material 3** design
 
 <!--
@@ -131,7 +132,7 @@ flutter test integration_test/ -d linux
 | Framework | [Flutter](https://flutter.dev) (Material 3) |
 | State management | [provider](https://pub.dev/packages/provider) |
 | Local storage | [Hive](https://pub.dev/packages/hive) |
-| Formatting / i18n | [intl](https://pub.dev/packages/intl) |
+| Formatting / i18n | [intl](https://pub.dev/packages/intl), `flutter_localizations` (ARB files in `lib/l10n`) |
 | Backup | [path_provider](https://pub.dev/packages/path_provider), [share_plus](https://pub.dev/packages/share_plus), [file_picker](https://pub.dev/packages/file_picker) |
 
 ### Project structure
