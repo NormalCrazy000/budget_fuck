@@ -9,11 +9,13 @@ import 'package:budget_fuck/models/transaction.dart';
 import 'package:budget_fuck/models/transaction_template.dart';
 import 'package:budget_fuck/main.dart' as app;
 
+import 'test_storage.dart';
+
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() async {
-    await Hive.initFlutter();
+    Hive.init(testStoragePath);
     if (!Hive.isAdapterRegistered(0)) {
       Hive.registerAdapter(TransactionAdapter());
     }
@@ -51,7 +53,7 @@ void main() {
 
   testWidgets('Verificare che i totali si aggiornino correttamente',
       (tester) async {
-    app.main();
+    app.runBudgetApp(storagePath: testStoragePath);
     await tester.pumpAndSettle();
 
     // --- Stato iniziale: tutti i totali a 0 ---

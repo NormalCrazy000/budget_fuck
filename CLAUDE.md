@@ -21,7 +21,7 @@ Cross-platform Flutter app for tracking monthly income and expenses.
 - **Template application**: apply templates in bulk or selectively to any month
 - **Backup & Restore**: export all data to JSON and re-import it (replace or merge mode)
 - **Search**: search bar on categories, templates and the month's transactions (case- and accent-insensitive); similar existing categories suggested while creating one; searchable category picker when adding transactions/templates
-- Local data persistence (data survives app restarts)
+- Local data persistence (data survives app restarts). Hive directory: app documents dir on Android/iOS, app support dir on desktop (Linux: `~/.local/share/<application id>`), see `lib/services/storage_location.dart`
 - Material 3 UI with Italian localization
 
 ## Structure
@@ -44,7 +44,8 @@ lib/
 │   ├── add_template_screen.dart
 │   └── apply_templates_screen.dart
 ├── services/
-│   └── backup_service.dart        # JSON serialization/deserialization
+│   ├── backup_service.dart        # JSON serialization/deserialization
+│   └── storage_location.dart      # Hive data directory per platform
 ├── utils/
 │   └── search.dart                # matchesSearch(): case/accent-insensitive matching
 └── widgets/                   # Reusable components (SearchField, CategoryPickerField, ...)
@@ -192,6 +193,10 @@ chore(release): release tasks
 - Minimal wrapper: `MaterialApp > ChangeNotifierProvider.value > Widget`
 - Screens using `DateFormat` with the `it` locale require `initializeDateFormatting('it', null)` in `setUpAll`
 - The currency format `NumberFormat.currency(locale: 'it_IT', symbol: '€')` produces `"50,00 €"` (symbol after, non-breaking space) — use `find.textContaining(...)` to avoid depending on the separator
+
+### Integration tests
+- Run against the real app via `app.runBudgetApp(storagePath: testStoragePath)` and prepare data with `Hive.init(testStoragePath)` (`integration_test/test_storage.dart`, a temp directory)
+- **Never** use `Hive.initFlutter()` or `app.main()` in integration tests: they clear the boxes, and without the temp directory they would wipe the real app data on desktop
 
 ### Pure tests (BackupService)
 - No Hive or Flutter dependency: only static Dart functions are tested

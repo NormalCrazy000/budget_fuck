@@ -9,11 +9,13 @@ import 'package:budget_fuck/models/transaction.dart';
 import 'package:budget_fuck/models/transaction_template.dart';
 import 'package:budget_fuck/main.dart' as app;
 
+import 'test_storage.dart';
+
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() async {
-    await Hive.initFlutter();
+    Hive.init(testStoragePath);
     if (!Hive.isAdapterRegistered(0)) {
       Hive.registerAdapter(TransactionAdapter());
     }
@@ -29,7 +31,7 @@ void main() {
   testWidgets('Chiudere e riaprire app - verificare che i dati persistono',
       (tester) async {
     // === SESSIONE 1: Aggiungere transazioni ===
-    app.main();
+    app.runBudgetApp(storagePath: testStoragePath);
     await tester.pumpAndSettle();
 
     expect(find.text('Nessuna transazione questo mese'), findsOneWidget);
@@ -73,7 +75,7 @@ void main() {
     await Hive.openBox<Transaction>('transactions');
 
     // Riavviare l'app completamente
-    app.main();
+    app.runBudgetApp(storagePath: testStoragePath);
     await tester.pumpAndSettle();
     print('SESSIONE 2: App riavviata');
 

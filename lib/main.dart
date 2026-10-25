@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -9,16 +10,27 @@ import 'providers/category_provider.dart';
 import 'providers/template_provider.dart';
 import 'providers/transaction_provider.dart';
 import 'screens/home_screen.dart';
+import 'services/storage_location.dart';
 
 /// Entry point dell'applicazione.
+void main() => runBudgetApp();
+
 /// Inizializza Hive (database locale), registra i TypeAdapter per i modelli
 /// Transaction, TransactionTemplate e Category, carica la localizzazione
 /// italiana e avvia l'app.
-void main() async {
+///
+/// [storagePath] permette di usare una cartella diversa da quella predefinita
+/// (vedi [appStorageDirectory]): i test di integrazione la usano per lavorare
+/// su una cartella temporanea senza toccare i dati reali.
+Future<void> runBudgetApp({String? storagePath}) async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Inizializza Hive per Flutter (imposta il path di storage)
-  await Hive.initFlutter();
+  // Inizializza Hive nella cartella dei dati (sul web non serve un path)
+  if (kIsWeb) {
+    await Hive.initFlutter();
+  } else {
+    Hive.init(storagePath ?? await appStorageDirectory());
+  }
 
   // Registra gli adapter solo se non sono già registrati (utile nei test)
   if (!Hive.isAdapterRegistered(0)) {

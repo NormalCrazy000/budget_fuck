@@ -9,11 +9,13 @@ import 'package:budget_fuck/models/transaction.dart';
 import 'package:budget_fuck/models/transaction_template.dart';
 import 'package:budget_fuck/main.dart' as app;
 
+import 'test_storage.dart';
+
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() async {
-    await Hive.initFlutter();
+    Hive.init(testStoragePath);
     if (!Hive.isAdapterRegistered(0)) {
       Hive.registerAdapter(TransactionAdapter());
     }
@@ -80,7 +82,7 @@ void main() {
   });
 
   testWidgets('Cambiare mese e verificare filtro transazioni', (tester) async {
-    app.main();
+    app.runBudgetApp(storagePath: testStoragePath);
     await tester.pumpAndSettle();
 
     // === MESE CORRENTE (Febbraio 2026) ===

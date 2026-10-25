@@ -10,11 +10,13 @@ import 'package:budget_fuck/models/transaction.dart';
 import 'package:budget_fuck/models/transaction_template.dart';
 import 'package:budget_fuck/main.dart' as app;
 
+import 'test_storage.dart';
+
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() async {
-    await Hive.initFlutter();
+    Hive.init(testStoragePath);
     if (!Hive.isAdapterRegistered(0)) {
       Hive.registerAdapter(TransactionAdapter());
     }
@@ -51,7 +53,7 @@ void main() {
         ),
       );
 
-      app.main();
+      app.runBudgetApp(storagePath: testStoragePath);
       await tester.pumpAndSettle();
 
       expect(find.text('Stipendio'), findsOneWidget);
@@ -88,7 +90,7 @@ void main() {
         ),
       );
 
-      app.main();
+      app.runBudgetApp(storagePath: testStoragePath);
       await tester.pumpAndSettle();
 
       // Navigare alla schermata Template
@@ -126,7 +128,7 @@ void main() {
         Category(id: 'c1', name: 'Alimentari'),
       );
 
-      app.main();
+      app.runBudgetApp(storagePath: testStoragePath);
       await tester.pumpAndSettle();
 
       // Navigare alla schermata Categorie

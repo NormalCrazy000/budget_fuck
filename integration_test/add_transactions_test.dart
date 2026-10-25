@@ -9,12 +9,14 @@ import 'package:budget_fuck/models/transaction.dart';
 import 'package:budget_fuck/models/transaction_template.dart';
 import 'package:budget_fuck/main.dart' as app;
 
+import 'test_storage.dart';
+
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() async {
     // Pulire il database prima di ogni test
-    await Hive.initFlutter();
+    Hive.init(testStoragePath);
     if (!Hive.isAdapterRegistered(0)) {
       Hive.registerAdapter(TransactionAdapter());
     }
@@ -29,7 +31,7 @@ void main() {
 
   testWidgets('Aggiungere entrata e uscita e verificare che appaiano nella lista',
       (tester) async {
-    app.main();
+    app.runBudgetApp(storagePath: testStoragePath);
     await tester.pumpAndSettle();
 
     // Verifica stato iniziale: nessuna transazione
