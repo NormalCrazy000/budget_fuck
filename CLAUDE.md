@@ -19,7 +19,7 @@ Cross-platform Flutter app for tracking monthly income and expenses.
 - Delete transactions, templates and categories via swipe + confirmation dialog
 - **Predefined templates**: create recurring transaction templates (salary, rent, bills, etc.)
 - **Template application**: apply templates in bulk or selectively to any month
-- **Backup & Restore**: export all data to JSON and re-import it (replace or merge mode)
+- **Backup & Restore**: export all data to JSON and re-import it (replace or merge mode). Export via "Salva su file" (system "Save as" dialog: on Android any folder, e.g. Download or Drive) or "Condividi" (share sheet, Android/iOS only)
 - **Search**: search bar on categories, templates and the month's transactions (case- and accent-insensitive); similar existing categories suggested while creating one; searchable category picker when adding transactions/templates
 - Local data persistence (data survives app restarts). Hive directory: app documents dir on Android/iOS, app support dir on desktop (Linux: `~/.local/share/<application id>`), see `lib/services/storage_location.dart`
 - Material 3 UI with Italian localization
@@ -171,7 +171,7 @@ chore(release): release tasks
 | `cupertino_icons` | ^1.0.8 | iOS-style icons |
 | `path_provider` | ^2.1.4 | Documents directory for the backup file |
 | `share_plus` | ^13.3.1 | File sharing on Android/iOS |
-| `file_picker` | ^13.2.0 | JSON file selection during import |
+| `file_picker` | ^13.2.0 | JSON file selection on import, "Save as" dialog on export |
 
 ### Dev dependencies
 

@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart' show defaultTargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
@@ -12,8 +14,22 @@ import '../providers/template_provider.dart';
 import '../providers/transaction_provider.dart';
 import '../services/backup_service.dart';
 
+/// Funzione che apre la finestra di sistema "Salva come" e scrive [bytes]
+/// nel file scelto. Restituisce l'[Uri] del file, o null se l'utente annulla.
+///
+/// Corrisponde a [FilePicker.saveFile]; i test ne passano una finta.
+typedef SaveFileDialog = Future<Uri?> Function({
+  required String fileName,
+  required Uint8List bytes,
+  String mimeType,
+  String? dialogTitle,
+});
+
 class BackupScreen extends StatefulWidget {
-  const BackupScreen({super.key});
+  /// Finestra "Salva come" usata dal pulsante "Salva su file".
+  final SaveFileDialog saveFileDialog;
+
+  const BackupScreen({super.key, this.saveFileDialog = FilePicker.saveFile});
 
   @override
   State<BackupScreen> createState() => _BackupScreenState();
@@ -22,35 +38,68 @@ class BackupScreen extends StatefulWidget {
 class _BackupScreenState extends State<BackupScreen> {
   bool _isLoading = false;
 
-  Future<void> _export() async {
+  /// La condivisione di file (WhatsApp, Gmail, ...) è disponibile solo su
+  /// telefono; su desktop resta solo "Salva su file".
+  bool get _canShare =>
+      defaultTargetPlatform == TargetPlatform.android ||
+      defaultTargetPlatform == TargetPlatform.iOS;
+
+  /// Nome del file di backup con la data di oggi (es. budget_backup_20261025.json).
+  String _backupFileName() {
+    final now = DateTime.now();
+    return 'budget_backup_${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}.json';
+  }
+
+  /// Serializza in JSON tutti i dati dei tre provider.
+  String _backupJson() {
+    return BackupService.exportToJson(
+      transactions: context.read<TransactionProvider>().allTransactions,
+      categories: context.read<CategoryProvider>().categories,
+      templates: context.read<TemplateProvider>().templates,
+    );
+  }
+
+  /// Apre la finestra di sistema "Salva come" per scegliere dove salvare
+  /// il backup (su Android: Download, altre cartelle, Google Drive, ...).
+  Future<void> _saveToFile() async {
     setState(() => _isLoading = true);
     try {
-      final txProvider = context.read<TransactionProvider>();
-      final catProvider = context.read<CategoryProvider>();
-      final tmplProvider = context.read<TemplateProvider>();
-
-      final json = BackupService.exportToJson(
-        transactions: txProvider.allTransactions,
-        categories: catProvider.categories,
-        templates: tmplProvider.templates,
+      final uri = await widget.saveFileDialog(
+        fileName: _backupFileName(),
+        bytes: utf8.encode(_backupJson()),
+        mimeType: 'application/json',
+        dialogTitle: 'Salva backup',
       );
+      // null: l'utente ha chiuso la finestra senza salvare
+      if (uri != null && mounted) {
+        _showSnackBar(
+          uri.scheme == 'file'
+              ? 'Backup salvato in: ${uri.toFilePath()}'
+              : 'Backup salvato',
+        );
+      }
+    } catch (e) {
+      if (mounted) _showSnackBar('Errore esportazione: $e', isError: true);
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
+  /// Scrive il backup in un file dell'app e apre il menu di condivisione
+  /// del telefono (WhatsApp, Telegram, Gmail, ...).
+  Future<void> _share() async {
+    setState(() => _isLoading = true);
+    try {
+      final json = _backupJson();
+      final fileName = _backupFileName();
       final dir = await getApplicationDocumentsDirectory();
-      final now = DateTime.now();
-      final fileName =
-          'budget_backup_${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}.json';
       final file = File('${dir.path}/$fileName');
       await file.writeAsString(json);
 
       if (!mounted) return;
-
-      if (Platform.isAndroid || Platform.isIOS) {
-        await SharePlus.instance.share(
-          ShareParams(files: [XFile(file.path)], subject: fileName),
-        );
-      } else {
-        _showSnackBar('File salvato in: ${file.path}');
-      }
+      await SharePlus.instance.share(
+        ShareParams(files: [XFile(file.path)], subject: fileName),
+      );
     } catch (e) {
       if (mounted) _showSnackBar('Errore esportazione: $e', isError: true);
     } finally {
@@ -163,10 +212,18 @@ class _BackupScreenState extends State<BackupScreen> {
                   ),
                   const SizedBox(height: 32),
                   FilledButton.icon(
-                    onPressed: _export,
-                    icon: const Icon(Icons.upload),
-                    label: const Text('Esporta dati'),
+                    onPressed: _saveToFile,
+                    icon: const Icon(Icons.save_alt),
+                    label: const Text('Salva su file'),
                   ),
+                  if (_canShare) ...[
+                    const SizedBox(height: 16),
+                    FilledButton.tonalIcon(
+                      onPressed: _share,
+                      icon: const Icon(Icons.share),
+                      label: const Text('Condividi'),
+                    ),
+                  ],
                   const SizedBox(height: 16),
                   OutlinedButton.icon(
                     onPressed: _import,

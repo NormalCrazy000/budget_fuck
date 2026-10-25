@@ -16,7 +16,7 @@ All data is stored locally on the device — no account, no cloud, no tracking.
 - **Statistics** — per-category breakdown with amounts, percentages and progress bars
 - **Categories** — create and manage your own income/expense categories
 - **Templates** — define recurring transactions (salary, rent, bills, …) and apply them to any month, all at once or selectively
-- **Backup & restore** — export all data to a JSON file and import it back, either replacing or merging with existing data
+- **Backup & restore** — export all data to a JSON file (save it anywhere on the device, or share it via other apps) and import it back, either replacing or merging with existing data
 - **Safe deletes** — swipe to delete with a confirmation dialog
 - **Material 3** design
 

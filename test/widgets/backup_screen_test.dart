@@ -4,7 +4,13 @@ import 'package:budget_fuck/models/transaction_template.dart';
 import 'package:budget_fuck/providers/category_provider.dart';
 import 'package:budget_fuck/providers/template_provider.dart';
 import 'package:budget_fuck/providers/transaction_provider.dart';
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:budget_fuck/screens/backup_screen.dart';
+import 'package:budget_fuck/services/backup_service.dart';
+import 'package:flutter/foundation.dart'
+    show TargetPlatform, debugDefaultTargetPlatformOverride;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -134,7 +140,33 @@ class _FakeTemplateProvider extends ChangeNotifier implements TemplateProvider {
   }
 }
 
-Widget _buildWidget() {
+/// Finestra "Salva come" finta: registra cosa riceve e restituisce [result]
+/// (null simula l'utente che chiude la finestra senza salvare).
+class _FakeSaveDialog {
+  _FakeSaveDialog({this.result});
+
+  final Uri? result;
+  String? fileName;
+  Uint8List? bytes;
+  String? mimeType;
+  int calls = 0;
+
+  Future<Uri?> call({
+    required String fileName,
+    required Uint8List bytes,
+    String mimeType = 'application/octet-stream',
+    String? dialogTitle,
+  }) async {
+    calls++;
+    this.fileName = fileName;
+    this.bytes = bytes;
+    this.mimeType = mimeType;
+    return result;
+  }
+}
+
+Widget _buildWidget({_FakeSaveDialog? saveDialog}) {
+  final dialog = saveDialog ?? _FakeSaveDialog();
   return MultiProvider(
     providers: [
       ChangeNotifierProvider<TransactionProvider>.value(
@@ -147,7 +179,7 @@ Widget _buildWidget() {
         value: _FakeTemplateProvider(),
       ),
     ],
-    child: const MaterialApp(home: BackupScreen()),
+    child: MaterialApp(home: BackupScreen(saveFileDialog: dialog.call)),
   );
 }
 
@@ -157,9 +189,56 @@ void main() {
     expect(find.text('Backup & Ripristino'), findsOneWidget);
   });
 
-  testWidgets('mostra il pulsante Esporta dati', (tester) async {
+  testWidgets('mostra il pulsante Salva su file', (tester) async {
     await tester.pumpWidget(_buildWidget());
-    expect(find.text('Esporta dati'), findsOneWidget);
+    expect(find.text('Salva su file'), findsOneWidget);
+  });
+
+  testWidgets('su telefono mostra anche il pulsante Condividi',
+      (tester) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.android;
+    await tester.pumpWidget(_buildWidget());
+    expect(find.text('Condividi'), findsOneWidget);
+    debugDefaultTargetPlatformOverride = null;
+  });
+
+  testWidgets('su desktop nasconde il pulsante Condividi', (tester) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.linux;
+    await tester.pumpWidget(_buildWidget());
+    expect(find.text('Condividi'), findsNothing);
+    expect(find.text('Salva su file'), findsOneWidget);
+    debugDefaultTargetPlatformOverride = null;
+  });
+
+  testWidgets('Salva su file passa alla finestra un backup JSON valido',
+      (tester) async {
+    final dialog = _FakeSaveDialog(
+      result: Uri.file('/tmp/budget_backup.json'),
+    );
+    await tester.pumpWidget(_buildWidget(saveDialog: dialog));
+
+    await tester.tap(find.text('Salva su file'));
+    await tester.pumpAndSettle();
+
+    expect(dialog.calls, 1);
+    expect(dialog.fileName, matches(RegExp(r'^budget_backup_\d{8}\.json$')));
+    expect(dialog.mimeType, 'application/json');
+    // Il contenuto deve essere un backup reimportabile
+    final data = BackupService.parseJson(utf8.decode(dialog.bytes!));
+    expect(data.transactions, isEmpty);
+    expect(find.textContaining('Backup salvato'), findsOneWidget);
+  });
+
+  testWidgets('se si annulla la finestra non mostra messaggi',
+      (tester) async {
+    final dialog = _FakeSaveDialog(result: null);
+    await tester.pumpWidget(_buildWidget(saveDialog: dialog));
+
+    await tester.tap(find.text('Salva su file'));
+    await tester.pumpAndSettle();
+
+    expect(dialog.calls, 1);
+    expect(find.byType(SnackBar), findsNothing);
   });
 
   testWidgets('mostra il pulsante Importa backup', (tester) async {
