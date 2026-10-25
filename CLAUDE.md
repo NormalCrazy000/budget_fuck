@@ -217,7 +217,11 @@ test/
 
 ## CI/CD
 
-GitHub Actions (`.github/workflows/flutter_ci.yml`) triggers on push of a `v*` tag:
+GitHub Actions `.github/workflows/ci.yml` runs on every push and pull request to `develop` and `main`:
+`flutter pub get` → `build_runner` → `flutter analyze` (infos are fatal) → `flutter test`.
+Integration tests use `print` for step progress and opt out of `avoid_print` with `// ignore_for_file`.
+
+GitHub Actions `.github/workflows/flutter_ci.yml` triggers on push of a `v*` tag:
 1. Setup Java 17 + Flutter 3.47.8 (pinned for reproducible builds; when upgrading Flutter, align Gradle/AGP/Kotlin in `android/` with a fresh `flutter create` project)
 2. `flutter pub get`
 3. `dart run build_runner build --delete-conflicting-outputs`

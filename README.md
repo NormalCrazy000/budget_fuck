@@ -1,5 +1,8 @@
 # Budget Tracker
 
+[![CI](https://github.com/NormalCrazy000/budget_fuck/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/NormalCrazy000/budget_fuck/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 A simple, offline-first Flutter app to track monthly income and expenses.
 
 All data is stored locally on the device — no account, no cloud, no tracking.
