@@ -158,6 +158,11 @@ chore(release): release tasks
 - Trunk-based: `main` is the only long-lived branch (protected against deletion and force-push)
 - Work on short-lived branches (e.g. `feat/xyz`, `fix/xyz`) merged into `main` via PR, then delete them
 - Release: run `./scripts/release.sh <VERSION> [NOTES_FILE]` from `main` → the script bumps the version, commits, tags and pushes → GitHub Actions builds the APK and creates the GitHub Release
+- Open PRs before a release: before tagging, Claude checks the open pull requests (the repo is public, so `curl -s https://api.github.com/repos/NormalCrazy000/budget_fuck/pulls?state=open` works without `gh`). For each PR:
+  1. read what it changes (`git fetch origin pull/<N>/head:pr-<N>` + `git diff main...pr-<N>`; for Dependabot also the changelog in the PR body, looking for breaking changes)
+  2. check its CI status (`/commits/<sha>/check-runs`) and run `flutter analyze` + `flutter test` locally on it
+  3. explain to the user in plain terms what it does and the risk, and recommend merge / close / wait
+  4. only with the user's OK, merge it into `main` (fast-forward or rebase, then push) before running `release.sh`; included changes go in the release notes if they matter to app users
 - Release notes: before a release, Claude reads the commits since the last tag and writes user-facing notes in **English** (`## What's new`, `## Fixes`; only what changes for app users, no chore/ci/docs), shows them to the user for approval, saves them in the scratchpad and passes the file to `release.sh`
 
 ## Main dependencies
