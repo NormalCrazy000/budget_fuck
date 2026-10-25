@@ -41,7 +41,7 @@ The latest Android APK is available on the [Releases page](https://github.com/No
 
 ### Requirements
 
-- [Flutter](https://docs.flutter.dev/get-started/install) (stable channel, Dart 3.9.2+)
+- [Flutter](https://docs.flutter.dev/get-started/install) **3.35.x** (the version used by CI; newer releases require a Gradle upgrade)
 - **Android:** Android SDK and Java JDK 17
 - **Linux:** `clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev`
 

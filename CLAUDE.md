@@ -3,7 +3,7 @@
 ## Project overview
 
 Cross-platform Flutter app for tracking monthly income and expenses.
-- **Language:** Dart 3.9.2+
+- **Language:** Dart 3.9.2+ (Flutter 3.35.6, pinned in CI)
 - **Framework:** Flutter (Material Design 3)
 - **State Management:** Provider (ChangeNotifier)
 - **Database:** Hive (local NoSQL)
@@ -218,7 +218,7 @@ test/
 ## CI/CD
 
 GitHub Actions (`.github/workflows/flutter_ci.yml`) triggers on push of a `v*` tag:
-1. Setup Java 17 + Flutter stable
+1. Setup Java 17 + Flutter 3.35.6 (pinned: newer stable releases require Gradle ≥ 8.14, the project uses 8.12)
 2. `flutter pub get`
 3. `dart run build_runner build --delete-conflicting-outputs`
 4. `flutter test`
