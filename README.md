@@ -1,7 +1,7 @@
 # Budget Tracker
 
 [![CI](https://github.com/NormalCrazy000/budget_fuck/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/NormalCrazy000/budget_fuck/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE)
 
 A simple, offline-first Flutter app to track monthly income and expenses.
 
@@ -153,4 +153,6 @@ Budget Tracker does not collect, transmit or share any data. Everything is store
 
 ## License
 
-Released under the [MIT License](LICENSE).
+Copyright (C) 2026 Gabriele Giannotto
+
+Released under the [GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0-only). Versions up to and including v2.8.0 were released under the MIT License.

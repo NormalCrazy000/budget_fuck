@@ -9,6 +9,7 @@ Cross-platform Flutter app for tracking monthly income and expenses.
 - **Database:** Hive (local NoSQL)
 - **Application ID:** `io.github.normalcrazy000.budgettracker` (Dart package: `budget_fuck`)
 - **Current version:** see `pubspec.yaml`
+- **License:** AGPL-3.0-only (see `LICENSE`; up to v2.8.0 it was MIT)
 
 ## Features
 
